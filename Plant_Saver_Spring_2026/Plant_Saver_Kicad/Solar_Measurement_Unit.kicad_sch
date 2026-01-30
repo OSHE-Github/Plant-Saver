@@ -973,7 +973,7 @@
 				)
 			)
 		)
-		(property "Footprint" "P8"
+		(property "Footprint" ""
 			(at 109.22 85.09 0)
 			(effects
 				(font

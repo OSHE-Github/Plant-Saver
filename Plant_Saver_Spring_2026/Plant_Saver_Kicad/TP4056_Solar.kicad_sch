@@ -1078,7 +1078,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "CAP_C410C_AX_X7R_AXIMAX_KEM"
+		(property "Footprint" ""
 			(at 204.1652 104.14 0)
 			(effects
 				(font
@@ -1304,7 +1304,7 @@
 				)
 			)
 		)
-		(property "Footprint" "ESOP-8_TPK"
+		(property "Footprint" ""
 			(at 128.27 91.44 0)
 			(effects
 				(font
@@ -1403,7 +1403,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "CAP_C410C_AX_X7R_AXIMAX_KEM"
+		(property "Footprint" ""
 			(at 127.9652 88.9 0)
 			(effects
 				(font

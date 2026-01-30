@@ -1375,7 +1375,7 @@
 				)
 			)
 		)
-		(property "Footprint" "TJ5A_TEX"
+		(property "Footprint" ""
 			(at 71.12 66.04 0)
 			(effects
 				(font

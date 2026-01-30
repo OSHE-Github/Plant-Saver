@@ -2636,7 +2636,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "CONN02_530470210_MOL"
+		(property "Footprint" ""
 			(at 185.42 120.65 0)
 			(effects
 				(font
@@ -3316,7 +3316,7 @@
 				)
 			)
 		)
-		(property "Footprint" "SDO_CFP5_SOD128_NEX"
+		(property "Footprint" ""
 			(at 217.17 91.44 0)
 			(effects
 				(font

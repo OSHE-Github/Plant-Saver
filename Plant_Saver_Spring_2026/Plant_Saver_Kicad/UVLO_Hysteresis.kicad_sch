@@ -1758,7 +1758,7 @@
 				)
 			)
 		)
-		(property "Footprint" "PDIP8_300MC_MCH"
+		(property "Footprint" ""
 			(at 109.22 96.52 0)
 			(effects
 				(font
