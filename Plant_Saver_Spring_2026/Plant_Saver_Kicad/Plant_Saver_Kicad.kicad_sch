@@ -3610,6 +3610,16 @@
 	)
 	(wire
 		(pts
+			(xy 224.79 229.87) (xy 228.6 229.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a3352e0-9aa4-4617-8b07-8e8c4b60ced8")
+	)
+	(wire
+		(pts
 			(xy 142.24 189.23) (xy 152.4 189.23)
 		)
 		(stroke
@@ -3877,6 +3887,16 @@
 			(type default)
 		)
 		(uuid "604badb8-e33c-4fd1-b8bf-fd6dcb7232a4")
+	)
+	(wire
+		(pts
+			(xy 224.79 242.57) (xy 228.6 242.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6168d190-a310-466f-8aac-973b1c92a5fa")
 	)
 	(wire
 		(pts
@@ -4190,6 +4210,16 @@
 	)
 	(wire
 		(pts
+			(xy 241.3 245.11) (xy 241.3 242.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b762c901-cd20-4810-ab7e-8839525e06ea")
+	)
+	(wire
+		(pts
 			(xy 31.75 85.09) (xy 27.94 85.09)
 		)
 		(stroke
@@ -4227,6 +4257,16 @@
 			(type default)
 		)
 		(uuid "c7e3468f-ec43-4523-97e7-0f35142fd6b1")
+	)
+	(wire
+		(pts
+			(xy 241.3 242.57) (xy 238.76 242.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ce821ac0-c592-4528-a298-2b2cedc4bdc9")
 	)
 	(wire
 		(pts
@@ -4862,6 +4902,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CLK"
+		(shape input)
+		(at 228.6 229.87 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bf303c8d-c9d8-47c2-aca6-045101219d3e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 235.1533 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -5990,6 +6052,74 @@
 		)
 	)
 	(symbol
+		(lib_id "Switch:SW_Push")
+		(at 233.68 242.57 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "74f9321c-e7fb-4ce2-9332-577a254f076a")
+		(property "Reference" "SW5"
+			(at 233.68 234.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Select"
+			(at 233.68 237.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 233.68 237.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 233.68 237.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Push button switch, generic, two pins"
+			(at 233.68 242.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "b27c515c-cb94-4d91-a6cc-bfb4aca9187b")
+		)
+		(pin "1"
+			(uuid "f94d0993-1249-496c-aa6f-2aa81c5ed47f")
+		)
+		(instances
+			(project "Plant_Saver_Kicad"
+				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
+					(reference "SW5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:Solar_Cell")
 		(at 93.98 158.75 0)
 		(unit 1)
@@ -7070,6 +7200,72 @@
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
 					(reference "U6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 241.3 245.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e2586923-c68a-4091-8064-3dd15d876870")
+		(property "Reference" "#PWR027"
+			(at 241.3 251.46 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 241.3 250.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 241.3 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 241.3 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 241.3 245.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7daa17a0-7bd8-467e-9a22-7fcf36f99a41")
+		)
+		(instances
+			(project "Plant_Saver_Kicad"
+				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
+					(reference "#PWR027")
 					(unit 1)
 				)
 			)
