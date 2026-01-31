@@ -2100,7 +2100,7 @@
 	)
 	(wire
 		(pts
-			(xy 265.43 113.03) (xy 270.51 113.03)
+			(xy 265.43 113.03) (xy 274.32 113.03)
 		)
 		(stroke
 			(width 0)
@@ -2304,7 +2304,7 @@
 	)
 	(hierarchical_label "Vout"
 		(shape output)
-		(at 270.51 113.03 0)
+		(at 274.32 113.03 0)
 		(effects
 			(font
 				(size 1.27 1.27)
