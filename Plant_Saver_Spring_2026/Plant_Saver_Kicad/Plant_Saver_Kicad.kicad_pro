@@ -652,6 +652,14 @@
     [
       "1fc888f3-202d-4c32-b254-adb0d2fab164",
       "Solar_Measurement3"
+    ],
+    [
+      "88ce505a-5a66-4cd3-8edd-ee3f7ea8c6c0",
+      "MCP73833_Solar"
+    ],
+    [
+      "8fec44fe-3d91-4aaf-a03f-f618b2e9c693",
+      "MCP73833_USB"
     ]
   ],
   "text_variables": {}
