@@ -10,4 +10,5 @@
   (lib (name "C410C105K5R5TA7200")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/C410C105K5R5TA7200/KiCADv6/2026-01-30_03-53-20.kicad_sym")(options "")(descr ""))
   (lib (name "CDBA140SL_HF")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/CDBA140SL_HF/KiCADv6/2026-01-31_02-54-46.kicad_sym")(options "")(descr ""))
   (lib (name "ul_ESP32-WROOM-32E-N16")(type "KiCad")(uri "C:/Users/schmi/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/ul_ESP32-WROOM-32E-N16/KiCADv6/2026-01-31_16-14-12.kicad_sym")(options "")(descr ""))
+  (lib (name "DW03C")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/DW03C/DW03C.kicad_sym")(options "")(descr ""))
 )

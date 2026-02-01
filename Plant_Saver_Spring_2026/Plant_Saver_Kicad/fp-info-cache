@@ -1,4 +1,4 @@
-27219017742349286
+27231407555336208
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -63272,6 +63272,13 @@ GDT 3R-6
 0
 3
 3
+G09P02L
+TSOT-23
+3-pin TSOT23 package, http://www.analog.com.tw/pdf/All_In_One.pdf
+TSOT-23
+0
+3
+3
 Heatsink
 Heatsink_35x26mm_1xFixation3mm_Fischer-SK486-35
 Heatsink, 35mm x 26mm, 1x Fixation 3mm, Fischer SK486-35
@@ -71805,6 +71812,27 @@ Yellow 5381 Series LED
 0
 2
 2
+MCP6547T_I_MS
+MSOP8_MC_MCH
+
+MCP6547T-I/MS 
+0
+8
+8
+MCP6547T_I_MS
+MSOP8_MC_MCH-L
+
+MCP6547T-I/MS 
+0
+8
+8
+MCP6547T_I_MS
+MSOP8_MC_MCH-M
+
+MCP6547T-I/MS 
+0
+8
+8
 Module
 A20_OLINUXINO_LIME2
 A20 Olinuxino LIME2, 1.2GHz, 512-1024MB RAM, Micro-SD, NAND or eMMC, 1000Mbit Ethernet
@@ -107904,3 +107932,24 @@ Varistor VF
 0
 2
 2
+ul_ISP12DP06NMXTSA1
+PG-SOT223-4_INF
+
+ISP12DP06NMXTSA1 
+0
+4
+3
+ul_ISP12DP06NMXTSA1
+PG-SOT223-4_INF-L
+
+ISP12DP06NMXTSA1 
+0
+4
+4
+ul_ISP12DP06NMXTSA1
+PG-SOT223-4_INF-M
+
+ISP12DP06NMXTSA1 
+0
+4
+4

@@ -1,4 +1,10 @@
 (fp_lib_table
   (version 7)
   (lib (name "ul_ESP32-WROOM-32E-N16")(type "KiCad")(uri "C:/Users/schmi/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/ul_ESP32-WROOM-32E-N16/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "ul_ISP12DP06NMXTSA1")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/ul_ISP12DP06NMXTSA1/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "MCP6547T_I_MS")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/MCP6547T_I_MS/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "G09P02L")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/G09P02L/G09P02L.pretty")(options "")(descr ""))
+  (lib (name "MCP6234_E_P")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/MCP6234_E_P/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "1.25mm Micro-JST Male")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/530470210/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "C410C105K5R5TA7200")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/C410C105K5R5TA7200/KiCADv6/footprints.pretty")(options "")(descr ""))
 )

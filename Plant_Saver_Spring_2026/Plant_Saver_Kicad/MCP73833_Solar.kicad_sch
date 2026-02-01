@@ -1079,7 +1079,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "C410C105K5R5TA7200:CAP_C410C_AX_X7R_AXIMAX_KEM"
 			(at 150.8252 88.9 0)
 			(effects
 				(font
@@ -1285,7 +1285,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "C410C105K5R5TA7200:CAP_C410C_AX_X7R_AXIMAX_KEM"
 			(at 107.6452 88.9 0)
 			(effects
 				(font

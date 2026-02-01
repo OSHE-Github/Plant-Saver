@@ -626,40 +626,28 @@
       "Power_And_Charging"
     ],
     [
-      "332c060e-c84f-49ab-bac9-f76b5ecf997d",
-      "UVLO_Hysteresis"
-    ],
-    [
-      "c2d87698-d369-4f7e-ba36-a440d8a8c6dd",
-      "TP4056_Solar"
-    ],
-    [
-      "c43a302e-74ec-4e82-97aa-a301001537dd",
-      "TP4056_USB"
+      "97049490-2dc1-47ac-bb1c-089fa2bcc51b",
+      "Solar_Measurement_Dual1"
     ],
     [
       "a8348cc8-6eff-45be-a6d2-3e9c25423c18",
       "Linear_Regulator"
     ],
     [
-      "6d8064f9-fe21-41d8-9d65-91dc024fa0a0",
-      "Solar_Measurement1"
-    ],
-    [
-      "5067bee0-9fc4-4e20-89e7-554f84f0b02a",
-      "Solar_Measurement2"
-    ],
-    [
-      "1fc888f3-202d-4c32-b254-adb0d2fab164",
-      "Solar_Measurement3"
-    ],
-    [
       "88ce505a-5a66-4cd3-8edd-ee3f7ea8c6c0",
       "MCP73833_Solar"
     ],
     [
+      "9d841e6d-e3b2-48a8-9c06-32c643c2cc22",
+      "Solar_Measurement_Dual"
+    ],
+    [
       "8fec44fe-3d91-4aaf-a03f-f618b2e9c693",
       "MCP73833_USB"
+    ],
+    [
+      "9fa29de7-25a7-4316-bbea-8ab2651dedf4",
+      "UOVLO_Solar"
     ]
   ],
   "text_variables": {}
