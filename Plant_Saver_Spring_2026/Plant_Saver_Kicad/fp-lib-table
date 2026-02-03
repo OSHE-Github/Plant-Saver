@@ -7,5 +7,5 @@
   (lib (name "MCP6234_E_P")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/MCP6234_E_P/KiCADv6/footprints.pretty")(options "")(descr ""))
   (lib (name "1.25mm Micro-JST Male")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/530470210/KiCADv6/footprints.pretty")(options "")(descr ""))
   (lib (name "C410C105K5R5TA7200")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/C410C105K5R5TA7200/KiCADv6/footprints.pretty")(options "")(descr ""))
-  (lib (name "DM3D_SF")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/DM3D_SF/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "DM3D_SF")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/DM3D_SF")(options "")(descr ""))
 )
