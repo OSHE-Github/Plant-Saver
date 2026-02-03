@@ -874,31 +874,9 @@
 			(embedded_fonts no)
 		)
 	)
-	(rectangle
-		(start 181.61 59.69)
-		(end 222.25 104.14)
-		(stroke
-			(width 0)
-			(type dash_dot)
-		)
-		(fill
-			(type none)
-		)
-		(uuid 1b81c6b8-4a32-4711-bd2c-9da98d34d95d)
-	)
-	(text "Double-Check This"
-		(exclude_from_sim no)
-		(at 190.246 58.166 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "10bb1472-bb56-4cad-b40a-818655bebf6b")
-	)
 	(text "Voltage window: 4.5 to 5.3 V"
 		(exclude_from_sim no)
-		(at 152.4 52.07 0)
+		(at 147.32 61.214 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2375,6 +2353,103 @@
 		)
 	)
 	(symbol
+		(lib_id "Simulation_SPICE:PMOS")
+		(at 193.04 91.44 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ab577e5c-34df-4d6b-a851-a70dec1d2eaa")
+		(property "Reference" "Q11"
+			(at 201.93 91.44 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "ISP12DP06NMXTSA1"
+			(at 199.39 91.44 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "ul_ISP12DP06NMXTSA1:PG-SOT223-4_INF"
+			(at 198.12 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 193.04 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "P-MOSFET transistor, drain/source/gate"
+			(at 193.04 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Device" "PMOS"
+			(at 193.04 108.585 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Type" "VDMOS"
+			(at 193.04 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Sim.Pins" "1=D 2=G 3=S"
+			(at 193.04 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "2148cffe-ade1-4d6f-8133-e29508380bf8")
+		)
+		(pin "2"
+			(uuid "02c27b2d-47ea-4329-b243-a012932a0bc1")
+		)
+		(pin "3"
+			(uuid "de371c4e-1fbb-4f78-ae11-fe68beeae1d1")
+		)
+		(instances
+			(project "Plant_Saver_Kicad"
+				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d/9fa29de7-25a7-4316-bbea-8ab2651dedf4"
+					(reference "Q11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 209.55 83.82 0)
 		(unit 1)
@@ -2517,109 +2592,6 @@
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d/9fa29de7-25a7-4316-bbea-8ab2651dedf4"
 					(reference "R42")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Simulation_SPICE:PMOS")
-		(at 193.04 91.44 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "cdbe1b72-13ee-4b87-b214-3c9aed129d9d")
-		(property "Reference" "Q9"
-			(at 201.93 91.44 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "SSF1341"
-			(at 199.39 91.44 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Package_TO_SOT_SMD:SOT-23_Handsoldering"
-			(at 198.12 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs"
-			(at 193.04 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "P-MOSFET transistor, drain/source/gate"
-			(at 193.04 91.44 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Device" "PMOS"
-			(at 193.04 108.585 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Type" "VDMOS"
-			(at 193.04 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=D 2=G 3=S"
-			(at 193.04 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f6835c49-7950-469d-836b-14c2b5d3b6e3")
-		)
-		(pin "2"
-			(uuid "323215b0-68ac-4ebb-82b3-21cada468dc6")
-		)
-		(pin "3"
-			(uuid "56b4f6f2-084e-4e2c-8559-754c63eed971")
-		)
-		(instances
-			(project "Plant_Saver_Dev"
-				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09/07016fe8-f0cf-4d61-95d5-2562fb102b33"
-					(reference "Q11")
-					(unit 1)
-				)
-			)
-			(project "Plant_Saver_Dev"
-				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d/9fa29de7-25a7-4316-bbea-8ab2651dedf4"
-					(reference "Q9")
 					(unit 1)
 				)
 			)
