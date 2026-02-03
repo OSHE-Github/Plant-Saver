@@ -931,6 +931,12 @@
 		(uuid "3f369d89-c16f-4325-b552-20d73166290b")
 	)
 	(junction
+		(at 114.3 78.74)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "65f05e00-5796-4df6-a6db-74cfd22649a9")
+	)
+	(junction
 		(at 195.58 81.28)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -953,12 +959,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "95ae5e9b-70c4-4c11-b6f7-f3b17d92c7ea")
-	)
-	(junction
-		(at 114.3 78.74)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "9f2cfd94-6a1e-4bcb-9277-9859d53f2a75")
 	)
 	(junction
 		(at 114.3 104.14)
@@ -1839,7 +1839,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "22.1K"
+		(property "Value" "205K"
 			(at 140.97 86.3599 0)
 			(effects
 				(font
@@ -2148,7 +2148,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 114.3 74.93 0)
+		(at 114.3 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2157,7 +2157,7 @@
 		(fields_autoplaced yes)
 		(uuid "967776bc-8c10-46d3-804b-39613d738bf4")
 		(property "Reference" "R38"
-			(at 116.84 73.6599 0)
+			(at 116.84 110.4899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2166,7 +2166,7 @@
 			)
 		)
 		(property "Value" "402K"
-			(at 116.84 76.1999 0)
+			(at 116.84 113.0299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2175,7 +2175,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 115.316 75.184 90)
+			(at 115.316 112.014 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2184,7 +2184,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 114.3 74.93 0)
+			(at 114.3 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2193,7 +2193,7 @@
 			)
 		)
 		(property "Description" "Resistor, US symbol"
-			(at 114.3 74.93 0)
+			(at 114.3 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2300,7 +2300,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 114.3 111.76 0)
+		(at 114.3 74.93 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2309,7 +2309,7 @@
 		(fields_autoplaced yes)
 		(uuid "a360a353-ef85-4d95-98cc-711d082d1d10")
 		(property "Reference" "R40"
-			(at 116.84 110.4899 0)
+			(at 116.84 73.6599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2318,7 +2318,7 @@
 			)
 		)
 		(property "Value" "22.1K"
-			(at 116.84 113.0299 0)
+			(at 116.84 76.1999 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2327,7 +2327,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 115.316 112.014 90)
+			(at 115.316 75.184 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2336,7 +2336,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 114.3 111.76 0)
+			(at 114.3 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2345,7 +2345,7 @@
 			)
 		)
 		(property "Description" "Resistor, US symbol"
-			(at 114.3 111.76 0)
+			(at 114.3 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2465,7 +2465,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "15K"
+		(property "Value" "301K"
 			(at 140.97 99.0599 0)
 			(effects
 				(font

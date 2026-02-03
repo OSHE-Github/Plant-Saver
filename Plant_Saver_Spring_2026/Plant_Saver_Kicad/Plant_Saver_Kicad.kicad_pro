@@ -634,6 +634,10 @@
       "Linear_Regulator"
     ],
     [
+      "bf3b52d9-1787-462a-86c6-de9a695c648b",
+      "MicroSD"
+    ],
+    [
       "88ce505a-5a66-4cd3-8edd-ee3f7ea8c6c0",
       "MCP73833_Solar"
     ],
