@@ -3295,8 +3295,8 @@
 		)
 	)
 	(rectangle
-		(start 77.47 58.42)
-		(end 92.71 119.38)
+		(start 77.47 87.63)
+		(end 92.71 123.19)
 		(stroke
 			(width 0)
 			(type dash_dot)
@@ -3540,7 +3540,7 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 83.82) (xy 33.02 83.82)
+			(xy 35.56 118.11) (xy 33.02 118.11)
 		)
 		(stroke
 			(width 0)
@@ -3630,7 +3630,7 @@
 	)
 	(wire
 		(pts
-			(xy 21.59 133.35) (xy 21.59 78.74)
+			(xy 21.59 133.35) (xy 21.59 102.87)
 		)
 		(stroke
 			(width 0)
@@ -3670,7 +3670,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 152.4) (xy 17.78 73.66)
+			(xy 17.78 152.4) (xy 17.78 97.79)
 		)
 		(stroke
 			(width 0)
@@ -3727,6 +3727,16 @@
 			(type default)
 		)
 		(uuid "2797b466-a78c-4898-b4b6-ddfc1606799b")
+	)
+	(wire
+		(pts
+			(xy 74.93 116.84) (xy 78.74 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "27f027d2-3a9b-4cb9-b91d-0a7376d9508b")
 	)
 	(wire
 		(pts
@@ -3810,7 +3820,7 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 68.58) (xy 35.56 68.58)
+			(xy 30.48 92.71) (xy 35.56 92.71)
 		)
 		(stroke
 			(width 0)
@@ -3860,7 +3870,7 @@
 	)
 	(wire
 		(pts
-			(xy 21.59 78.74) (xy 35.56 78.74)
+			(xy 21.59 102.87) (xy 35.56 102.87)
 		)
 		(stroke
 			(width 0)
@@ -3870,23 +3880,13 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 111.76) (xy 29.21 111.76)
+			(xy 35.56 113.03) (xy 29.21 113.03)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "46b74a28-148c-4bf4-a39a-10cf1f91cd0d")
-	)
-	(wire
-		(pts
-			(xy 74.93 114.3) (xy 78.74 114.3)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "49366efd-f042-410c-83b9-fc141a429def")
 	)
 	(wire
 		(pts
@@ -4070,7 +4070,7 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 129.54) (xy 25.4 106.68)
+			(xy 25.4 129.54) (xy 25.4 107.95)
 		)
 		(stroke
 			(width 0)
@@ -4150,16 +4150,6 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 118.11) (xy 33.02 116.84)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6e1628fe-97c9-4c77-9bf0-3d80566f47b4")
-	)
-	(wire
-		(pts
 			(xy 262.89 143.51) (xy 262.89 152.4)
 		)
 		(stroke
@@ -4170,7 +4160,7 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 85.09) (xy 33.02 83.82)
+			(xy 33.02 118.11) (xy 33.02 119.38)
 		)
 		(stroke
 			(width 0)
@@ -4180,7 +4170,7 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 111.76) (xy 29.21 125.73)
+			(xy 29.21 113.03) (xy 29.21 125.73)
 		)
 		(stroke
 			(width 0)
@@ -4330,7 +4320,7 @@
 	)
 	(wire
 		(pts
-			(xy 25.4 106.68) (xy 35.56 106.68)
+			(xy 25.4 107.95) (xy 35.56 107.95)
 		)
 		(stroke
 			(width 0)
@@ -4470,7 +4460,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 73.66) (xy 35.56 73.66)
+			(xy 17.78 97.79) (xy 35.56 97.79)
 		)
 		(stroke
 			(width 0)
@@ -4500,7 +4490,7 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 71.12) (xy 78.74 71.12)
+			(xy 74.93 93.98) (xy 78.74 93.98)
 		)
 		(stroke
 			(width 0)
@@ -4510,7 +4500,7 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 81.28) (xy 78.74 81.28)
+			(xy 74.93 101.6) (xy 78.74 101.6)
 		)
 		(stroke
 			(width 0)
@@ -4550,16 +4540,6 @@
 	)
 	(wire
 		(pts
-			(xy 30.48 101.6) (xy 35.56 101.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c2b883bc-d059-449d-a958-7302744bd751")
-	)
-	(wire
-		(pts
 			(xy 110.49 137.16) (xy 156.21 137.16)
 		)
 		(stroke
@@ -4590,13 +4570,13 @@
 	)
 	(wire
 		(pts
-			(xy 33.02 116.84) (xy 35.56 116.84)
+			(xy 74.93 109.22) (xy 78.74 109.22)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "d261ac31-74e1-45c1-9f24-be345ef294c8")
+		(uuid "d1bb9193-d5a6-4ccd-93ab-51469efe04b0")
 	)
 	(wire
 		(pts
@@ -4617,16 +4597,6 @@
 			(type default)
 		)
 		(uuid "d4b547f2-f802-4d7e-b604-2adf17d29f97")
-	)
-	(wire
-		(pts
-			(xy 74.93 104.14) (xy 78.74 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d51f0a9b-df0d-4dbd-87e4-2eea84812cb7")
 	)
 	(wire
 		(pts
@@ -5026,7 +4996,7 @@
 	)
 	(global_label "V_Solar2"
 		(shape input)
-		(at 78.74 81.28 0)
+		(at 78.74 101.6 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5036,7 +5006,7 @@
 		)
 		(uuid "28be202a-8c33-4624-babc-e27beb69e444")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.9498 81.28 0)
+			(at 89.9498 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5136,7 +5106,7 @@
 	)
 	(global_label "V_Solar1"
 		(shape input)
-		(at 78.74 71.12 0)
+		(at 78.74 93.98 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5146,7 +5116,7 @@
 		)
 		(uuid "499cd246-c7ca-4246-a2c0-71a6419428ac")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.9498 71.12 0)
+			(at 89.9498 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5257,28 +5227,6 @@
 		(uuid "6ea5f8a8-d03f-4b48-8c54-df620e401869")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 152.6201 187.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "Vbus"
-		(shape input)
-		(at 30.48 101.6 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "77589da1-9eaf-4004-a40a-2b3a8cb757ea")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 23.0801 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5620,7 +5568,7 @@
 	)
 	(global_label "V_Solar3"
 		(shape input)
-		(at 78.74 104.14 0)
+		(at 78.74 109.22 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5630,7 +5578,7 @@
 		)
 		(uuid "cd18bf9b-c0d2-46a0-83be-06ab30005d97")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.9498 104.14 0)
+			(at 89.9498 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5796,7 +5744,7 @@
 	)
 	(global_label "V_Solar4"
 		(shape input)
-		(at 78.74 114.3 0)
+		(at 78.74 116.84 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5806,7 +5754,7 @@
 		)
 		(uuid "ec2a6ee0-5c95-45fd-8365-94648c805f91")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 89.9498 114.3 0)
+			(at 89.9498 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5840,7 +5788,7 @@
 	)
 	(global_label "Vbus"
 		(shape input)
-		(at 30.48 68.58 180)
+		(at 30.48 92.71 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5850,7 +5798,7 @@
 		)
 		(uuid "f11eb826-ec1a-4506-baa6-b0cc73e218ed")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 23.0801 68.58 0)
+			(at 23.0801 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6823,72 +6771,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 33.02 118.11 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "664b1193-0582-40b4-a0a2-1ff74fe14847")
-		(property "Reference" "#PWR02"
-			(at 33.02 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 33.02 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 33.02 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 33.02 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 33.02 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "580b759b-06ab-48f4-acf1-86e93648083d")
-		)
-		(instances
-			(project ""
-				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
-					(reference "#PWR02")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Switch:SW_Push")
 		(at 278.13 241.3 0)
 		(unit 1)
@@ -7486,7 +7368,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 33.02 85.09 0)
+		(at 33.02 119.38 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7495,7 +7377,7 @@
 		(fields_autoplaced yes)
 		(uuid "b4acf7d0-0ced-4aa8-995b-3b21388e346e")
 		(property "Reference" "#PWR01"
-			(at 33.02 91.44 0)
+			(at 33.02 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7504,15 +7386,16 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 33.02 90.17 0)
+			(at 33.02 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
 		(property "Footprint" ""
-			(at 33.02 85.09 0)
+			(at 33.02 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7521,7 +7404,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 33.02 85.09 0)
+			(at 33.02 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7530,7 +7413,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 33.02 85.09 0)
+			(at 33.02 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8536,111 +8419,8 @@
 		)
 	)
 	(sheet
-		(at 35.56 96.52)
-		(size 39.37 25.4)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0.0000)
-		)
-		(uuid "97049490-2dc1-47ac-bb1c-089fa2bcc51b")
-		(property "Sheetname" "Solar_Measurement_Dual1"
-			(at 35.56 95.8084 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "Solar_Measurement_Dual.kicad_sch"
-			(at 35.56 122.5046 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(pin "GND" input
-			(at 35.56 116.84 180)
-			(uuid "fdbc63d4-7e13-4985-9be5-73adc328fce6")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "Vcc" input
-			(at 35.56 101.6 180)
-			(uuid "2b769f15-983d-49bd-8bae-6403eb58e7dd")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "Vin1" input
-			(at 35.56 106.68 180)
-			(uuid "09e557e2-72a2-40d1-ab70-b2d24ab56cca")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "Vin2" input
-			(at 35.56 111.76 180)
-			(uuid "270b7189-eba3-45e7-8850-1fc98866a402")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(pin "Vout1" output
-			(at 74.93 104.14 0)
-			(uuid "3e226841-5d08-439c-bc71-8dbfca32a4af")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(pin "Vout2" output
-			(at 74.93 114.3 0)
-			(uuid "664d9f32-4a1e-4fcb-9afc-0ac6aefe2218")
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(instances
-			(project "Plant_Saver_Kicad"
-				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
-					(page "4")
-				)
-			)
-		)
-	)
-	(sheet
-		(at 35.56 63.5)
-		(size 39.37 25.4)
+		(at 35.56 87.63)
+		(size 39.37 35.56)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
@@ -8655,7 +8435,7 @@
 		)
 		(uuid "9d841e6d-e3b2-48a8-9c06-32c643c2cc22")
 		(property "Sheetname" "Solar_Measurement_Dual"
-			(at 35.56 62.7884 0)
+			(at 35.56 86.9184 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8664,7 +8444,7 @@
 			)
 		)
 		(property "Sheetfile" "Solar_Measurement_Dual.kicad_sch"
-			(at 35.56 89.4846 0)
+			(at 35.56 123.7746 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8674,7 +8454,7 @@
 			)
 		)
 		(pin "GND" input
-			(at 35.56 83.82 180)
+			(at 35.56 118.11 180)
 			(uuid "90b84457-c31e-4fd1-94f8-ec5ff318cb34")
 			(effects
 				(font
@@ -8684,7 +8464,7 @@
 			)
 		)
 		(pin "Vcc" input
-			(at 35.56 68.58 180)
+			(at 35.56 92.71 180)
 			(uuid "15605456-3f5a-4b5b-ac5a-612958f1ef2e")
 			(effects
 				(font
@@ -8694,7 +8474,7 @@
 			)
 		)
 		(pin "Vin1" input
-			(at 35.56 73.66 180)
+			(at 35.56 97.79 180)
 			(uuid "d6408070-a446-46f0-b64e-f694eb2a4ac3")
 			(effects
 				(font
@@ -8704,7 +8484,7 @@
 			)
 		)
 		(pin "Vin2" input
-			(at 35.56 78.74 180)
+			(at 35.56 102.87 180)
 			(uuid "0040a408-ccbd-48c6-99c7-8cf7245428a7")
 			(effects
 				(font
@@ -8713,9 +8493,29 @@
 				(justify left)
 			)
 		)
-		(pin "Vout1" output
-			(at 74.93 71.12 0)
-			(uuid "bf9d8d15-00fa-4a18-9b81-af9aab59635d")
+		(pin "Vin3" input
+			(at 35.56 107.95 180)
+			(uuid "aed285d3-7ab3-4174-aa15-aea8dbf28618")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "Vin4" input
+			(at 35.56 113.03 180)
+			(uuid "1f522688-a58e-4522-a6e5-0bce85dbd4eb")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "Vmeas1" output
+			(at 74.93 93.98 0)
+			(uuid "f9c4dc18-458e-471b-b8d8-a2290483f5a3")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8723,9 +8523,29 @@
 				(justify right)
 			)
 		)
-		(pin "Vout2" output
-			(at 74.93 81.28 0)
-			(uuid "0712e4c3-e24b-4ed4-b55a-d2bf993e7738")
+		(pin "Vmeas2" output
+			(at 74.93 101.6 0)
+			(uuid "667040af-1f74-4bb4-9a42-318cbd324616")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "Vmeas3" output
+			(at 74.93 109.22 0)
+			(uuid "298a19f8-1b81-48c1-9cd1-eeff98b0fd2a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "Vmeas4" output
+			(at 74.93 116.84 0)
+			(uuid "fa65b617-7291-45cb-a640-ff77679ce9e8")
 			(effects
 				(font
 					(size 1.27 1.27)
