@@ -3867,6 +3867,16 @@
 		)
 		(uuid "0fd35c8d-ec5c-4f17-b2e3-d56675d40a2d")
 	)
+	(text "This is Dumb, Replace w/ NMOS on negative side"
+		(exclude_from_sim no)
+		(at 260.604 168.148 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "56a54d65-47c3-4065-9946-542d30f94801")
+	)
 	(text "**TODO**\nMore research into SDIO needed\nMight be faster than SPI"
 		(exclude_from_sim no)
 		(at 262.89 73.152 0)
