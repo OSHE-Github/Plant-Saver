@@ -1,4 +1,11 @@
-27219017742357104
+27240257187604915
+1.25mm Micro-JST Male
+CONN02_530470210_MOL
+
+530470210 
+0
+2
+2
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -2810,6 +2817,13 @@ Buzzer_Beeper
 Speaker_CUI_CMR-1206S-67
 Speaker, 30mW, 300-7000Hz, IP67 face, 12x6x2,25mm, https://www.cuidevices.com/product/resource/cmr-12062s-67.pdf
 speaker CUI
+0
+2
+2
+C410C105K5R5TA7200
+CAP_C410C_AX_X7R_AXIMAX_KEM
+
+C410C105K5R5TA7200 
 0
 2
 2
@@ -60171,6 +60185,13 @@ ceramic
 0
 3
 3
+DM3D_SF
+HRS_DM3D-SF
+
+
+0
+14
+14
 Diode_SMD
 D_0201_0603Metric
 Diode SMD 0201 (0603 Metric), square (rectangular) end terminal, IPC-7351 nominal, (Body size source: https://www.vishay.com/docs/20052/crcw0201e3.pdf), generated with kicad-footprint-generator
@@ -63269,6 +63290,13 @@ Fuse
 GDT_Yageo_3RxxxxM-6
 Gas discharge tube, 3-electrode, SMD, 8.5x6.0mm, https://www.yageo.com/upload/media/product/app/datasheet/cpc/gdt/3r-6.pdf
 GDT 3R-6
+0
+3
+3
+G09P02L
+TSOT-23
+3-pin TSOT23 package, http://www.analog.com.tw/pdf/All_In_One.pdf
+TSOT-23
 0
 3
 3
@@ -71805,6 +71833,34 @@ Yellow 5381 Series LED
 0
 2
 2
+MCP6234_E_P
+PDIP14_300MC_MCH
+
+MCP6234-E/P 
+0
+14
+14
+MCP6547T_I_MS
+MSOP8_MC_MCH
+
+MCP6547T-I/MS 
+0
+8
+8
+MCP6547T_I_MS
+MSOP8_MC_MCH-L
+
+MCP6547T-I/MS 
+0
+8
+8
+MCP6547T_I_MS
+MSOP8_MC_MCH-M
+
+MCP6547T-I/MS 
+0
+8
+8
 Module
 A20_OLINUXINO_LIME2
 A20 Olinuxino LIME2, 1.2GHz, 512-1024MB RAM, Micro-SD, NAND or eMMC, 1000Mbit Ethernet
@@ -74654,6 +74710,13 @@ threaded screw
 0
 4
 1
+NK236WH
+SW_Slide-03_APEM-NK23GWH_10x9.2x2.6_P2.54mm
+Wuerth, WS-SLTV, 450301014042, https://www.we-online.com/components/products/datasheet/450301014042.pdf
+switch single-pole opposite-side-connection double-throw SPDT würth wurth
+0
+3
+3
 NetTie
 NetTie-2_SMD_Pad0.5mm
 Net tie, 2 pin, 0.5mm square SMD pads
@@ -107904,3 +107967,24 @@ Varistor VF
 0
 2
 2
+ul_ISP12DP06NMXTSA1
+PG-SOT223-4_INF
+
+ISP12DP06NMXTSA1 
+0
+4
+3
+ul_ISP12DP06NMXTSA1
+PG-SOT223-4_INF-L
+
+ISP12DP06NMXTSA1 
+0
+4
+4
+ul_ISP12DP06NMXTSA1
+PG-SOT223-4_INF-M
+
+ISP12DP06NMXTSA1 
+0
+4
+4

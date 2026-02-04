@@ -3074,6 +3074,12 @@
 					(unit 1)
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R7")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "R8")
@@ -3147,6 +3153,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "R7")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R5")
 					(unit 1)
 				)
 			)
@@ -3248,6 +3260,12 @@
 			(uuid "6fee1795-b752-41c3-8805-6a543fecae59")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q7")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q7")
@@ -3345,6 +3363,12 @@
 			(uuid "d6adeb83-93c5-401a-8a5b-76d6c91a61d4")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q5")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q5")
@@ -3419,6 +3443,12 @@
 		(instances
 			(project ""
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
 					(reference "J1")
 					(unit 1)
 				)
@@ -3521,6 +3551,12 @@
 			(uuid "b699ca21-9306-426e-ada9-5b316b3835af")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q2")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q2")
@@ -3592,6 +3628,12 @@
 			(uuid "6c5f45b0-cb08-4e07-b1be-576ed2ab29c3")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "U1")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "U10")
@@ -3661,6 +3703,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "#PWR01")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -3734,6 +3782,12 @@
 			(uuid "acd799d7-d5ba-4258-81a6-b23e7fd3656d")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "U3")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "U12")
@@ -3807,6 +3861,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "R14")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -3884,6 +3944,12 @@
 					(unit 1)
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R8")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "R9")
@@ -3952,6 +4018,12 @@
 			(uuid "ba22a9c4-c2ab-4e96-ae6e-e730abea37a7")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R6")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "R7")
@@ -4017,6 +4089,12 @@
 			(uuid "9c65aec7-8783-40d1-8939-8d2b3ffda788")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR06")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "#PWR017")
@@ -4086,6 +4164,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "#PWR013")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -4159,6 +4243,12 @@
 			(uuid "7becc7fb-b527-4e15-958d-327efb67eaab")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R3")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "R4")
@@ -4256,6 +4346,12 @@
 			(uuid "3fde4be3-93bd-43e8-a4af-48581791a074")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q3")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q3")
@@ -4325,6 +4421,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "#PWR03")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -4400,6 +4502,12 @@
 					(unit 1)
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR08")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "#PWR019")
@@ -4471,6 +4579,12 @@
 					(unit 1)
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR02")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "#PWR013")
@@ -4539,6 +4653,12 @@
 			(uuid "e8e3b406-c01b-4ee3-a076-d18f4aeb38ce")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "C1")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "C3")
@@ -4605,6 +4725,12 @@
 			(uuid "dc996aad-e39a-41bb-9836-2710018471fb")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR07")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "#PWR018")
@@ -4675,6 +4801,12 @@
 			(uuid "7029cd7b-6f11-417a-a80d-910037ab9afb")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "U2")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "U11")
@@ -4743,6 +4875,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "#PWR05")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -4815,6 +4953,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "#PWR012")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR01")
 					(unit 1)
 				)
 			)
@@ -4913,6 +5057,12 @@
 			(uuid "e149a918-ddd4-4019-95bf-141c3aa2e549")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "BT1")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "BT1")
@@ -5011,6 +5161,12 @@
 			(uuid "b9f0683e-792b-4c5e-b3ab-97213a922e55")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q4")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q4")
@@ -5109,6 +5265,12 @@
 			(uuid "f9a25478-e1dd-465b-99f7-edd1d1adfcf6")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q6")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q6")
@@ -5178,6 +5340,12 @@
 			(project "Plant_Saver_Dev"
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "#PWR015")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -5251,6 +5419,12 @@
 			(uuid "da59f6a8-9dd4-4fb2-bdf2-f44d57b28c4c")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "SW1")
+					(unit 1)
+				)
+			)
 			(project ""
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "SW7")
@@ -5322,6 +5496,12 @@
 			(project ""
 				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
 					(reference "R13")
+					(unit 1)
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -5422,6 +5602,12 @@
 			(uuid "97ab0214-d8c9-42d2-a6f2-dc851f8701a6")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q8")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q8")
@@ -5494,6 +5680,12 @@
 					(unit 1)
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR09")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "#PWR020")
@@ -5560,6 +5752,12 @@
 			(uuid "1f29017a-e333-4395-89e7-e6b8aeec0510")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "#PWR010")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "#PWR021")
@@ -5663,6 +5861,12 @@
 					(unit 1)
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "Q1")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q1")
@@ -5733,6 +5937,12 @@
 			(uuid "e361cf34-5041-4d9d-81ef-d58cd71a8e50")
 		)
 		(instances
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(reference "R4")
+					(unit 1)
+				)
+			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "R5")
@@ -5822,6 +6032,11 @@
 					(page "11")
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(page "3")
+				)
+			)
 		)
 	)
 	(sheet
@@ -5903,6 +6118,11 @@
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(page "12")
+				)
+			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(page "4")
 				)
 			)
 		)
@@ -5988,6 +6208,11 @@
 					(page "13")
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(page "2")
+				)
+			)
 		)
 	)
 	(sheet
@@ -6071,6 +6296,17 @@
 					(page "7")
 				)
 			)
+			(project "Charge_Circuit"
+				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
+					(page "5")
+				)
+			)
 		)
 	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
 )
