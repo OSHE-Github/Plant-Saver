@@ -634,12 +634,12 @@
       "MicroSD"
     ],
     [
-      "dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df",
-      "Interface Stripboard"
-    ],
-    [
       "88ce505a-5a66-4cd3-8edd-ee3f7ea8c6c0",
       "MCP73833_Solar"
+    ],
+    [
+      "dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df",
+      "Interface Stripboard"
     ],
     [
       "9d841e6d-e3b2-48a8-9c06-32c643c2cc22",
