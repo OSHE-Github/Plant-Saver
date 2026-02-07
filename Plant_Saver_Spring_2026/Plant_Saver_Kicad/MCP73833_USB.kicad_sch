@@ -959,7 +959,7 @@
 		)
 		(uuid "f2db66c8-9662-403d-ade5-c445f5b2c8bf")
 	)
-	(global_label "LED1"
+	(global_label "STAT1"
 		(shape input)
 		(at 110.49 96.52 180)
 		(fields_autoplaced yes)
@@ -971,7 +971,7 @@
 		)
 		(uuid "1ef20fa3-d0e3-4c91-8c55-61801f95c695")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.8482 96.52 0)
+			(at 102.062 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -981,7 +981,7 @@
 			)
 		)
 	)
-	(global_label "LED2"
+	(global_label "STAT2"
 		(shape input)
 		(at 110.49 99.06 180)
 		(fields_autoplaced yes)
@@ -993,7 +993,7 @@
 		)
 		(uuid "91fb3679-3801-49df-81d0-5f523bb23e9d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.8482 99.06 0)
+			(at 102.062 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)

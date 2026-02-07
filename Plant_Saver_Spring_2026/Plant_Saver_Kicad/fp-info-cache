@@ -1,4 +1,4 @@
-27240257187604915
+27242027583832613
 1.25mm Micro-JST Male
 CONN02_530470210_MOL
 
@@ -6,6 +6,13 @@ CONN02_530470210_MOL
 0
 2
 2
+3_1825910_5
+SW4_1825910-I_TEC
+
+3-1825910-5 
+0
+4
+4
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
