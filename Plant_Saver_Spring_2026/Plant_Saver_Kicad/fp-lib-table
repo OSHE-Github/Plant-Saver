@@ -11,4 +11,6 @@
   (lib (name "NK236WH")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/NK236WH/NK236WH.pretty")(options "")(descr ""))
   (lib (name "3_1825910_5")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/3-1825910-5/KiCADv6/footprints.pretty")(options "")(descr ""))
   (lib (name "25336NA")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/25336NA/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "DF3A_3P_2DS")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/DF3A_3P_2DS/KiCADv6/footprints.pretty")(options "")(descr ""))
+  (lib (name "SM04B_SRSS_TB")(type "KiCad")(uri "C:/Users/dbghy/OneDrive/Documents/GitHub/Plant-Saver/Plant_Saver_Spring_2026/Symbols_Footprints/SM04B_SRSS_TB/KiCADv6/footprints.pretty")(options "")(descr ""))
 )
