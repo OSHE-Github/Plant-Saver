@@ -1630,7 +1630,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "36d4b3ed-cca8-48ff-a6c3-acfc47c2308d")
-		(property "Reference" "R48"
+		(property "Reference" "R23"
 			(at 116.84 109.22 90)
 			(effects
 				(font
@@ -1682,7 +1682,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "R48")
+					(reference "R23")
 					(unit 1)
 				)
 			)
@@ -1699,7 +1699,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3b62a50b-a404-495a-bf4b-80e3d2651341")
-		(property "Reference" "R50"
+		(property "Reference" "R21"
 			(at 116.84 88.9 90)
 			(effects
 				(font
@@ -1751,7 +1751,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "R50")
+					(reference "R21")
 					(unit 1)
 				)
 			)
@@ -1767,7 +1767,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "60020bad-f0ed-4079-8636-b47fc57bb556")
-		(property "Reference" "R47"
+		(property "Reference" "R20"
 			(at 116.84 77.47 90)
 			(effects
 				(font
@@ -1819,7 +1819,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "R47")
+					(reference "R20")
 					(unit 1)
 				)
 			)
@@ -1835,7 +1835,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7c17476b-48fe-4795-b97a-e655088cce71")
-		(property "Reference" "R45"
+		(property "Reference" "R18"
 			(at 116.84 54.61 90)
 			(effects
 				(font
@@ -1887,7 +1887,7 @@
 		(instances
 			(project ""
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "R45")
+					(reference "R18")
 					(unit 1)
 				)
 			)
@@ -1903,7 +1903,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d6ce55de-979c-4a26-95b3-3c9740601370")
-		(property "Reference" "J3"
+		(property "Reference" "J10"
 			(at 151.13 68.58 0)
 			(effects
 				(font
@@ -2032,7 +2032,7 @@
 		(instances
 			(project ""
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "J3")
+					(reference "J10")
 					(unit 1)
 				)
 			)
@@ -2048,7 +2048,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "db927de2-fdd9-4061-bb7f-b9387ebe92b1")
-		(property "Reference" "C8"
+		(property "Reference" "C10"
 			(at 191.77 102.8699 0)
 			(effects
 				(font
@@ -2102,7 +2102,7 @@
 		(instances
 			(project ""
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "C8")
+					(reference "C10")
 					(unit 1)
 				)
 			)
@@ -2118,7 +2118,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "dbab34f4-3175-43a3-a3e6-82fc15297486")
-		(property "Reference" "R46"
+		(property "Reference" "R19"
 			(at 116.84 66.04 90)
 			(effects
 				(font
@@ -2170,7 +2170,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "R46")
+					(reference "R19")
 					(unit 1)
 				)
 			)
@@ -2187,7 +2187,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e73d89ef-d37b-4a99-8cd3-c32059154273")
-		(property "Reference" "R49"
+		(property "Reference" "R22"
 			(at 116.84 99.06 90)
 			(effects
 				(font
@@ -2239,7 +2239,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
-					(reference "R49")
+					(reference "R22")
 					(unit 1)
 				)
 			)

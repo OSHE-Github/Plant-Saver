@@ -911,7 +911,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "439cdbfd-e4d8-459a-98a9-b265b960364c")
-		(property "Reference" "R15"
+		(property "Reference" "R26"
 			(at 149.86 66.04 90)
 			(effects
 				(font
@@ -963,7 +963,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "R15")
+					(reference "R26")
 					(unit 1)
 				)
 			)
@@ -979,7 +979,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "506f80d6-78de-472a-aea0-26e1c7c13d6c")
-		(property "Reference" "R12"
+		(property "Reference" "R27"
 			(at 149.86 78.74 90)
 			(effects
 				(font
@@ -1031,7 +1031,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "R12")
+					(reference "R27")
 					(unit 1)
 				)
 			)
@@ -1047,7 +1047,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "6365a5ac-df36-4b19-b00e-8671faca0c56")
-		(property "Reference" "SW11"
+		(property "Reference" "SW7"
 			(at 144.78 113.03 0)
 			(effects
 				(font
@@ -1099,7 +1099,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "SW11")
+					(reference "SW7")
 					(unit 1)
 				)
 			)
@@ -1114,7 +1114,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "71e39d0f-8133-4787-b469-3a42c3bb1de2")
-		(property "Reference" "D4"
+		(property "Reference" "D3"
 			(at 135.382 77.47 0)
 			(effects
 				(font
@@ -1175,7 +1175,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "D4")
+					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -1191,7 +1191,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b9278ec7-3e5b-427a-b4aa-43879e94fde3")
-		(property "Reference" "SW12"
+		(property "Reference" "SW8"
 			(at 144.78 124.46 0)
 			(effects
 				(font
@@ -1243,7 +1243,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "SW12")
+					(reference "SW8")
 					(unit 1)
 				)
 			)
@@ -1259,7 +1259,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ba76505c-d531-46b3-b7b4-3db118b59b52")
-		(property "Reference" "SW10"
+		(property "Reference" "SW6"
 			(at 144.78 100.33 0)
 			(effects
 				(font
@@ -1311,7 +1311,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "SW10")
+					(reference "SW6")
 					(unit 1)
 				)
 			)
@@ -1326,7 +1326,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c80c2040-270d-4953-911b-cefb2d7af9f3")
-		(property "Reference" "SW9"
+		(property "Reference" "SW5"
 			(at 146.05 88.9 0)
 			(effects
 				(font
@@ -1378,7 +1378,7 @@
 		(instances
 			(project ""
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "SW9")
+					(reference "SW5")
 					(unit 1)
 				)
 			)
@@ -1393,7 +1393,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ce95e9b7-ab0a-4894-9108-faddbc6ed4da")
-		(property "Reference" "D5"
+		(property "Reference" "D1"
 			(at 134.366 54.102 0)
 			(effects
 				(font
@@ -1456,7 +1456,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "D5")
+					(reference "D1")
 					(unit 1)
 				)
 			)
@@ -1472,7 +1472,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f63f50a7-1bfc-47e5-8e77-d08d48b7578d")
-		(property "Reference" "R18"
+		(property "Reference" "R25"
 			(at 149.86 54.61 90)
 			(effects
 				(font
@@ -1524,7 +1524,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "R18")
+					(reference "R25")
 					(unit 1)
 				)
 			)
@@ -1539,7 +1539,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f8ebed50-712e-494d-868c-726184e1a31a")
-		(property "Reference" "D6"
+		(property "Reference" "D2"
 			(at 133.35 65.532 0)
 			(effects
 				(font
@@ -1602,7 +1602,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/dee11cd4-4b8f-4bcd-86fc-bdb1a9aa17df"
-					(reference "D6")
+					(reference "D2")
 					(unit 1)
 				)
 			)
