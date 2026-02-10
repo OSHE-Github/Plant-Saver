@@ -2046,12 +2046,6 @@
 		(uuid "57105271-fa63-45f4-a969-cfb4d5c7314a")
 	)
 	(junction
-		(at 185.42 44.45)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "59896a9a-c70c-4938-9661-4e827260836c")
-	)
-	(junction
 		(at 210.82 116.84)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3211,88 +3205,6 @@
 	)
 	(symbol
 		(lib_id "Device:R_US")
-		(at 185.42 48.26 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "0142bd31-3bb2-405e-a269-d0833b36e07d")
-		(property "Reference" "R12"
-			(at 187.96 46.9899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "200K"
-			(at 187.96 49.5299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 184.404 48.006 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 185.42 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, US symbol"
-			(at 185.42 48.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "0ae7c07f-633e-47d0-a77a-2f78e4c685ad")
-		)
-		(pin "1"
-			(uuid "274dd2d2-fc42-4137-83e4-001ee96dcfe3")
-		)
-		(instances
-			(project "Plant_Saver_Dev"
-				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
-					(reference "R15")
-					(unit 1)
-				)
-			)
-			(project "Charge_Circuit"
-				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
-					(reference "R7")
-					(unit 1)
-				)
-			)
-			(project "Plant_Saver_Dev"
-				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
-					(reference "R12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_US")
 		(at 172.72 58.42 180)
 		(unit 1)
 		(exclude_from_sim no)
@@ -3319,7 +3231,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
 			(at 171.704 58.166 90)
 			(effects
 				(font
@@ -4094,7 +4006,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
 			(at 70.104 72.136 90)
 			(effects
 				(font
@@ -4174,7 +4086,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
 			(at 206.756 79.756 90)
 			(effects
 				(font
@@ -4254,7 +4166,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
 			(at 207.264 105.664 90)
 			(effects
 				(font
@@ -4889,7 +4801,7 @@
 				)
 			)
 		)
-		(property "Footprint" "C410C105K5R5TA7200:CAP_C410C_AX_X7R_AXIMAX_KEM"
+		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder"
 			(at 209.55 115.8748 0)
 			(effects
 				(font
@@ -5641,7 +5553,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
 			(at 98.044 52.324 90)
 			(effects
 				(font
@@ -5793,84 +5705,6 @@
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
 					(reference "Q10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 185.42 52.07 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d690f9bd-65cf-4f61-8dd8-0cde7fc6a009")
-		(property "Reference" "#PWR022"
-			(at 185.42 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 185.42 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 185.42 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 185.42 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 185.42 52.07 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "eae9fba2-513f-412c-8b19-d4ef8ae4d4c2")
-		)
-		(instances
-			(project "Plant_Saver_Dev"
-				(path "/681e180a-075d-4ade-9671-1538248e0c71/5dcd62e6-4375-4774-94ca-6833cc877f09"
-					(reference "#PWR04")
-					(unit 1)
-				)
-			)
-			(project "Charge_Circuit"
-				(path "/6972ab9f-ec90-4565-bd2c-bfb60d5a21f0"
-					(reference "#PWR09")
-					(unit 1)
-				)
-			)
-			(project "Plant_Saver_Dev"
-				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
-					(reference "#PWR022")
 					(unit 1)
 				)
 			)
