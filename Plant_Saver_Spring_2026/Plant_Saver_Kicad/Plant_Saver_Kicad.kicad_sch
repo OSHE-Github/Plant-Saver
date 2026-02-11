@@ -10028,7 +10028,7 @@
 	)
 	(global_label "V_Solar2"
 		(shape input)
-		(at 229.87 177.8 180)
+		(at 229.87 175.26 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -10038,7 +10038,7 @@
 		)
 		(uuid "4d7b3a3f-0c72-4561-b8ac-d7e7e1d2bde8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 218.6602 177.8 0)
+			(at 218.6602 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10050,7 +10050,7 @@
 	)
 	(global_label "V_Solar1"
 		(shape input)
-		(at 229.87 175.26 180)
+		(at 229.87 180.34 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -10060,7 +10060,7 @@
 		)
 		(uuid "64ad2711-11f7-4c53-ac75-bfe9f2903d73")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 218.6602 175.26 0)
+			(at 218.6602 180.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10269,7 +10269,7 @@
 	)
 	(global_label "V_Solar3"
 		(shape input)
-		(at 229.87 180.34 180)
+		(at 229.87 177.8 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -10279,7 +10279,7 @@
 		)
 		(uuid "c870f4b5-027c-4d6e-9c1f-650baf1fc611")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 218.6602 180.34 0)
+			(at 218.6602 177.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
