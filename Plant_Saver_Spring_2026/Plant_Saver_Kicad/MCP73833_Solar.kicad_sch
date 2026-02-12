@@ -1221,7 +1221,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "90847ad1-f875-4822-9d21-d60abba38f6b")
-		(property "Reference" "R24"
+		(property "Reference" "R26"
 			(at 144.78 106.6799 0)
 			(effects
 				(font
@@ -1281,7 +1281,7 @@
 			)
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d/88ce505a-5a66-4cd3-8edd-ee3f7ea8c6c0"
-					(reference "R24")
+					(reference "R26")
 					(unit 1)
 				)
 			)

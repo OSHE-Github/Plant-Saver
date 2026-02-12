@@ -885,7 +885,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "06328823-bb94-4fd6-ac8d-d0f36e4d02d7")
-		(property "Reference" "TP7"
+		(property "Reference" "TP1"
 			(at 176.53 90.9319 0)
 			(effects
 				(font
@@ -936,7 +936,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/d7563033-ba85-41e2-802f-f59d27bfdb8e"
-					(reference "TP7")
+					(reference "TP1")
 					(unit 1)
 				)
 			)
@@ -952,7 +952,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2222af7b-fb19-4cf0-9810-8da2c40ab4fe")
-		(property "Reference" "J8"
+		(property "Reference" "J9"
 			(at 138.43 90.17 0)
 			(effects
 				(font
@@ -1073,7 +1073,7 @@
 			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/d7563033-ba85-41e2-802f-f59d27bfdb8e"
-					(reference "J8")
+					(reference "J9")
 					(unit 1)
 				)
 			)
@@ -1089,7 +1089,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2a8ed223-bc21-4a7f-97b3-6ffdf60e67f1")
-		(property "Reference" "#PWR014"
+		(property "Reference" "#PWR015"
 			(at 175.26 110.49 0)
 			(effects
 				(font
@@ -1145,7 +1145,7 @@
 			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/d7563033-ba85-41e2-802f-f59d27bfdb8e"
-					(reference "#PWR014")
+					(reference "#PWR015")
 					(unit 1)
 				)
 			)
@@ -1161,7 +1161,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b0be5ce3-289d-48b2-8119-1d983b4cdc41")
-		(property "Reference" "R6"
+		(property "Reference" "R8"
 			(at 173.99 97.7899 0)
 			(effects
 				(font
@@ -1221,7 +1221,7 @@
 			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/d7563033-ba85-41e2-802f-f59d27bfdb8e"
-					(reference "R6")
+					(reference "R8")
 					(unit 1)
 				)
 			)
@@ -1237,7 +1237,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f5413c0e-77cb-4557-905f-745c42ef3943")
-		(property "Reference" "R5"
+		(property "Reference" "R7"
 			(at 107.95 97.7899 0)
 			(effects
 				(font
@@ -1297,7 +1297,7 @@
 			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/d7563033-ba85-41e2-802f-f59d27bfdb8e"
-					(reference "R5")
+					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -1313,7 +1313,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f8129282-f15a-4e36-838d-34c44683783f")
-		(property "Reference" "#PWR013"
+		(property "Reference" "#PWR014"
 			(at 102.87 110.49 0)
 			(effects
 				(font
@@ -1369,7 +1369,7 @@
 			)
 			(project "Plant_Saver_Dev"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/d7563033-ba85-41e2-802f-f59d27bfdb8e"
-					(reference "#PWR013")
+					(reference "#PWR014")
 					(unit 1)
 				)
 			)
