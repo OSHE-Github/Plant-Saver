@@ -715,6 +715,12 @@
 		(uuid "63e2cd95-f074-4725-9d30-458b82970bff")
 	)
 	(junction
+		(at 177.8 86.36)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6a431868-cb3a-42ba-8a88-947c3de74526")
+	)
+	(junction
 		(at 121.92 115.57)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -731,6 +737,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "9ed4733e-4441-4ce7-b2d0-f0ca4632e771")
+	)
+	(junction
+		(at 187.96 86.36)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a5628344-577d-4eba-9913-8af612a9b27d")
 	)
 	(junction
 		(at 110.49 72.39)
@@ -906,6 +918,16 @@
 	)
 	(wire
 		(pts
+			(xy 177.8 88.9) (xy 177.8 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2ef6e2f7-91d2-4d20-9d72-3ff35c37fc19")
+	)
+	(wire
+		(pts
 			(xy 120.65 95.25) (xy 121.92 95.25)
 		)
 		(stroke
@@ -1006,6 +1028,16 @@
 	)
 	(wire
 		(pts
+			(xy 186.69 86.36) (xy 187.96 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "50b6b330-4d21-41e1-8437-a6b7aa5f82f8")
+	)
+	(wire
+		(pts
 			(xy 125.73 86.36) (xy 133.35 86.36)
 		)
 		(stroke
@@ -1013,16 +1045,6 @@
 			(type default)
 		)
 		(uuid "50f9f22b-6e8b-4615-a6aa-15b4624c67fb")
-	)
-	(wire
-		(pts
-			(xy 168.91 86.36) (xy 209.55 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "52d75f81-0038-4737-9ab3-03580c9a6f6c")
 	)
 	(wire
 		(pts
@@ -1126,6 +1148,16 @@
 	)
 	(wire
 		(pts
+			(xy 203.2 88.9) (xy 177.8 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b7578fc-b498-4053-a1b1-6508cda78c60")
+	)
+	(wire
+		(pts
 			(xy 175.26 123.19) (xy 171.45 123.19)
 		)
 		(stroke
@@ -1133,6 +1165,16 @@
 			(type default)
 		)
 		(uuid "8d71c8c4-e610-475f-b4eb-de1af1002bbc")
+	)
+	(wire
+		(pts
+			(xy 187.96 86.36) (xy 187.96 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "990c88b6-65a6-491e-ba33-f6bcc6efcfbc")
 	)
 	(wire
 		(pts
@@ -1206,6 +1248,16 @@
 	)
 	(wire
 		(pts
+			(xy 168.91 86.36) (xy 177.8 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab1a3655-f756-4eae-a3f9-da9054b4e21b")
+	)
+	(wire
+		(pts
 			(xy 110.49 60.96) (xy 110.49 72.39)
 		)
 		(stroke
@@ -1236,7 +1288,7 @@
 	)
 	(wire
 		(pts
-			(xy 187.96 52.07) (xy 187.96 100.33)
+			(xy 187.96 52.07) (xy 187.96 86.36)
 		)
 		(stroke
 			(width 0)
@@ -1293,6 +1345,16 @@
 			(type default)
 		)
 		(uuid "bd69b42b-8e99-463e-a274-0113a8bb660b")
+	)
+	(wire
+		(pts
+			(xy 177.8 86.36) (xy 179.07 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c09dfd7a-e930-40d8-a223-b3e111ec3fbf")
 	)
 	(wire
 		(pts
@@ -1448,7 +1510,7 @@
 	)
 	(hierarchical_label "SW_A"
 		(shape output)
-		(at 209.55 86.36 0)
+		(at 203.2 88.9 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1794,6 +1856,73 @@
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
 					(reference "R20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_US")
+		(at 182.88 86.36 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6d923532-caeb-42f8-a856-f6346a91d574")
+		(property "Reference" "R12"
+			(at 182.88 80.01 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10K"
+			(at 182.88 82.55 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder"
+			(at 183.134 85.344 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 182.88 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, US symbol"
+			(at 182.88 86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4aae01e8-9acb-44b8-a943-f382459585c1")
+		)
+		(pin "2"
+			(uuid "c2b3e220-fbd3-4c71-bb5e-393b7d650648")
+		)
+		(instances
+			(project "Plant_Saver_Kicad"
+				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/bf3b52d9-1787-462a-86c6-de9a695c648b"
+					(reference "R12")
 					(unit 1)
 				)
 			)
