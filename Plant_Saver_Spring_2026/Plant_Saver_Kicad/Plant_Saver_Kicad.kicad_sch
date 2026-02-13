@@ -2009,6 +2009,113 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Mechanical:MountingHole_Pad"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom no)
+			(on_board yes)
+			(property "Reference" "H"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MountingHole_Pad"
+				(at 0 4.445 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Mounting Hole with connection"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "mounting hole"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "MountingHole*Pad*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "MountingHole_Pad_0_1"
+				(circle
+					(center 0 1.27)
+					(radius 1.27)
+					(stroke
+						(width 1.27)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "MountingHole_Pad_1_1"
+				(pin input line
+					(at 0 -2.54 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "SBH11_PBPC_D05_ST_BK:SBH11-PBPC-D05-ST-BK"
 			(pin_names
 				(offset 0.254)
@@ -5573,6 +5680,12 @@
 		(uuid "1fbb2b6a-f78f-4802-b20a-85384b86e621")
 	)
 	(junction
+		(at 339.09 146.05)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "20d1fd1d-fb8c-4271-b432-ef255e2af24e")
+	)
+	(junction
 		(at 73.66 140.97)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5625,6 +5738,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "4eb9cbfe-c3ab-473c-9de3-9f625f68f50e")
+	)
+	(junction
+		(at 342.9 133.35)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "52048066-d9d9-4188-b0b8-c9609a215c6d")
 	)
 	(junction
 		(at 168.91 154.94)
@@ -6272,7 +6391,7 @@
 	)
 	(wire
 		(pts
-			(xy 342.9 129.54) (xy 342.9 137.16)
+			(xy 342.9 129.54) (xy 342.9 133.35)
 		)
 		(stroke
 			(width 0)
@@ -6620,6 +6739,16 @@
 		)
 		(uuid "2a3352e0-9aa4-4617-8b07-8e8c4b60ced8")
 	)
+	(wire
+		(pts
+			(xy 339.09 156.21) (xy 330.2 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b864051-c41f-4913-9dc4-b1de54e01667")
+	)
 	(polyline
 		(pts
 			(xy 334.5016 96.0896) (xy 334.2394 96.0896)
@@ -6642,6 +6771,16 @@
 	)
 	(wire
 		(pts
+			(xy 342.9 133.35) (xy 342.9 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2d563531-ffaf-4f05-8dc9-1025079a2ccf")
+	)
+	(wire
+		(pts
 			(xy 242.57 148.59) (xy 252.73 148.59)
 		)
 		(stroke
@@ -6649,6 +6788,16 @@
 			(type default)
 		)
 		(uuid "2e131cf8-2ca2-4f15-9df0-844cb75055e6")
+	)
+	(wire
+		(pts
+			(xy 339.09 133.35) (xy 342.9 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e33222a-f06f-4116-b9d0-aa82c6faa1f3")
 	)
 	(polyline
 		(pts
@@ -7502,6 +7651,16 @@
 	)
 	(wire
 		(pts
+			(xy 339.09 146.05) (xy 339.09 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "590d3067-328a-41f9-bf6e-681e10be946c")
+	)
+	(wire
+		(pts
 			(xy 224.79 110.49) (xy 232.41 110.49)
 		)
 		(stroke
@@ -8039,6 +8198,16 @@
 			(type default)
 		)
 		(uuid "82f42b81-eff8-43df-b73f-a3e6f081aa6b")
+	)
+	(wire
+		(pts
+			(xy 330.2 146.05) (xy 339.09 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "83076795-4b9c-4795-8788-2a7b8b7d49a6")
 	)
 	(wire
 		(pts
@@ -8929,6 +9098,16 @@
 			(type default)
 		)
 		(uuid "cb3d4112-17fb-453c-bb7b-8d8a67972336")
+	)
+	(wire
+		(pts
+			(xy 339.09 146.05) (xy 339.09 133.35)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cbce857b-1235-4d65-ad00-1c8e846e3166")
 	)
 	(wire
 		(pts
@@ -11985,6 +12164,71 @@
 		)
 	)
 	(symbol
+		(lib_id "Mechanical:MountingHole_Pad")
+		(at 327.66 146.05 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "598de34b-1cfd-4ed7-bfbd-f067ab903e44")
+		(property "Reference" "H1"
+			(at 326.39 139.7 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MountingHole_Pad"
+			(at 326.39 142.24 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_4.3mm_M4_Pad"
+			(at 327.66 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 327.66 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole with connection"
+			(at 327.66 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "51149f81-7e78-445a-994c-e6c7fc5a7e3f")
+		)
+		(instances
+			(project ""
+				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
+					(reference "H1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 168.91 161.29 0)
 		(unit 1)
@@ -12733,6 +12977,71 @@
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
 					(reference "#PWR06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole_Pad")
+		(at 327.66 156.21 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a39c2bb1-9a87-43aa-8211-83304ae21495")
+		(property "Reference" "H2"
+			(at 326.39 149.86 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MountingHole_Pad"
+			(at 326.39 152.4 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_4.3mm_M4_Pad"
+			(at 327.66 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 327.66 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole with connection"
+			(at 327.66 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "228a06e5-a986-4c24-ba78-b1d21731ad6a")
+		)
+		(instances
+			(project "Plant_Saver_Kicad"
+				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
+					(reference "H2")
 					(unit 1)
 				)
 			)

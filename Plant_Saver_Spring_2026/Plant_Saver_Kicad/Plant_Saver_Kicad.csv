@@ -1,58 +1,58 @@
-"Reference","Qty","Value","DNP","Exclude from BOM","Exclude from Board","Footprint","Datasheet"
-"BT1","1","3.7V","","","Excluded from board","","~"
-"C1,C4,C10,C15,C16","5","0.1uF","","","","Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder","~"
-"C2,C6,C7,C9","4","10uF","","","","Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder","~"
-"C3,C5,C11,C12,C13","5","1uF","","","","Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder","~"
-"C8","1","1nF","","","","Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder","~"
-"C14","1","4.7uF","","","","Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder","~"
-"D1","1","ChargeLED1","","","Excluded from board","","~"
-"D2","1","ChargeLED2","","","Excluded from board","","~"
-"D3","1","ErrorLED","","","Excluded from board","","~"
-"J1","1","SBH11-PBPC-D05-ST-BK","","","Excluded from board","CONN_SBH11-PBPC-D05-ST-BK_SUL","SBH11-PBPC-D05-ST-BK"
-"J2","1","SBH11-PBPC-D05-ST-BK","","","","SBH11_PBPC_D05_ST_BK:CONN_SBH11-PBPC-D05-ST-BK_SUL","SBH11-PBPC-D05-ST-BK"
-"J3","1","SM04B-SRSS-TB","","","","Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal","~"
-"J4","1","SM04B-SRSS-TB","","Excluded from BOM","Excluded from board","Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal","~"
-"J5","1","Conn_01x02_Pin","","","","Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical","~"
-"J6","1","Conn_01x06_Socket","","","","Connector_PinSocket_2.54mm:PinSocket_1x06_P2.54mm_Vertical","~"
-"J7","1","S3B-PH-K-S","","","","Connector_JST:JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal","~"
-"J8","1","54-00284","","","","54_00284:TENSILITY_54-00284",""
-"J9","1","1.25mm","","","","1.25mm Micro-JST Male:CONN02_530470210_MOL","https://www.molex.com/en-us/products/part-detail-pdf/530470210?display=pdf"
-"J10","1","DM3D-SF","","","","DM3D_SF:HRS_DM3D-SF",""
-"J11","1","Test","","","","Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical","~"
-"Q1,Q2,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Q12","10","G09P02L","","","","G09P02L:TSOT-23","https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs"
-"Q3,Q11","2","ISP12DP06NMXTSA1","","","","ul_ISP12DP06NMXTSA1:PG-SOT223-4_INF",""
-"R1,R4,R12,R18,R19,R20,R21,R22,R23,R44,R45","11","10K","","","","Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder","~"
-"R2,R13,R15","3","100K","","","","Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder","~"
-"R3,R7","2","150K","","","","Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder","~"
-"R5,R6","2","5.1K","","","","Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder","~"
-"R8,R11,R42,R43","4","200K","","","","Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder","~"
-"R9,R10","2","NTCLE317E4103SBA","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R14","1","1K","","","","Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder","~"
-"R16","1","1K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R17","1","5.6K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R24","1","20K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R25,R26,R27","3","220","","","Excluded from board","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R28,R29,R30,R31,R40","5","205K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R32,R33,R34,R35,R41","5","301K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R36","1","3.6K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R37","1","22.1K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R38","1","71.5K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"R39","1","402K","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"SC1,SC2,SC3,SC4","4","Solar_Cell","","","","Capacitor_THT:C_Disc_D7.0mm_W2.5mm_P5.00mm","~"
-"SW1","1","Reset","","","","Button_Switch_THT:SW_PUSH_6mm","~"
-"SW2","1","25336NA","","","","25336NA:SWITCH_25336NA_APM",""
-"SW3","1","Boot","","","","Button_Switch_THT:SW_PUSH_6mm","~"
-"SW4","1","SA72SB0","","","","Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal","~"
-"SW5,SW6,SW7,SW8","4","3-1825910-5","","","Excluded from board","3_1825910_5:SW4_1825910-I_TEC","~"
-"TP1,TP2,TP3,TP4,TP5,TP6,TP7,TP9,TP10","9","TestPoint","","","","TestPoint:TestPoint_Pad_1.5x1.5mm","~"
-"TP8","1","TestPoint","","","","TestPoint:TestPoint_Pad_1.0x1.0mm","~"
-"U1,U2,U3,U4,U9,U11","6","CDBA140SL-HF","","","","CDBA140SL_HF:CDBA-HF","CDBA140SL-HF"
-"U5","1","ESP32-WROOM-32E-N16","","","","ul_ESP32-WROOM-32E-N16:ESP32­WROOM­32E_EXP","ESP32-WROOM-32E-N16"
-"U6","1","~","","","","Resistor_THT:R_Array_SIP4",""
-"U7","1","~","","","Excluded from board","Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal",""
-"U8","1","~","","","Excluded from board","Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal",""
-"U10","1","DW03C","","","","Package_TO_SOT_SMD:SOT-23-5_HandSoldering",""
-"U12","1","LP38511TJ-ADJ/NOPB","","","","LP38511TJ_ADJ_NOPB:TJ5A_TEX","https://www.ti.com/lit/gpn/lp38511-adj"
-"U13,U15","2","MCP73833-xxx-UN","","","","Package_SO:MSOP-10_3x3mm_P0.5mm","https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/DataSheets/22005b.pdf"
-"U14","1","MCP6234","","","","MCP6234_E_P:PDIP14_300MC_MCH","https://www.ti.com/lit/ds/symlink/opa1664.pdf"
-"U16","1","MCP6547T_I_MS","","","","MCP6547T_I_MS:MSOP8_MC_MCH","http://ww1.microchip.com/downloads/en/DeviceDoc/MCP6566-6R-6U-7-9-1.8V-Low-Power-Open-Drain-Output-Comparator-DS20002143G.pdf"
+Reference,Qty,Value,DNP,Exclude from BOM,Exclude from Board,Footprint,Datasheet
+BT1,1,3.7V,,,Excluded from board,,~
+"C1,C4,C10,C15,C16",5,0.1uF,,,,Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder,~
+"C2,C6,C7,C9",4,10uF,,,,Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder,~
+"C3,C5,C11,C12,C13",5,1uF,,,,Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder,~
+C8,1,1nF,,,,Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder,~
+C14,1,4.7uF,,,,Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder,~
+D1,1,ChargeLED1,,,Excluded from board,,~
+D2,1,ChargeLED2,,,Excluded from board,,~
+D3,1,ErrorLED,,,Excluded from board,,~
+J1,1,SBH11-PBPC-D05-ST-BK,,,Excluded from board,CONN_SBH11-PBPC-D05-ST-BK_SUL,SBH11-PBPC-D05-ST-BK
+J2,1,SBH11-PBPC-D05-ST-BK,,,,SBH11_PBPC_D05_ST_BK:CONN_SBH11-PBPC-D05-ST-BK_SUL,SBH11-PBPC-D05-ST-BK
+J3,1,SM04B-SRSS-TB,,,,Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal,~
+J4,1,SM04B-SRSS-TB,,Excluded from BOM,Excluded from board,Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal,~
+J5,1,Conn_01x02_Pin,,,,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,~
+J6,1,Conn_01x06_Socket,,,,Connector_PinSocket_2.54mm:PinSocket_1x06_P2.54mm_Vertical,~
+J7,1,S3B-PH-K-S,,,,Connector_JST:JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal,~
+J8,1,54-00284,,,,54_00284:TENSILITY_54-00284,
+J9,1,1.25mm,,,,1.25mm Micro-JST Male:CONN02_530470210_MOL,https://www.molex.com/en-us/products/part-detail-pdf/530470210?display=pdf
+J10,1,DM3D-SF,,,,DM3D_SF:HRS_DM3D-SF,
+J11,1,Test,,,,Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical,~
+"Q1,Q2,Q4,Q5,Q6,Q7,Q8,Q9,Q10,Q12",10,G09P02L,,,,G09P02L:TSOT-23,https://ngspice.sourceforge.io/docs/ngspice-html-manual/manual.xhtml#cha_MOSFETs
+"Q3,Q11",2,ISP12DP06NMXTSA1,,,,ul_ISP12DP06NMXTSA1:PG-SOT223-4_INF,
+"R1,R4,R12,R18,R19,R20,R21,R22,R23,R44,R45",11,10K,,,,Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,~
+"R2,R13,R15",3,100K,,,,Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,~
+"R3,R7",2,150K,,,,Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,~
+"R5,R6",2,5.1K,,,,Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,~
+"R8,R11,R42,R43",4,200K,,,,Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,~
+"R9,R10",2,NTCLE317E4103SBA,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+R14,1,1K,,,,Resistor_SMD:R_1206_3216Metric_Pad1.30x1.75mm_HandSolder,~
+R16,1,1K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+R17,1,5.6K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+R24,1,20K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+"R25,R26,R27",3,220,,,Excluded from board,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+"R28,R29,R30,R31,R40",5,205K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+"R32,R33,R34,R35,R41",5,301K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+R36,1,3.6K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+R37,1,22.1K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+R38,1,71.5K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+R39,1,402K,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+"SC1,SC2,SC3,SC4",4,Solar_Cell,,,,Capacitor_THT:C_Disc_D7.0mm_W2.5mm_P5.00mm,~
+SW1,1,Reset,,,,Button_Switch_THT:SW_PUSH_6mm,~
+SW2,1,25336NA,,,,25336NA:SWITCH_25336NA_APM,
+SW3,1,Boot,,,,Button_Switch_THT:SW_PUSH_6mm,~
+SW4,1,SA72SB0,,,,Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal,~
+"SW5,SW6,SW7,SW8",4,3-1825910-5,,,Excluded from board,3_1825910_5:SW4_1825910-I_TEC,~
+"TP1,TP2,TP3,TP4,TP5,TP6,TP7,TP9,TP10",9,TestPoint,,,,TestPoint:TestPoint_Pad_1.5x1.5mm,~
+TP8,1,TestPoint,,,,TestPoint:TestPoint_Pad_1.0x1.0mm,~
+"U1,U2,U3,U4,U9,U11",6,CDBA140SL-HF,,,,CDBA140SL_HF:CDBA-HF,CDBA140SL-HF
+U5,1,ESP32-WROOM-32E-N16,,,,ul_ESP32-WROOM-32E-N16:ESP32­WROOM­32E_EXP,ESP32-WROOM-32E-N16
+U6,1,~,,,,Resistor_THT:R_Array_SIP4,
+U7,1,~,,,Excluded from board,Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal,
+U8,1,~,,,Excluded from board,Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Horizontal,
+U10,1,DW03C,,,,Package_TO_SOT_SMD:SOT-23-5_HandSoldering,
+U12,1,LP38511TJ-ADJ/NOPB,,,,LP38511TJ_ADJ_NOPB:TJ5A_TEX,https://www.ti.com/lit/gpn/lp38511-adj
+"U13,U15",2,MCP73833-xxx-UN,,,,Package_SO:MSOP-10_3x3mm_P0.5mm,https://ww1.microchip.com/downloads/aemDocuments/documents/OTH/ProductDocuments/DataSheets/22005b.pdf
+U14,1,MCP6234,,,,MCP6234_E_P:PDIP14_300MC_MCH,https://www.ti.com/lit/ds/symlink/opa1664.pdf
+U16,1,MCP6547T_I_MS,,,,MCP6547T_I_MS:MSOP8_MC_MCH,http://ww1.microchip.com/downloads/en/DeviceDoc/MCP6566-6R-6U-7-9-1.8V-Low-Power-Open-Drain-Output-Comparator-DS20002143G.pdf
