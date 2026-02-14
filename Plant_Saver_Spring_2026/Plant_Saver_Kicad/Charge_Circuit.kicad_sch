@@ -3397,10 +3397,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "1e9ac7c0-c4e2-4e41-afde-355e1dd1c238")
 		(property "Reference" "BAT1"
-			(at 184.15 94.7419 0)
+			(at 184.15 94.742 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5901,7 +5900,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f80eba8d-3844-4eb5-9766-c21b3d56eca1")
-		(property "Reference" "BUS1"
+		(property "Reference" "Bus1"
 			(at 270.51 99.8219 0)
 			(effects
 				(font
@@ -5952,7 +5951,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/c1b5c94f-5fb5-4e2b-895b-5d171c372d7d"
-					(reference "BUS1")
+					(reference "Bus1")
 					(unit 1)
 				)
 			)

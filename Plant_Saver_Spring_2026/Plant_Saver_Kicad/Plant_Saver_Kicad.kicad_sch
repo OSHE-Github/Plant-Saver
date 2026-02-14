@@ -11004,7 +11004,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0b996bb5-be23-4c56-a686-8dab5dc6ed48")
-		(property "Reference" "SCL1"
+		(property "Reference" "CLK1"
 			(at 285.75 139.1919 0)
 			(effects
 				(font
@@ -11055,7 +11055,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
-					(reference "SCL1")
+					(reference "CLK1")
 					(unit 1)
 				)
 			)
@@ -12307,7 +12307,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "74f9321c-e7fb-4ce2-9332-577a254f076a")
-		(property "Reference" "SW3"
+		(property "Reference" "Boot1"
 			(at 306.07 219.71 0)
 			(effects
 				(font
@@ -12359,7 +12359,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
-					(reference "SW3")
+					(reference "Boot1")
 					(unit 1)
 				)
 			)
@@ -13057,7 +13057,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ab927515-f664-4648-b42b-1c1f764bcf67")
-		(property "Reference" "SDA1"
+		(property "Reference" "DAT1"
 			(at 273.05 139.1919 0)
 			(effects
 				(font
@@ -13108,7 +13108,7 @@
 		(instances
 			(project ""
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
-					(reference "SDA1")
+					(reference "DAT1")
 					(unit 1)
 				)
 			)
@@ -13124,7 +13124,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "aec6cc9d-574a-4ed8-9b6c-50b09ec02c48")
-		(property "Reference" "SOL1"
+		(property "Reference" "SOLA1"
 			(at 154.94 97.0279 0)
 			(effects
 				(font
@@ -13175,7 +13175,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
-					(reference "SOL1")
+					(reference "SOLA1")
 					(unit 1)
 				)
 			)
@@ -13854,7 +13854,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d36ee2d8-2da4-47a6-9e60-0068b3b14527")
-		(property "Reference" "SW1"
+		(property "Reference" "Res1"
 			(at 210.82 176.276 0)
 			(effects
 				(font
@@ -13906,7 +13906,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd"
-					(reference "SW1")
+					(reference "Res1")
 					(unit 1)
 				)
 			)
