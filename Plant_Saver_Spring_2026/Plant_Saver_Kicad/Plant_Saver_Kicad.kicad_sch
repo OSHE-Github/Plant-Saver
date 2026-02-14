@@ -12189,7 +12189,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_4.3mm_M4_Pad"
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_ISO7380_Pad"
 			(at 327.66 146.05 0)
 			(effects
 				(font
@@ -13008,7 +13008,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_4.3mm_M4_Pad"
+		(property "Footprint" "MountingHole:MountingHole_2.2mm_M2_ISO7380_Pad"
 			(at 327.66 156.21 0)
 			(effects
 				(font
