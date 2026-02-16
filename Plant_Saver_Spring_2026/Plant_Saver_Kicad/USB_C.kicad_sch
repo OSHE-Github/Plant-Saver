@@ -885,7 +885,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "06328823-bb94-4fd6-ac8d-d0f36e4d02d7")
-		(property "Reference" "TP1"
+		(property "Reference" "USB1"
 			(at 176.53 90.9319 0)
 			(effects
 				(font
@@ -936,7 +936,7 @@
 		(instances
 			(project "Plant_Saver_Kicad"
 				(path "/7f244634-d37a-4ff0-ba36-8027330ab1bd/d7563033-ba85-41e2-802f-f59d27bfdb8e"
-					(reference "TP1")
+					(reference "USB1")
 					(unit 1)
 				)
 			)
