@@ -194,8 +194,7 @@ void Plant::humidityCheck() {
 /*---------------------------------------------------------- Sensor Reading Class ----------------------------------------------------------*/
 
 // Initialization
-SensorReading::SensorReading()
-  : timeStamp{} {
+SensorReading::SensorReading(){
   tempReading = 0;
   waterReading = 0;
   humidityReading = 0;
@@ -227,87 +226,15 @@ JsonDocument Container::addSensorReading(JsonDocument sensorDoc, float reading) 
   return sensorDoc;
 }
 
-// DELETE THIS STUFF
-// Add a new timestamp to the array in FIFO format. numReadings is stored as JSON, readings are just raw text data
-// To avoid pulling hundreds of strings at a time, the function
-// 1. Pulls from the dates file one by one, writing each back into a temporary file
-// 2. Places the new timestamp at the top of the data
-// 3. Reads from the temporary file character by character into the original file
-// 4. Deletes the temporary file, leaving the modified original file
-void Container::addTimeStamp() {
-  char fileName[MAX_CHARS_FILENAME] = { 0 };
-  snprintf(fileName, MAX_CHARS_FILENAME, "/plant%i/dates.txt", header.activePlantID); 
-  char tempFileName[MAX_CHARS_FILENAME] = { 0 };
-  snprintf(tempFileName, MAX_CHARS_FILENAME, "/plant%i/tmp.txt", header.activePlantID);
-  File inputFile = SD.open(fileName, FILE_READ);
-  File outputFile = SD.open(tempFileName, FILE_WRITE);
-  if (!inputFile || !outputFile) {
-    error.addError(fileOperation);
-    inputFile.close();
-    outputFile.close();
-    return;
-  }
-  JsonDocument timeParamsDoc;
-  JsonDocument filter;
-  filter["numReadings"] = true; // Only pull out data associated with the numReadings key
-  DeserializationError jsonDeserializationError = deserializeJson(timeParamsDoc, inputFile,
-                                                                  DeserializationOption::Filter(filter));
-  if (jsonDeserializationError) {
-    inputFile.close();
-    outputFile.close();
-    SD.remove(tempFileName);
-    error.addError(jsonError);
-    return;
-  }
-  int numReadings = timeParamsDoc["numReadings"];
-  numReadings = (numReadings < MAX_SENSOR_READINGS) ? numReadings + 1 : numReadings;
-  timeParamsDoc["numReadings"] = numReadings;
-  serializeJson(timeParamsDoc, outputFile);
-  timeParamsDoc.clear();
-  outputFile.print("\r\n"); // Need a newline after every timestamp for future operations
-  inputFile.seek(0);
-  inputFile.find("}");
-  outputFile.println(sensorReading.timeStamp);
-  if (numReadings - 1 > 0) {
-    inputFile.seek(inputFile.position() + 2);  // go past newline to start reading
-  }
-  for (int i = 1; i < numReadings; i++) {
-    char timeStampCopy[NUM_CHARS_TIMESTAMP] = { 0 };
-    inputFile.readBytesUntil('\r', timeStampCopy, NUM_CHARS_TIMESTAMP);
-    outputFile.println(timeStampCopy);
-    inputFile.seek(inputFile.position() + 1);
-  }
-  inputFile.close();
-  outputFile.close();
-  inputFile = SD.open(tempFileName, FILE_READ);  // cannot rename files, so write back instead
-  if (!inputFile) {
-    error.addError(fileOperation);
-    return;
-  }
-  outputFile = SD.open(fileName, FILE_WRITE);
-  if (!outputFile) {
-    inputFile.close();
-    error.addError(fileOperation);
-    return;
-  }
-  while (inputFile.available()) {
-    outputFile.write((char)inputFile.read());
-  }
-  outputFile.close();
-  inputFile.close();
-  SD.remove(tempFileName);
-}
-
 // Pull in plant data, add new readings, take averages, then push back to storage files
 // To avoid excessive memory usage, each file is modified separately
 void Container::updatePlantData() {
-  int plantID = header.activePlantID;
   char fileName[MAX_CHARS_FILENAME] = { 0 };
   JsonDocument sensorDoc;
   for (int i = 0; i < 4; i++) {
     switch (i) {
       case lightFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, LIGHT_PATH, plantID);
+        snprintf(fileName, MAX_CHARS_FILENAME, LIGHT_PATH);
         sensorDoc = readSDFile(fileName);
         if (sensorDoc.isNull()) {
           error.addError(fileOperation);
@@ -317,7 +244,7 @@ void Container::updatePlantData() {
         activePlant.avgLight = activePlant.getAvgReading(sensorDoc);
         break;
       case waterFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, WATER_PATH, plantID);
+        snprintf(fileName, MAX_CHARS_FILENAME, WATER_PATH);
         sensorDoc = readSDFile(fileName);
         if (sensorDoc.isNull()) {
           error.addError(fileOperation);
@@ -327,7 +254,7 @@ void Container::updatePlantData() {
         activePlant.avgWater = activePlant.getAvgReading(sensorDoc);
         break;
       case humidityFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, HUMIDITY_PATH, plantID);
+        snprintf(fileName, MAX_CHARS_FILENAME, HUMIDITY_PATH);
         sensorDoc = readSDFile(fileName);
         if (sensorDoc.isNull()) {
           error.addError(fileOperation);
@@ -337,7 +264,7 @@ void Container::updatePlantData() {
         activePlant.avgHumidity = activePlant.getAvgReading(sensorDoc);
         break;
       case tempFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, TEMP_PATH, plantID);
+        snprintf(fileName, MAX_CHARS_FILENAME, TEMP_PATH);
         sensorDoc = readSDFile(fileName);
         if (sensorDoc.isNull()) {
           error.addError(fileOperation);
@@ -353,7 +280,6 @@ void Container::updatePlantData() {
     }
     sensorDoc.clear();
   }
-  this->addTimeStamp();
 }
 
 // Pull in the header data from the SD and parse it into a header object
@@ -366,9 +292,7 @@ void Container::pullHeader() {
     return;
   }
   header.numDBPlants = headerDoc["numDBPlants"];
-  header.activePlantID = headerDoc["activePlantID"];
-  const char* date = headerDoc["date"];
-  snprintf(header.date, NUM_CHARS_TIMESTAMP, "%s", date);
+  header.plantSelected = headerDoc["plantSelected"];
   header.lightThreshold = headerDoc["lightThreshold"];
   header.tempThreshold = headerDoc["tempThreshold"];
   header.waterThreshold = headerDoc["waterThreshold"];
@@ -381,9 +305,7 @@ void Container::pullHeader() {
 void Container::pushHeader() {
   JsonDocument headerDoc;
   headerDoc["numDBPlants"] = header.numDBPlants;
-  headerDoc["activePlantID"] = header.activePlantID;
-  getTimeStr(header.date);  // Header date should always be the time of shutdown
-  headerDoc["date"] = header.date;
+  headerDoc["plantSelected"] = header.plantSelected;
   headerDoc["lightThreshold"] = header.lightThreshold;
   headerDoc["tempThreshold"] = header.tempThreshold;
   headerDoc["waterThreshold"] = header.waterThreshold;
@@ -398,7 +320,6 @@ void Container::pushHeader() {
 
 // Pull data from the plant file of the active plant's folder and parse it into a plant object
 void Container::pullActivePlant() {
-  char fileName[MAX_CHARS_FILENAME] = { 0 };
   JsonDocument plantDoc = readSDFile(PLANT_PATH);
   if (plantDoc.isNull()) {
     error.addError(fileOperation);
@@ -427,8 +348,6 @@ void Container::pullActivePlant() {
 
 // Take data from a plant object and push it into the plant file of the active plant's folder
 void Container::pushPlant() {
-  char fileName[MAX_CHARS_FILENAME] = { 0 };
-  snprintf(fileName, MAX_CHARS_FILENAME, PLANT_PATH, header.activePlantID);
   JsonDocument plantDoc;
   plantDoc["baseID"] = activePlant.baseID;
   plantDoc["commonName"] = activePlant.commonName;
@@ -447,7 +366,7 @@ void Container::pushPlant() {
   plantDoc["avgWater"] = activePlant.avgWater;
   plantDoc["avgHumidity"] = activePlant.avgHumidity;
   plantDoc["avgTemp"] = activePlant.avgTemp;
-  int pushJsonError = pushJsonDoc(plantDoc, fileName);
+  int pushJsonError = pushJsonDoc(plantDoc, PLANT_PATH);
   if (pushJsonError) {
     error.addError(pushJsonError);
   }
@@ -459,14 +378,11 @@ void Container::pushPlant() {
 void Container::newUserPlant() {
   clearSensorData();
   JsonDocument plantDoc;
-  Serial.println(interface.displayPlantIDs[interface.displayMap[interface.displayMap[3]]]);
   int pullError = pullPlant(PLANT_DB_PATH, interface.displayPlantIDs[interface.displayMap[interface.displayMap[3]]], plantDoc);
   if (pullError) {
-    Serial.println("pull error");
     error.addError(pullError);
     return;
   }
-  Serial.println("no pull error");
   activePlant.baseID = plantDoc["id"];
   const char* commonName = plantDoc["name"];
   snprintf(activePlant.commonName, NUM_CHARS_NAME, "%s", commonName);
@@ -483,6 +399,8 @@ void Container::newUserPlant() {
   activePlant.lightReq[1] = (jsonLightReqs.size() > 1) ? jsonLightReqs[jsonLightReqs.size() - 1] : 0;
   activePlant.waterReq[0] = jsonWaterReqs[0];
   activePlant.waterReq[1] = (jsonWaterReqs.size() > 1) ? jsonWaterReqs[jsonWaterReqs.size() - 1] : 0;
+  plantDoc.clear();
+  header.plantSelected = 1;
 }
 
 // Remove all sensor readings for the currently selected plant
@@ -530,14 +448,13 @@ void Container::clearSensorData() {
 /*-------------------------------------------------------------- Header Class --------------------------------------------------------------*/
 
 // Initialization
-Header::Header()
-  : date{} {
-  activePlantID = 0;
+Header::Header() {
   numDBPlants = 0;
   lightThreshold = 0;
   tempThreshold = 0;
   waterThreshold = 0;
   humidityThreshold = 0;
+  plantSelected = 0;
 }
 
 /*------------------------------------------------------------------- Error Class ------------------------------------------------------------------*/
@@ -680,6 +597,14 @@ void Interface::displayInputMenu() {
 void Interface::displaySelectMenu() {
   display.clearDisplay();
   display.setTextSize(1);
+  if (numSelectCandidates < 1) {
+    display.setCursor(35, 30);
+    display.setTextColor(SSD1306_WHITE);
+    display.println("NO RESULTS");
+    display.display();
+    activeMenu = selectMenu;
+    return;
+  }
   display.fillRect(0, 25, 3*display.width()/4, 20, SSD1306_WHITE);
   switch (displayMap[3]) {
     case 0:
@@ -774,14 +699,11 @@ void Interface::scrollSelectDown() {
   uint8_t mid = 1;
   uint8_t bot = 2;
   uint8_t act = 3;
-  Serial.println(numSelectCandidates);
-  Serial.println(NUM_CANDIDATES_SHOWN);
   if (numSelectCandidates == 0) { // Nothing to scroll
     return;
   }
   if (numSelectCandidates < NUM_CANDIDATES_SHOWN) { // Not enough candidates to scroll
     displayMap[act] = (displayMap[act] + 1) % numSelectCandidates;
-    Serial.println(displayIndices[displayMap[displayMap[act]]]);
     return;
   }
   if (displayMap[act] == top) { // At top
@@ -853,7 +775,6 @@ void Interface::scrollSelectUp() {
 // Sorted results are cached in a temporary file which is deleted before sleeping
 void Interface::queryDBPlants() {
   // Step 1 -> Find # of candidates
-  Serial.println(query);
   numSelectCandidates = 0;
   File dbFile = SD.open(PLANT_DB_PATH, FILE_READ);
   if (!dbFile) {
@@ -872,9 +793,6 @@ void Interface::queryDBPlants() {
   }
   dbFile.close();
   if (numSelectCandidates < 1) { 
-    //
-    //TODO: WHAT DO?
-    //
     return;
   }
   uint8_t candidateDiffs[numSelectCandidates] = {};
@@ -956,7 +874,6 @@ void Interface::queryDBPlants() {
   tmpGatherFile.close();
   tmpSortFile.close();
   SD.remove(TMP_GATHER_PATH);
-  Serial.println(numSelectCandidates);
   // Step 5 -> pull first three plants to display
   for (int i = 0; i < 3; i++) {
     if ((i + 1) > numSelectCandidates) {
@@ -998,7 +915,7 @@ void Interface::pullCachedData(int index, char name[], int& id) {
 }
 
 // Cycle through available screens
-void Interface::nextScreen(Plant activePlant) {
+void Interface::nextScreen(Plant activePlant, bool plantSelected) {
   activeMenu = (activeMenu + 1) % (numMenus);
   activeMenu = activeMenu == 0 ? 1 : activeMenu;
   switch (activeMenu) {
@@ -1009,7 +926,11 @@ void Interface::nextScreen(Plant activePlant) {
       displayMainMenu(activePlant);
       break;
     case infoMenu:
-      displayInfoMenu(activePlant);
+      if (plantSelected) { 
+        displayInfoMenu(activePlant);
+      } else {
+        displayInputMenu();
+      }
       break;
     case inputMenu:
       displayInputMenu();
@@ -1057,63 +978,6 @@ int pushJsonDoc(JsonDocument doc, char fileName[MAX_CHARS_FILENAME]) {
   return error;
 }
 
-// Fills a pre-allocated buffer with a date string matching ISO 8601, millseconds excluded
-void getTimeStr(char* buffer) {
-  time_t now;
-  struct tm timeInfo;
-  time(&now);
-  localtime_r(&now, &timeInfo);
-  snprintf(buffer, NUM_CHARS_TIMESTAMP, "%d-%02d-%02d %02d:%02d:%02d",
-           timeInfo.tm_year + 1900, timeInfo.tm_mon + 1, timeInfo.tm_mday,
-           timeInfo.tm_hour, timeInfo.tm_min, timeInfo.tm_sec);
-}
-
-// Set the the local RTC time using a date string matching ISO 8601, milliseconds excluded
-bool setTimeFromTimeStr(char timeStr[]) {
-  for (int i = 0; i < 19; i++) {
-    if (timeStr[i] == '\0') {
-      return 0;
-    }
-  }
-  char secChar[3] = { 0 };
-  memcpy(secChar, timeStr + 17, 2);
-  int sec = atoi(secChar);
-  char minChar[3] = { 0 };
-  memcpy(minChar, timeStr + 14, 2);
-  int min = atoi(minChar);
-  char hourChar[3] = { 0 };
-  memcpy(hourChar, timeStr + 11, 2);
-  int hour = atoi(hourChar);
-  char dayChar[3] = { 0 };
-  memcpy(dayChar, timeStr + 8, 2);
-  int day = atoi(dayChar);
-  char monthChar[3] = { 0 };
-  memcpy(monthChar, timeStr + 5, 2);
-  int month = atoi(monthChar);
-  char yearChar[5] = { 0 };
-  memcpy(yearChar, timeStr, 4);
-  int year = atoi(yearChar);
-  struct tm timeInfo;
-  timeInfo.tm_year = year - 1900;
-  timeInfo.tm_mon = month - 1;
-  timeInfo.tm_mday = day;
-  timeInfo.tm_hour = hour;
-  timeInfo.tm_min = min;
-  timeInfo.tm_sec = sec;
-  time_t epoch = mktime(&timeInfo);
-  struct timeval tv;
-  if (epoch > 2082758399) {
-    tv.tv_sec = epoch - 2082758399;
-  } else {
-    tv.tv_sec = epoch;
-  }
-  tv.tv_usec = 0;
-  if (settimeofday(&tv, NULL) == -1) {
-    return 0;
-  }
-  return 1;
-}
-
 // Helper for querying
 // Compare a candidate name to the query string
 uint8_t compareToQuery(char candidate[], char query[]) {
@@ -1135,7 +999,6 @@ int pullPlant(char fileName[], int id, JsonDocument& doc) {
   bool found = file.find(searchID1);
   if (!found) {
     file.close();
-    Serial.println("not found");
     return fileOperation;
   }
   unsigned long marker1 = file.position() - search1CharCt;

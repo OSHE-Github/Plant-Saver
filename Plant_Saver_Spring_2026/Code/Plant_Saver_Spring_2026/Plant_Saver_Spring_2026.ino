@@ -40,7 +40,7 @@
 
 const uint64_t usPerMinute = 60000000;  // Conversion factor between minutes and microseconds
 const uint64_t samplingPeriodM = 1;     // Time between sensor measurements in minutes
-RTC_DATA_ATTR bool powerUpFlag = 0;     // used for initialization after a power-up (primarily timekeeping)
+RTC_DATA_ATTR bool powerUpFlag = 0;     // used for initialization after a power-up
 
 /*---------------------------------------------------- Object Instantiation ----------------------------------------------------*/
 
@@ -107,7 +107,7 @@ void loop() {
 //
 
 /*
-  Initialize all peripherals, then pull header data. If not already set, date is pulled from timestamp in header
+  Initialize all peripherals, then pull header data.
   If a user plant had been selected previously, that data is also pulled in. 
 */
 void startupModeHandler(Container &container) {
@@ -154,22 +154,17 @@ void startupModeHandler(Container &container) {
     if (!container.headerPulled) {
       container.pullHeader();
     }
-    if (!container.plantPulled && container.headerPulled && container.header.activePlantID != 0) {
+    if (!container.plantPulled && container.headerPulled && container.header.plantSelected) {
       container.pullActivePlant();  // Grab the active user plant only if it exists
     }
   }
 
   // Power-up initialization
   if (!powerUpFlag) {
-    char fallBackTimeStr[] = "2025-11-01 00:00:00";  // Default time, used only if the header timestamp cannot be found
-    if (container.headerPulled && container.header.date[0] != '\0') {
-      if (!setTimeFromTimeStr(container.header.date)) {
-        setTimeFromTimeStr(fallBackTimeStr);
-      }
-    } else {
-      setTimeFromTimeStr(fallBackTimeStr);
-    }
-    powerUpFlag = 1;
+    // Nothing ATM
+    //
+    // TODO: Probably solar enable here?
+    //
   }
 
   if (initFailed == 1) {  // One or more peripherals failed to initialize
@@ -188,7 +183,7 @@ void startupModeHandler(Container &container) {
     }
   }
 
-  if (container.headerPulled && container.header.activePlantID == 0) {  // Automatically switch to display mode if no plant selected yet
+  if (container.headerPulled && !container.header.plantSelected) {  // Automatically switch to display mode if no plant selected yet
     container.activeMode = displayMode;
   }
 }
@@ -214,6 +209,7 @@ void displayModeHandler(Container &container) {
     container.activePlant.checkThresholds();
     container.interface.displayMainMenu(container.activePlant);
   }
+
   // Change screen button
   if (!digitalRead(CHG_SCREEN_BTN) && chgOns == 0) {
     chgOns = 1;
@@ -222,7 +218,7 @@ void displayModeHandler(Container &container) {
       container.interface.selectedQueryChar = (container.interface.selectedQueryChar + 1) % NUM_CHARS_QUERY;
       container.interface.displayInputMenu();
     } else if (container.interface.activeMenu != inputMenu || !container.interface.screenFocus) {
-      container.interface.nextScreen(container.activePlant);
+      container.interface.nextScreen(container.activePlant, container.header.plantSelected);
     }
   } else if (digitalRead(CHG_SCREEN_BTN) && chgOns && millis() - chgDb > BUTTON_DEBOUNCE) {
     chgOns = 0;
@@ -272,7 +268,7 @@ void displayModeHandler(Container &container) {
         container.interface.queryDBPlants();
         container.interface.displaySelectMenu();
       }
-    } else if (container.interface.activeMenu == selectMenu){
+    } else if (container.interface.activeMenu == selectMenu && container.interface.numSelectCandidates > 0){
       container.newUserPlant();
       container.activePlant.checkThresholds();
     }
@@ -317,7 +313,6 @@ void sensingModeHandler(Container &container) {
     waterRead = 1;
   }
 
-  getTimeStr(container.sensorReading.timeStamp);
 
   if (lightRead == 1 && humidityRead == 1 && tempRead == 1 && waterRead == 1) {
     container.updatePlantData();

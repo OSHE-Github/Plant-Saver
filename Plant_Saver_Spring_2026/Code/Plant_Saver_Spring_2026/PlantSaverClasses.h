@@ -14,7 +14,6 @@
 #define SCREEN_HEIGHT 64  // OLED display height, in pixels
 #define OLED_RESET -1     // OLED Reset pin # (or -1 if sharing Arduino reset pin)
 #define MAX_CHARS_FILENAME 21
-#define NUM_CHARS_TIMESTAMP 25
 #define MAX_SENSOR_READINGS 200  // # of sensor readings allowed in FIFO
 #define NUM_CHARS_NAME 50
 #define NUM_CHARS_FACT 100
@@ -87,20 +86,18 @@ public:
   float humidityReading;
   float lightReading;
   int plantID;  // Self ID of the associated user plant - might be able to remove this since all are associated with a datagroup
-  char timeStamp[NUM_CHARS_TIMESTAMP];
 };
 
 // Class for storing/retrieving header file data
 class Header {
 public:
   Header();
-  int activePlantID;
-  char date[NUM_CHARS_TIMESTAMP];
   int numDBPlants;  // Number of plants in the larger read-only database
   int lightThreshold;
   int tempThreshold;
   int waterThreshold;
   int humidityThreshold;
+  bool plantSelected;
 };
 
 // Class to store/manipulate/report system errors
@@ -135,7 +132,7 @@ public:
   void scrollSelectUp();
   void queryDBPlants();
   void pullCachedData(int index, char name[], int& id);
-  void nextScreen(Plant activePlant);
+  void nextScreen(Plant activePlant, bool plantSelected);
   void displayOff();
   int selectedPlantIndex;
   int activeMenu;
@@ -160,10 +157,9 @@ public:
   void pushHeader();
   void pullActivePlant();
   void pushPlant();
-  void pullCachedData(char fileName[], int index, char name[], int& id);
+  void pullCachedData(int index, char name[], int& id);
   void getDBPlants();
   void newUserPlant();
-  void addTimeStamp();
   void clearSensorData();
   Plant activePlant;
   Error error;
@@ -184,12 +180,6 @@ JsonDocument readSDFile(char fileName[]);
 
 // Standalone file writer
 int pushJsonDoc(JsonDocument doc, char fileName[]);
-
-// Standalone time utility
-void getTimeStr(char* buffer);
-
-// Standalone timekeeping utility
-bool setTimeFromTimeStr(char timeStr[]);
 
 // Standalone helper for querying
 uint8_t compareToQuery(char candidate[], char query[]);
