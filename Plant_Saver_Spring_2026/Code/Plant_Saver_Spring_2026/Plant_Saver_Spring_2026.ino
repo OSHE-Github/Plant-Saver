@@ -10,9 +10,12 @@
 #include <math.h>
 #include <ArduinoJson.h>
 #include "driver/rtc_io.h"
+<<<<<<< HEAD
 #include <WiFi.h>               // WiFi for ESP32 Access Point
 #include <ESPAsyncWebServer.h>  // Async Web Server
 #include "PlantServer.h"
+=======
+>>>>>>> origin/main
 
 /*---------------------------------------------------------- Macros ---------------------------------------------------------*/
 
@@ -89,8 +92,11 @@ void setup() {
   // Start serial monitor
   Serial.begin(115200);
   delay(2000);  // Allow time for serial to initialize
+<<<<<<< HEAD
 
   initializePlantServer();
+=======
+>>>>>>> origin/main
 }
 
 /*---------------------------------------------------------- Main Loop ----------------------------------------------------------*/
@@ -100,7 +106,10 @@ void setup() {
   Error occurrence holds the active state to return if the error can be cleared.
 */
 void loop() {
+<<<<<<< HEAD
   handlePlantServer();
+=======
+>>>>>>> origin/main
   static Container container;
   if (container.error.highestPriority) {
     errorModeHandler(container);
