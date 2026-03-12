@@ -139,6 +139,7 @@ public:
   void pullCachedData(int index, char name[], int& id);
   void nextScreen(bool plantSelected);
   void displayOff();
+  char displayRecommendation(int recInd, int min, int max, int lowThresh, int highThresh, int val);
   int selectedPlantIndex;
   int activeMenu;
   int numSelectCandidates;
