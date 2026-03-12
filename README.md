@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-﻿# Plant-Saver
+# Plant-Saver
 ## Project Description
 This is a project within Michigan Technological University's Open Source Hardware Enterprise (OSHE) focused on providing a tool for indoor plant growth hobbyists and enthusiasts. The Plant-Saver is designed to use data from multiple sensors over days or weeks to assess the suitability of an environment for plant growth. 
 
@@ -31,8 +30,8 @@ After copying the filesystem onto a micro SD, the only file which may need editi
  * This project makes use of data provided by the Permapeople agricultural database, located at [permapeople.org](https://permapeople.org/). The database and related content is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by/4.0/). Only slight formatting modifications were made to the data received via their API to allow for integration with this project.
 
  * Thanks to Dr. Shane Oberloier for his advisorship, Michigan Technological University for funding and use of facilities, and the rest of the OSHE team for their direct and indirect support.
-=======
-﻿# Plant-Saver
+
+# Plant-Saver
 ## Project Description
 This is a project within Michigan Technological University's Open Source Hardware Enterprise (OSHE) focused on providing a tool for indoor plant growth hobbyists and enthusiasts. The Plant-Saver is designed to use data from multiple sensors over days or weeks to assess the suitability of an environment for plant growth. 
 
@@ -64,4 +63,3 @@ After copying the filesystem onto a micro SD, the only file which may need editi
  * This project makes use of data provided by the Permapeople agricultural database, located at [permapeople.org](https://permapeople.org/). The database and related content is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by/4.0/). Only slight formatting modifications were made to the data received via their API to allow for integration with this project.
 
  * Thanks to Dr. Shane Oberloier for his advisorship, Michigan Technological University for funding and use of facilities, and the rest of the OSHE team for their direct and indirect support.
->>>>>>> origin/main
