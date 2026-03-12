@@ -11,18 +11,74 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);  // Create OLED display object
 
-/*--------------------------------------------------------- DBPlant Class ---------------------------------------------------------*/
+/*------------------------------------------------------------------- Error Class ------------------------------------------------------------------*/
 
 // Initialization
-DBPlant::DBPlant()
-  : commonName{}, scientificName{}, fact{}, lightReq{}, waterReq{}, hardiness{} {}
+Error::Error()
+  : _errorList{}, highestPriority{}, _flashCt{}, _indicatorOn{}, _startTime{} {
+  _flashDuration = 100;
+}
+
+// Check for presence of a specific error
+int Error::getError(int errorStatus) {
+  return _errorList[errorStatus];
+}
+
+// Add a new error to the list, update highest priority error
+void Error::addError(int errorStatus) {
+  if (!_errorList[errorStatus]) {
+    _errorList[errorStatus] = errorStatus;
+    if (errorStatus > highestPriority) {
+      highestPriority = errorStatus;
+    }
+  }
+}
+
+// Clear the presence of a specific error
+void Error::clearError(int errorStatus) {
+  _errorList[errorStatus] = noError;
+  highestPriority = 0;
+  for (int i = errorStatus; i > 0; i--) {
+    if (_errorList[i]) {
+      highestPriority = _errorList[i];
+      return;
+    }
+  }
+}
+
+// Flash the indicator LED a number of times equal to the highest priority error code
+void Error::indicateError() {
+  if (highestPriority == noError) {
+    digitalWrite(ERROR_IND_PIN, LOW);
+    _indicatorOn = 0;
+    return;
+  }
+  unsigned long currentTime = millis();
+  if (_flashCt < highestPriority) {
+    if (!_indicatorOn && currentTime - _startTime >= 600) {
+      digitalWrite(ERROR_IND_PIN, HIGH);
+      _startTime = currentTime;
+      _indicatorOn = 1;
+    } else if (_indicatorOn && currentTime - _startTime >= 600) {
+      digitalWrite(ERROR_IND_PIN, LOW);
+      _startTime = currentTime;
+      _flashCt++;
+      _indicatorOn = 0;
+    }
+  } else {
+    if (currentTime - _startTime >= 3000) {
+      _startTime = currentTime;
+      _flashCt = 0;
+    }
+  }
+}
 
 /*---------------------------------------------------------- Plant Class ----------------------------------------------------------*/
 
 // Initialization
-Plant::Plant()
-  : commonName{}, scientificName{}, fact{}, lightReq{}, waterReq{}, hardiness{} {
-  baseID = 0;
+Plant::Plant(Error& errorRef)
+  : commonName{}, scientificName{}, fact{}, lightReq{}, waterReq{}, hardiness{}, error(errorRef) {
+  id = 0;
   avgLight = 0;
   avgWater = 0;
   avgHumidity = 0;
@@ -31,6 +87,7 @@ Plant::Plant()
   waterEval = 0;
   humidityEval = 0;
   tempEval = 0;
+  plantPulled = 0;
 }
 
 // Take average of sensor readings
@@ -49,6 +106,10 @@ float Plant::getAvgReading(JsonDocument sensorDoc) {
   return avg;
 }
 
+//
+// TODO: Calibration File
+//
+
 // Check all average values against thresholds
 void Plant::checkThresholds() {
   lightCheck();
@@ -58,6 +119,9 @@ void Plant::checkThresholds() {
 }
 
 // Map light requirements to thresholds, then check average reading
+//
+// TODO: Re-vamp to work w/ solar cells
+//
 void Plant::lightCheck() {
   int lightReqLowHigh[2] = { 0 };  // [0] = low value, [1] = high value
   lightReqLowHigh[0] = lightReq[0];
@@ -191,6 +255,61 @@ void Plant::humidityCheck() {
   }
 }
 
+// Pull data from the plant file of the active plant's folder and parse it into a plant object
+void Plant::pullPlant() {
+  JsonDocument plantDoc = readSDFile(PLANT_PATH);
+  if (plantDoc.isNull()) {
+    error.addError(fileOperation);
+    return;
+  }
+  id = plantDoc["id"];
+  const char* jsonCommonName = plantDoc["commonName"];
+  snprintf(commonName, NUM_CHARS_NAME, "%s", jsonCommonName);
+  const char* jsonScientificName = plantDoc["scientificName"];
+  snprintf(scientificName, NUM_CHARS_NAME, "%s", jsonScientificName);
+  const char* jsonFact = plantDoc["fact"];
+  snprintf(fact, NUM_CHARS_FACT, "%s", jsonFact);
+  lightReq[0] = plantDoc["lightReq"][0];
+  lightReq[1] = plantDoc["lightReq"][1];
+  waterReq[0] = plantDoc["waterReq"][0];
+  waterReq[1] = plantDoc["waterReq"][1];
+  hardiness[0] = plantDoc["hardiness"][0];
+  hardiness[1] = plantDoc["hardiness"][1];
+  avgLight = plantDoc["avgLight"];
+  avgWater = plantDoc["avgWater"];
+  avgHumidity = plantDoc["avgHumidity"];
+  avgTemp = plantDoc["avgTemp"];
+  plantPulled = 1;
+  plantDoc.clear();
+}
+
+// Take data from a plant object and push it into the plant file
+void Plant::pushPlant() {
+  JsonDocument plantDoc;
+  plantDoc["id"] = id;
+  plantDoc["commonName"] = commonName;
+  plantDoc["scientificName"] = scientificName;
+  plantDoc["fact"] = fact;
+  JsonArray jsonLightReq = plantDoc["lightReq"].to<JsonArray>();
+  jsonLightReq.add(lightReq[0]);
+  jsonLightReq.add(lightReq[1]);
+  JsonArray jsonWaterReq = plantDoc["waterReq"].to<JsonArray>();
+  jsonWaterReq.add(waterReq[0]);
+  jsonWaterReq.add(waterReq[1]);
+  JsonArray jsonHardiness = plantDoc["hardiness"].to<JsonArray>();
+  jsonHardiness.add(hardiness[0]);
+  jsonHardiness.add(hardiness[1]);
+  plantDoc["avgLight"] = avgLight;
+  plantDoc["avgWater"] = avgWater;
+  plantDoc["avgHumidity"] = avgHumidity;
+  plantDoc["avgTemp"] = avgTemp;
+  int pushJsonError = pushJsonDoc(plantDoc, PLANT_PATH);
+  if (pushJsonError) {
+    error.addError(pushJsonError);
+  }
+  plantDoc.clear();
+}
+
 /*---------------------------------------------------------- Sensor Reading Class ----------------------------------------------------------*/
 
 // Initialization
@@ -199,17 +318,14 @@ SensorReading::SensorReading(){
   waterReading = 0;
   humidityReading = 0;
   lightReading = 0;
-  plantID = 0;
 }
 
 /*----------------------------------------------------------- Container Class --------------------------------------------------------------*/
 
 // Initialization
 Container::Container()
-  : activePlant(), error(), header(), sensorReading(), interface(error) {
+  : activePlant(error), error(), header(error), sensorReading(), interface(error, activePlant) {
   activeMode = startupMode;
-  plantPulled = 0;
-  headerPulled = 0;
 }
 
 // Add new sensor data to the JsonDocument.
@@ -282,97 +398,6 @@ void Container::updatePlantData() {
   }
 }
 
-// Pull in the header data from the SD and parse it into a header object
-void Container::pullHeader() {
-  JsonDocument headerDoc;
-  char fileName[12] = HEADER_PATH;
-  headerDoc = readSDFile(fileName);
-  if (headerDoc.isNull()) {
-    error.addError(fileOperation);
-    return;
-  }
-  header.numDBPlants = headerDoc["numDBPlants"];
-  header.plantSelected = headerDoc["plantSelected"];
-  header.lightThreshold = headerDoc["lightThreshold"];
-  header.tempThreshold = headerDoc["tempThreshold"];
-  header.waterThreshold = headerDoc["waterThreshold"];
-  header.humidityThreshold = headerDoc["humidityThreshold"];
-  headerDoc.clear();
-  headerPulled = 1;
-}
-
-// Take data from the header object and push it back into the header file
-void Container::pushHeader() {
-  JsonDocument headerDoc;
-  headerDoc["numDBPlants"] = header.numDBPlants;
-  headerDoc["plantSelected"] = header.plantSelected;
-  headerDoc["lightThreshold"] = header.lightThreshold;
-  headerDoc["tempThreshold"] = header.tempThreshold;
-  headerDoc["waterThreshold"] = header.waterThreshold;
-  headerDoc["humidityThreshold"] = header.humidityThreshold;
-  char fileName[MAX_CHARS_FILENAME] = HEADER_PATH;
-  int pushJsonError = pushJsonDoc(headerDoc, fileName);
-  if (pushJsonError) {
-    error.addError(jsonError);
-  }
-  headerDoc.clear();
-}
-
-// Pull data from the plant file of the active plant's folder and parse it into a plant object
-void Container::pullActivePlant() {
-  JsonDocument plantDoc = readSDFile(PLANT_PATH);
-  if (plantDoc.isNull()) {
-    error.addError(fileOperation);
-    return;
-  }
-  activePlant.baseID = plantDoc["baseID"];
-  const char* commonName = plantDoc["commonName"];
-  snprintf(activePlant.commonName, NUM_CHARS_NAME, "%s", commonName);
-  const char* scientificName = plantDoc["scientificName"];
-  snprintf(activePlant.scientificName, NUM_CHARS_NAME, "%s", scientificName);
-  const char* fact = plantDoc["fact"];
-  snprintf(activePlant.fact, NUM_CHARS_FACT, "%s", fact);
-  activePlant.lightReq[0] = plantDoc["lightReq"][0];
-  activePlant.lightReq[1] = plantDoc["lightReq"][1];
-  activePlant.waterReq[0] = plantDoc["waterReq"][0];
-  activePlant.waterReq[1] = plantDoc["waterReq"][1];
-  activePlant.hardiness[0] = plantDoc["hardiness"][0];
-  activePlant.hardiness[1] = plantDoc["hardiness"][1];
-  activePlant.avgLight = plantDoc["avgLight"];
-  activePlant.avgWater = plantDoc["avgWater"];
-  activePlant.avgHumidity = plantDoc["avgHumidity"];
-  activePlant.avgTemp = plantDoc["avgTemp"];
-  plantPulled = 1;
-  plantDoc.clear();
-}
-
-// Take data from a plant object and push it into the plant file of the active plant's folder
-void Container::pushPlant() {
-  JsonDocument plantDoc;
-  plantDoc["baseID"] = activePlant.baseID;
-  plantDoc["commonName"] = activePlant.commonName;
-  plantDoc["scientificName"] = activePlant.scientificName;
-  plantDoc["fact"] = activePlant.fact;
-  JsonArray jsonLightReq = plantDoc["lightReq"].to<JsonArray>();
-  jsonLightReq.add(activePlant.lightReq[0]);
-  jsonLightReq.add(activePlant.lightReq[1]);
-  JsonArray jsonWaterReq = plantDoc["waterReq"].to<JsonArray>();
-  jsonWaterReq.add(activePlant.waterReq[0]);
-  jsonWaterReq.add(activePlant.waterReq[1]);
-  JsonArray jsonHardiness = plantDoc["hardiness"].to<JsonArray>();
-  jsonHardiness.add(activePlant.hardiness[0]);
-  jsonHardiness.add(activePlant.hardiness[1]);
-  plantDoc["avgLight"] = activePlant.avgLight;
-  plantDoc["avgWater"] = activePlant.avgWater;
-  plantDoc["avgHumidity"] = activePlant.avgHumidity;
-  plantDoc["avgTemp"] = activePlant.avgTemp;
-  int pushJsonError = pushJsonDoc(plantDoc, PLANT_PATH);
-  if (pushJsonError) {
-    error.addError(pushJsonError);
-  }
-  plantDoc.clear();
-}
-
 // Clear out data associated with the existing user plant (apart from average readings)
 // Create a new user plant from selected DB plant data
 void Container::newUserPlant() {
@@ -383,7 +408,7 @@ void Container::newUserPlant() {
     error.addError(pullError);
     return;
   }
-  activePlant.baseID = plantDoc["id"];
+  activePlant.id = plantDoc["id"];
   const char* commonName = plantDoc["name"];
   snprintf(activePlant.commonName, NUM_CHARS_NAME, "%s", commonName);
   const char* scientificName = plantDoc["scientific_name"];
@@ -448,83 +473,58 @@ void Container::clearSensorData() {
 /*-------------------------------------------------------------- Header Class --------------------------------------------------------------*/
 
 // Initialization
-Header::Header() {
+Header::Header(Error& errorRef) : error(errorRef) {
   numDBPlants = 0;
   lightThreshold = 0;
   tempThreshold = 0;
   waterThreshold = 0;
   humidityThreshold = 0;
   plantSelected = 0;
+  headerPulled = 0;
 }
 
-/*------------------------------------------------------------------- Error Class ------------------------------------------------------------------*/
-
-// Initialization
-Error::Error()
-  : _errorList{}, highestPriority{}, _flashCt{}, _indicatorOn{}, _startTime{} {
-  _flashDuration = 100;
-}
-
-// Check for presence of a specific error
-int Error::getError(int errorStatus) {
-  return _errorList[errorStatus];
-}
-
-// Add a new error to the list, update highest priority error
-void Error::addError(int errorStatus) {
-  if (!_errorList[errorStatus]) {
-    _errorList[errorStatus] = errorStatus;
-    if (errorStatus > highestPriority) {
-      highestPriority = errorStatus;
-    }
-  }
-}
-
-// Clear the presence of a specific error
-void Error::clearError(int errorStatus) {
-  _errorList[errorStatus] = noError;
-  highestPriority = 0;
-  for (int i = errorStatus; i > 0; i--) {
-    if (_errorList[i]) {
-      highestPriority = _errorList[i];
-      return;
-    }
-  }
-}
-
-// Flash the indicator LED a number of times equal to the highest priority error code
-void Error::indicateError() {
-  if (highestPriority == noError) {
-    digitalWrite(ERROR_IND_PIN, LOW);
-    _indicatorOn = 0;
+// Pull in the header data from the SD and parse it into a header object
+void Header::pullHeader() {
+  JsonDocument headerDoc;
+  char fileName[12] = HEADER_PATH;
+  headerDoc = readSDFile(fileName);
+  if (headerDoc.isNull()) {
+    error.addError(fileOperation);
     return;
   }
-  unsigned long currentTime = millis();
-  if (_flashCt < highestPriority) {
-    if (!_indicatorOn && currentTime - _startTime >= 600) {
-      digitalWrite(ERROR_IND_PIN, HIGH);
-      _startTime = currentTime;
-      _indicatorOn = 1;
-    } else if (_indicatorOn && currentTime - _startTime >= 600) {
-      digitalWrite(ERROR_IND_PIN, LOW);
-      _startTime = currentTime;
-      _flashCt++;
-      _indicatorOn = 0;
-    }
-  } else {
-    if (currentTime - _startTime >= 3000) {
-      _startTime = currentTime;
-      _flashCt = 0;
-    }
+  numDBPlants = headerDoc["numDBPlants"];
+  plantSelected = headerDoc["plantSelected"];
+  lightThreshold = headerDoc["lightThreshold"];
+  tempThreshold = headerDoc["tempThreshold"];
+  waterThreshold = headerDoc["waterThreshold"];
+  humidityThreshold = headerDoc["humidityThreshold"];
+  headerDoc.clear();
+  headerPulled = 1;
+}
+
+// Take data from the header object and push it back into the header file
+void Header::pushHeader() {
+  JsonDocument headerDoc;
+  headerDoc["numDBPlants"] = numDBPlants;
+  headerDoc["plantSelected"] = plantSelected;
+  headerDoc["lightThreshold"] = lightThreshold;
+  headerDoc["tempThreshold"] = tempThreshold;
+  headerDoc["waterThreshold"] = waterThreshold;
+  headerDoc["humidityThreshold"] = humidityThreshold;
+  char fileName[MAX_CHARS_FILENAME] = HEADER_PATH;
+  int pushJsonError = pushJsonDoc(headerDoc, fileName);
+  if (pushJsonError) {
+    error.addError(jsonError);
   }
+  headerDoc.clear();
 }
 
 /*----------------------------------------------------------------- Interface Class ----------------------------------------------------------------*/
 
 // Initialization
-Interface::Interface(Error& errorRef)
+Interface::Interface(Error& errorRef, Plant& plantRef)
   : activeMenu{}, selectedPlantIndex{}, numSelectCandidates{}, displayPlantIDs{}, displayPlantNames{}, selectedQueryChar{},
-    error(errorRef), displayIndices{0, 1, 2}, displayMap{0, 1, 2, 0}, query{'A','A','A','A','A'} {
+    displayIndices{0, 1, 2}, displayMap{0, 1, 2, 0}, query{'A','A','A','A','A'}, error(errorRef), activePlant(plantRef) {
     numMenus = 4; // Starts at 4, if data cached then 5
   }
 
@@ -534,32 +534,54 @@ bool Interface::begin(uint8_t vcs, uint8_t addr) {
 }
 
 // Build and display the main menu
-void Interface::displayMainMenu(Plant activePlant) {
+void Interface::displayMainMenu() {
+  int startX = 5;
+  int padX = 15;
+  int padY = 1;
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
+  display.setCursor(horizontalCenterText(activePlant.commonName, NUM_CHARS_NAME, 1), 0);
   display.println(activePlant.commonName);
-  display.setCursor(0, 10);
-  display.printf("Water lvl %.0f %c", activePlant.avgWater, getEvalIndicator(activePlant.waterEval));
-  display.setCursor(0, 20);
-  display.printf("Light lvl %.0f %c", activePlant.avgLight, getEvalIndicator(activePlant.lightEval));
-  display.setCursor(0, 30);
-  display.printf("Temp lvl %.0f %c", activePlant.avgTemp, getEvalIndicator(activePlant.tempEval));
-  display.setCursor(0, 40);
-  display.printf("RH lvl %.0f %c", activePlant.avgHumidity, getEvalIndicator(activePlant.humidityEval));
+  // Water
+  // 
+  // TODO: Need a more digestible way of showing this value
+  //
+  display.drawBitmap(startX + 2, Y_SCALE + padY - 1, waterBmp, 7, 13, 1);
+  display.setCursor(startX + padX, Y_SCALE + padY + 3 - 1);
+  display.printf("%.0f cts", activePlant.avgWater);
+  // Light
+  display.drawBitmap(startX, Y_SCALE + 13 + padY*2, lightBmp, 11, 11, 1);
+  display.setCursor(startX + padX, Y_SCALE + 13 + padY*2 + 2);
+  display.printf("%.0f lux", activePlant.avgLight);
+  // Temp
+  display.drawBitmap(startX + 1, Y_SCALE + 13 + 11 + padY*3, tempBmp, 8, 13, 1);
+  display.setCursor(startX + padX, Y_SCALE + 13 + 11 + padY*3 + 3);
+  char tempReport[5] = {};
+  int tempCharCt = snprintf(tempReport, 5, "%.0f", activePlant.avgTemp);
+  display.print(tempReport);
+  display.drawBitmap(startX + padX + tempCharCt*X_SCALE + 1, Y_SCALE + 13 + 11 + padY*3 + 3, degFBmp, 8, 8, 1);
+  // Humidity
+  display.drawBitmap(startX + 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 1, rhBmp, 9, 13, 1);
+  display.setCursor(startX + padX, Y_SCALE + 13 + 11 + 13 + padY*4 + 3 + 1);
+  display.printf("%.0f%% %c", activePlant.avgHumidity);
+  // Testing
+  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + padY, testBmp, 52, 11, 1);
+  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + padY*2, testBmp, 52, 11, 1);
+  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + padY*3, testBmp, 52, 11, 1);
+  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 1, testBmp, 52, 11, 1);
   display.display();
   activeMenu = mainMenu;
 }
 
 // Build and display the info menu
-void Interface::displayInfoMenu(Plant activePlant) {
+void Interface::displayInfoMenu() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
+  display.setCursor(horizontalCenterText(activePlant.commonName, NUM_CHARS_NAME, 1), 0);
   display.println(activePlant.commonName);
-  display.setCursor(0, 10);
+  display.setCursor(horizontalCenterText(activePlant.scientificName, NUM_CHARS_NAME, 1), 10);
   display.println(activePlant.scientificName);
   display.setCursor(0, 30);
   display.println(activePlant.fact);
@@ -572,19 +594,22 @@ void Interface::displayInfoMenu(Plant activePlant) {
 // TODO: ugly, make pretty
 //
 void Interface::displayInputMenu() {
-  int dx = int(SCREEN_WIDTH / 6);
+  int dx = int(SCREEN_WIDTH / (NUM_CHARS_QUERY + 1));
   display.clearDisplay();
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
+  display.setCursor(horizontalCenterText("Select Name", 12, 1), 3);
+  display.print("Select Name");
+  display.setTextSize(2);
+  int startY = int((SCREEN_HEIGHT/2) - ((Y_SCALE*2)/2)) + 6;
+  int startX = dx - int((2*X_SCALE)/2);
   for (int i = 0; i < 5; i++) {
-    display.setCursor(dx + (dx*i), int(SCREEN_HEIGHT/2));
+    display.setCursor(startX + (dx*i), startY);
     display.print(query[i]);
   }
   if(screenFocus) {
-    display.setCursor(dx + (dx*selectedQueryChar), int(SCREEN_HEIGHT/4));
-    display.print('^');
-    display.setCursor(dx + (dx*selectedQueryChar), int(3*SCREEN_HEIGHT/4));
-    display.print('v');
+    display.drawBitmap(startX + (dx*selectedQueryChar) - 3, startY - 8 - 6, upArrowBmp, 16, 8, 1);
+    display.drawBitmap(startX + (dx*selectedQueryChar) - 3, startY + Y_SCALE*2 + 6, downArrowBmp, 16, 8, 1);
   }
   display.display();
   activeMenu = inputMenu;
@@ -598,7 +623,8 @@ void Interface::displaySelectMenu() {
   display.clearDisplay();
   display.setTextSize(1);
   if (numSelectCandidates < 1) {
-    display.setCursor(35, 30);
+    display.setTextSize(2);
+    display.setCursor(horizontalCenterText("NO RESULTS", 11, 2), 30);
     display.setTextColor(SSD1306_WHITE);
     display.println("NO RESULTS");
     display.display();
@@ -665,6 +691,16 @@ char Interface::getEvalIndicator(int eval) {
   return '?';
 }
 
+//
+// TODO: Rework eval indication system - use this function to draw the recommendation indicator
+// Probably will need to have the level checks return the threshold values as well as a min/max
+// to use in this function.
+//
+char Interface::displayRecommendation(int recInd, int min, int max, int lowThresh, int highThresh, int val) {
+
+}
+
+// Increment/Decrement the current query position alphabetically
 void Interface::indexQueryPos(bool upDir) {
   uint8_t pos = selectedQueryChar;
   if (!upDir) { // Down
@@ -915,19 +951,19 @@ void Interface::pullCachedData(int index, char name[], int& id) {
 }
 
 // Cycle through available screens
-void Interface::nextScreen(Plant activePlant, bool plantSelected) {
+void Interface::nextScreen(bool plantSelected) {
   activeMenu = (activeMenu + 1) % (numMenus);
   activeMenu = activeMenu == 0 ? 1 : activeMenu;
   switch (activeMenu) {
     case noMenu:
-      displayMainMenu(activePlant);
+      displayMainMenu();
       break;
     case mainMenu:
-      displayMainMenu(activePlant);
+      displayMainMenu();
       break;
     case infoMenu:
       if (plantSelected) { 
-        displayInfoMenu(activePlant);
+        displayInfoMenu();
       } else {
         displayInputMenu();
       }
@@ -1014,4 +1050,21 @@ int pullPlant(char fileName[], int id, JsonDocument& doc) {
   file.close();
   deserializeJson(doc, raw);
   return noError;
+}
+
+// Standalone helper for centering text horizontally
+int horizontalCenterText(char text[], int bufferLen, int fontSize) {
+  int len = 0;
+  for (int i = 0; i < bufferLen; i++) {
+    if (text[i] == '\0') {
+      len = i;
+      break;
+    }
+    else {
+      len = i + 1;
+    }
+  }
+  int startPt = int((SCREEN_WIDTH/2) - ((fontSize*X_SCALE*len)/2));
+  startPt = startPt >= 0 ? startPt : 0;
+  return startPt;
 }

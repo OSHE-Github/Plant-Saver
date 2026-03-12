@@ -25,7 +25,7 @@
 #define TRIG_PULSE_LEN_MS 2000      // Trigger mode pulse length in ms
 #define BUTTON_DEBOUNCE 150         // Millisecond debounce
 
-// Pin Definitions
+// Pin Definitions - Prototype
 #define V_GATE_PERIPHERAL 2  // Gate control pin of peripheral low-side power MOSFET
 #define SELECT_BTN 12        // Select button
 #define CHG_SCREEN_BTN 14    // Change screen button
@@ -36,11 +36,30 @@
 #define TRIG_OUTPUT_PIN 32   // External trigger output pin
 #define ERROR_IND_PIN 4      // Error indication LED
 
+// Pin Definitions - PCB
+/*
+#define CAP_SOIL_AOUT // Capacitive soil sensor reading (ADC)
+#define UP_BTN 26 // Up button
+#define DOWN_BTN 27 // Down button
+#define CHG_SCREEN_BTN 14 // Change screen/cycle button
+#define SELECT_BTN 12 // Select button
+#define SPI_CS 5 // CS pin for SPI (uSD card)
+#define V_GATE_PERIPHERAL 17 // Enable power to peripherals (normally open)
+#define ERROR_IND_PIN 4
+*/
+
+#define SOLAR1 32 // Solar measurements (ADC)
+#define SOLAR2 34
+#define SOLAR3 35
+#define SOLAR4 33
+#define SOLAR_CHG_EN 13 // Enable solar charging
+#define GPIO_SOLAR_CHG_EN GPIO_NUM_13
+#define GPIO_SELECT_BTN GPIO_NUM_12
+
 /*------------------------------------------------------ Global Variables ------------------------------------------------------*/
 
 const uint64_t usPerMinute = 60000000;  // Conversion factor between minutes and microseconds
 const uint64_t samplingPeriodM = 1;     // Time between sensor measurements in minutes
-RTC_DATA_ATTR bool powerUpFlag = 0;     // used for initialization after a power-up
 
 /*---------------------------------------------------- Object Instantiation ----------------------------------------------------*/
 
@@ -59,6 +78,11 @@ void setup() {
   pinMode(CAP_SOIL_AOUT, INPUT);
   pinMode(TRIG_OUTPUT_PIN, OUTPUT);
   pinMode(ERROR_IND_PIN, OUTPUT);
+  pinMode(SOLAR_CHG_EN, OUTPUT);
+  pinMode(SOLAR1, INPUT);
+  pinMode(SOLAR2, INPUT);
+  pinMode(SOLAR3, INPUT);
+  pinMode(SOLAR4, INPUT);
   // Start serial monitor
   Serial.begin(115200);
   delay(2000);  // Allow time for serial to initialize
@@ -111,10 +135,13 @@ void loop() {
   If a user plant had been selected previously, that data is also pulled in. 
 */
 void startupModeHandler(Container &container) {
-  bool initFailed = 0;  // Flag to track an initialization failure
+  bool initFailed = 0; // Flag to track an initialization failure
 
+  rtc_gpio_pullup_dis(GPIO_SOLAR_CHG_EN);
+  digitalWrite(SOLAR_CHG_EN, LOW);
   digitalWrite(V_GATE_PERIPHERAL, HIGH);  // Power-up peripherals
   digitalWrite(ERROR_IND_PIN, LOW);       // Reset error indicator
+  delay(20); // brief delay to prevent weird transient effects w/ transistors
 
   // SSD1306 Initialization
   if (!container.interface.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
@@ -124,7 +151,7 @@ void startupModeHandler(Container &container) {
     container.error.clearError(displayInit);
   }
 
-  // LTR390 Initialization
+  // LTR390 Initialization - Not needed for PCB
   if (!ltr390.begin()) {
     container.error.addError(lightSensorInit);
     delay(500);
@@ -151,20 +178,13 @@ void startupModeHandler(Container &container) {
     container.error.addError(SDInit);
   } else {
     container.error.clearError(SDInit);
-    if (!container.headerPulled) {
-      container.pullHeader();
+    if (!container.header.headerPulled) {
+      container.header.pullHeader();
+      
     }
-    if (!container.plantPulled && container.headerPulled && container.header.plantSelected) {
-      container.pullActivePlant();  // Grab the active user plant only if it exists
+    if (!container.activePlant.plantPulled && container.header.headerPulled && container.header.plantSelected) {
+      container.activePlant.pullPlant();  // Grab the active user plant only if it exists
     }
-  }
-
-  // Power-up initialization
-  if (!powerUpFlag) {
-    // Nothing ATM
-    //
-    // TODO: Probably solar enable here?
-    //
   }
 
   if (initFailed == 1) {  // One or more peripherals failed to initialize
@@ -183,7 +203,7 @@ void startupModeHandler(Container &container) {
     }
   }
 
-  if (container.headerPulled && !container.header.plantSelected) {  // Automatically switch to display mode if no plant selected yet
+  if (container.header.headerPulled && !container.header.plantSelected) {  // Automatically switch to display mode if no plant selected yet
     container.activeMode = displayMode;
   }
 }
@@ -207,7 +227,7 @@ void displayModeHandler(Container &container) {
 
   if (container.interface.activeMenu == noMenu) {
     container.activePlant.checkThresholds();
-    container.interface.displayMainMenu(container.activePlant);
+    container.interface.displayMainMenu();
   }
 
   // Change screen button
@@ -218,7 +238,7 @@ void displayModeHandler(Container &container) {
       container.interface.selectedQueryChar = (container.interface.selectedQueryChar + 1) % NUM_CHARS_QUERY;
       container.interface.displayInputMenu();
     } else if (container.interface.activeMenu != inputMenu || !container.interface.screenFocus) {
-      container.interface.nextScreen(container.activePlant, container.header.plantSelected);
+      container.interface.nextScreen(container.header.plantSelected);
     }
   } else if (digitalRead(CHG_SCREEN_BTN) && chgOns && millis() - chgDb > BUTTON_DEBOUNCE) {
     chgOns = 0;
@@ -271,6 +291,7 @@ void displayModeHandler(Container &container) {
     } else if (container.interface.activeMenu == selectMenu && container.interface.numSelectCandidates > 0){
       container.newUserPlant();
       container.activePlant.checkThresholds();
+      container.interface.displayMainMenu();
     }
   } else if (digitalRead(SELECT_BTN) && selOns && millis() - selDb > BUTTON_DEBOUNCE) {
     selOns = 0;
@@ -294,10 +315,15 @@ void sensingModeHandler(Container &container) {
   static bool waterRead = 0;
 
   // Get data from each device
+  // Light measurement - Prototype
   if (lightRead == 0) {
     container.sensorReading.lightReading = (0.6 * ltr390.readALS()) / (LTR390_GAIN * INTEGRATION_TIME);  // Lux = 0.6*ALS_DATA/(Gain*integration time(ms))
     lightRead = 1;
   }
+
+  //
+  // TODO: Light measurement - PCB
+  //
 
   if (humidityRead == 0 || tempRead == 0) {
     sensors_event_t humidity, temp;  // AHT20
@@ -312,7 +338,6 @@ void sensingModeHandler(Container &container) {
     container.sensorReading.waterReading = analogRead(CAP_SOIL_AOUT);  // Capacitive soil sensor
     waterRead = 1;
   }
-
 
   if (lightRead == 1 && humidityRead == 1 && tempRead == 1 && waterRead == 1) {
     container.updatePlantData();
@@ -332,21 +357,22 @@ void triggerModeHandler(Container &container) {
   container.activeMode = shutdownMode;
 }
 
-
 /*
   Push data to storage, finish any remaining housekeeping
   Then, setup wake sources and put device into sleep mode
 */
 void shutdownModeHandler(Container &container) {
-  container.pushHeader();
-  container.pushPlant();
+  container.header.pushHeader();
+  container.activePlant.pushPlant();
   SD.remove(TMP_SORT_PATH);
   // Set ESP32 into deep sleep mode
   container.interface.displayOff();
   digitalWrite(V_GATE_PERIPHERAL, LOW);  // Shut down peripherals
-  rtc_gpio_pullup_en(GPIO_NUM_12);
-  rtc_gpio_pulldown_dis(GPIO_NUM_12);
-  esp_sleep_enable_ext0_wakeup(GPIO_NUM_12, 0);
+  rtc_gpio_pullup_en(GPIO_SELECT_BTN);
+  rtc_gpio_pullup_en(GPIO_SOLAR_CHG_EN);
+  rtc_gpio_pulldown_dis(GPIO_SELECT_BTN);
+  rtc_gpio_pulldown_dis(GPIO_SOLAR_CHG_EN);
+  esp_sleep_enable_ext0_wakeup(GPIO_SELECT_BTN, 0);
   uint64_t sleep_time = (samplingPeriodM * usPerMinute);
   esp_sleep_enable_timer_wakeup(sleep_time);
   esp_deep_sleep_start();

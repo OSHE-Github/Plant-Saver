@@ -6,23 +6,34 @@
 #include <ArduinoJson.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "PlantSaverAssets.h"
 
 /*------------------------------------------------------------ Macros ------------------------------------------------------------*/
 
+// Misc.
 #define ERROR_IND_PIN 4  // Error indication LED
-#define SCREEN_WIDTH 128  // OLED display width, in pixels
-#define SCREEN_HEIGHT 64  // OLED display height, in pixels
-#define OLED_RESET -1     // OLED Reset pin # (or -1 if sharing Arduino reset pin)
 #define MAX_CHARS_FILENAME 21
 #define MAX_SENSOR_READINGS 200  // # of sensor readings allowed in FIFO
 #define NUM_CHARS_NAME 50
 #define NUM_CHARS_FACT 100
-#define NUM_DB_FILES 2
 #define QUERY_DIFF_THRESH 3 // Diff. between query and candidate must be < this #
 #define NUM_CHARS_QUERY 5
-#define NUM_CANDIDATES_SHOWN 3
 #define MAX_DIGITS_ID 6
 
+// Display params
+#define SCREEN_WIDTH 128  // OLED display width, in pixels
+#define SCREEN_HEIGHT 64  // OLED display height, in pixels
+#define OLED_RESET -1     // OLED Reset pin # (or -1 if sharing Arduino reset pin)
+#define NUM_CANDIDATES_SHOWN 3
+#define X_SCALE 6 // X (width) scaling for characters
+#define Y_SCALE 8 // Y (height) scaling for characters
+#define REC_WIDTH 52 // This stuff vvv for recommendation display
+#define REC_HEIGHT 11
+#define MARKER_WIDTH 5
+#define MARKER_HEIGHT 8
+#define THRESH_MARKER_HEIGHT 3
+
+// Paths
 #define PLANT_DB_PATH "/plantDB.txt"
 #define HEADER_PATH "/header.txt"
 #define PLANT_PATH "/Plant/plant.txt"
@@ -34,71 +45,6 @@
 #define TMP_SORT_PATH "/Tmp/sort.txt"
 
 /*------------------------------------------------------- Class Definitions -------------------------------------------------------*/
-
-// Data of plants pulled from the database
-class DBPlant {
-public:
-  DBPlant();
-  int id;  // ID within the plant database
-  char commonName[NUM_CHARS_NAME];
-  int hardiness[2];
-  int lightReq[2];
-  int waterReq[2];
-  char scientificName[NUM_CHARS_NAME];
-  char fact[NUM_CHARS_FACT];
-};
-
-// Data of plants actively being monitored
-class Plant {
-public:
-  Plant();
-  float getAvgReading(JsonDocument sensorDoc);
-  void checkThresholds();
-  int baseID;  // ID within the larger plant database
-  char commonName[NUM_CHARS_NAME];
-  char scientificName[NUM_CHARS_NAME];
-  char fact[NUM_CHARS_FACT];
-  int lightReq[2];
-  int waterReq[2];
-  int hardiness[2];
-  float avgLight;
-  float avgWater;
-  float avgHumidity;
-  float avgTemp;
-  // These variables ARE NOT stored:
-  int lightEval;
-  int waterEval;
-  int humidityEval;
-  int tempEval;
-private:
-  void tempCheck();
-  void waterCheck();
-  void lightCheck();
-  void humidityCheck();
-};
-
-// Data associated with an instanced multi-sensor reading
-class SensorReading {
-public:
-  SensorReading();
-  float tempReading;
-  float waterReading;
-  float humidityReading;
-  float lightReading;
-  int plantID;  // Self ID of the associated user plant - might be able to remove this since all are associated with a datagroup
-};
-
-// Class for storing/retrieving header file data
-class Header {
-public:
-  Header();
-  int numDBPlants;  // Number of plants in the larger read-only database
-  int lightThreshold;
-  int tempThreshold;
-  int waterThreshold;
-  int humidityThreshold;
-  bool plantSelected;
-};
 
 // Class to store/manipulate/report system errors
 class Error {
@@ -117,13 +63,72 @@ private:
   unsigned long _startTime;
 };
 
+// Data of plants actively being monitored
+class Plant {
+public:
+  Plant(Error& errorRef);
+  float getAvgReading(JsonDocument sensorDoc);
+  void checkThresholds();
+  void pullPlant();
+  void pushPlant();
+  int id;  // ID within the larger plant database
+  char commonName[NUM_CHARS_NAME];
+  char scientificName[NUM_CHARS_NAME];
+  char fact[NUM_CHARS_FACT];
+  int lightReq[2];
+  int waterReq[2];
+  int hardiness[2];
+  float avgLight;
+  float avgWater;
+  float avgHumidity;
+  float avgTemp;
+  // These variables ARE NOT stored:
+  int lightEval;
+  int waterEval;
+  int humidityEval;
+  int tempEval;
+  bool plantPulled;
+  Error& error;
+private:
+  void tempCheck();
+  void waterCheck();
+  void lightCheck();
+  void humidityCheck();
+};
+
+// Data associated with an instanced multi-sensor reading
+class SensorReading {
+public:
+  SensorReading();
+  float tempReading;
+  float waterReading;
+  float humidityReading;
+  float lightReading;
+};
+
+// Class for storing/retrieving header file data
+class Header {
+public:
+  Header(Error& errorRef);
+  void pullHeader();
+  void pushHeader();
+  int numDBPlants;  // Number of plants in the larger read-only database
+  int lightThreshold;
+  int tempThreshold;
+  int waterThreshold;
+  int humidityThreshold;
+  bool plantSelected;
+  bool headerPulled;
+  Error& error;
+};
+
 // Class to store data/methods surrounding the user interface
 class Interface {
 public:
-  Interface(Error& errorRef);
+  Interface(Error& errorRef, Plant& plantRef);
   bool begin(uint8_t vcs, uint8_t addr);
-  void displayMainMenu(Plant activePlant);
-  void displayInfoMenu(Plant activePlant);
+  void displayMainMenu();
+  void displayInfoMenu();
   void displayInputMenu();
   char getEvalIndicator(int eval);
   void indexQueryPos(bool upDir);
@@ -132,7 +137,7 @@ public:
   void scrollSelectUp();
   void queryDBPlants();
   void pullCachedData(int index, char name[], int& id);
-  void nextScreen(Plant activePlant, bool plantSelected);
+  void nextScreen(bool plantSelected);
   void displayOff();
   int selectedPlantIndex;
   int activeMenu;
@@ -146,6 +151,7 @@ public:
   char displayPlantNames[NUM_CANDIDATES_SHOWN][NUM_CHARS_NAME];
   bool screenFocus;
   Error& error;
+  Plant& activePlant;
 };
 
 // Class to store/pass around multiple objects between functions
@@ -153,10 +159,6 @@ class Container {
 public:
   Container();
   void updatePlantData();
-  void pullHeader();
-  void pushHeader();
-  void pullActivePlant();
-  void pushPlant();
   void pullCachedData(int index, char name[], int& id);
   void getDBPlants();
   void newUserPlant();
@@ -167,8 +169,6 @@ public:
   SensorReading sensorReading;
   Interface interface;
   int activeMode;
-  bool plantPulled;
-  bool headerPulled;
 private:
   JsonDocument addSensorReading(JsonDocument sensorDoc, float reading);
 };
@@ -186,6 +186,9 @@ uint8_t compareToQuery(char candidate[], char query[]);
 
 // Standalone helper for pulling plant data from DB
 int pullPlant(char fileName[], int id, JsonDocument& doc);
+
+// Standalone helper for centering text horizontally
+int horizontalCenterText(char text[], int bufferLen, int fontSize);
 
 /*---------------------------------------------------------- enumerables -----------------------------------------------------------*/
 
