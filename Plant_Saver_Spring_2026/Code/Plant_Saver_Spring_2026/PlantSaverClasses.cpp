@@ -83,10 +83,6 @@ Plant::Plant(Error& errorRef)
   avgWater = 0;
   avgHumidity = 0;
   avgTemp = 0;
-  lightEval = 0;
-  waterEval = 0;
-  humidityEval = 0;
-  tempEval = 0;
   plantPulled = 0;
 }
 
@@ -111,148 +107,113 @@ float Plant::getAvgReading(JsonDocument sensorDoc) {
 //
 
 // Check all average values against thresholds
+// 
+// TODO: Implement error checking w/ default values (-1)
+//
+/*
 void Plant::checkThresholds() {
   lightCheck();
   waterCheck();
   tempCheck();
   humidityCheck();
 }
+*/
 
 // Map light requirements to thresholds, then check average reading
 //
 // TODO: Re-vamp to work w/ solar cells
 //
-void Plant::lightCheck() {
+void Plant::lightCheck(int threshold[2]) {
   int lightReqLowHigh[2] = { 0 };  // [0] = low value, [1] = high value
   lightReqLowHigh[0] = lightReq[0];
   lightReqLowHigh[1] = (lightReq[1] != 0) ? lightReq[1] : lightReq[0];
-  int thresholds[2] = { 0 };  // in lux
   for (int i = 0; i < 2; i++) {
     switch (lightReqLowHigh[i]) {
       case fullShade:
-        thresholds[i] = 0 + 1075 * i;  // 0 to 1075 lux
+        threshold[i] = LIGHT_MIN + 1075 * i;  // 0 to 1075 lux
         break;
       case partialSun:
-        thresholds[i] = 1075 + 9675 * i;  // 1075 to 10750 lux
+        threshold[i] = 1075 + 9675 * i;  // 1075 to 10750 lux
         break;
       case fullSun:
-        thresholds[i] = 10750 + 999999 * i;  // 10750+ , top end is arbitrary
-        break;
-      default:
-        lightEval = evalUnknown;
-        return;
+        threshold[i] = 10750 + (LIGHT_MAX - 10750) * i;  // 10750+ , TODO: Top end?
     }
-  }
-  if (avgLight >= thresholds[0] && avgLight <= thresholds[1]) {
-    lightEval = evalOK;
-  } else if (avgLight < thresholds[0]) {
-    lightEval = evalLow;
-  } else if (avgLight > thresholds[1]) {
-    lightEval = evalHigh;
   }
 }
 
 // Map hardiness zones to temperature thresholds, then check average reading
-void Plant::tempCheck() {
+void Plant::tempCheck(int threshold[2]) {
   int hardinessLowHigh[2];  // [0] = low value, [1] = high value
   hardinessLowHigh[0] = hardiness[0];
   hardinessLowHigh[1] = (hardiness[1] != 0) ? hardiness[1] : hardiness[0];
-  int thresholds[2];  // in degrees F
   for (int i = 0; i < 2; i++) {
     switch (hardinessLowHigh[i]) {
       case 2:
-        thresholds[i] = 26 + 4 * i;
+        threshold[i] = 26 + 4 * i;
         break;
       case 3:
-        thresholds[i] = 32 + 4 * i;
+        threshold[i] = 32 + 4 * i;
         break;
       case 4:
-        thresholds[i] = 39 + 4 * i;
+        threshold[i] = 39 + 4 * i;
         break;
       case 5:
-        thresholds[i] = 45 + 3 * i;
+        threshold[i] = 45 + 3 * i;
         break;
       case 6:
-        thresholds[i] = 50 + 4 * i;
+        threshold[i] = 50 + 4 * i;
         break;
       case 7:
-        thresholds[i] = 54 + 3 * i;
+        threshold[i] = 54 + 3 * i;
         break;
       case 8:
-        thresholds[i] = 61 + 3 * i;
+        threshold[i] = 61 + 3 * i;
         break;
       case 9:
-        thresholds[i] = 64 + 4 * i;
+        threshold[i] = 64 + 4 * i;
         break;
       case 10:
-        thresholds[i] = 68 + 4 * i;
+        threshold[i] = 68 + 4 * i;
         break;
       case 11:
-        thresholds[i] = 75 + 4 * i;
+        threshold[i] = 75 + 4 * i;
         break;
       case 12:
-        thresholds[i] = 80 + 20 * i;
+        threshold[i] = 80 + 20 * i;
         break;
       case 13:
-        thresholds[i] = 80 + 20 * i;
-        break;
-      default:
-        tempEval = evalUnknown;
-        return;
+        threshold[i] = 80 + (TEMP_MAX - 80) * i;
     }
-  }
-  if (avgTemp >= thresholds[0] && avgTemp <= thresholds[1]) {
-    tempEval = evalOK;
-  } else if (avgTemp < thresholds[0]) {
-    tempEval = evalLow;
-  } else if (avgTemp > thresholds[1]) {
-    tempEval = evalHigh;
   }
 }
 
 // Map water requirements and humidity readings to thresholds, then check average readings
-void Plant::waterCheck() {
+void Plant::waterCheck(int threshold[2]) {
   int waterReqLowHigh[2];  // [0] = low value, [1] = high value
   waterReqLowHigh[0] = waterReq[0];
   waterReqLowHigh[1] = (waterReq[1] != 0) ? waterReq[1] : waterReq[0];
-  int thresholds[2];  // in ADC counts
   for (int i = 0; i < 2; i++) {
     switch (waterReqLowHigh[i]) {
       case water:
-        thresholds[i] = 0 + 1000 * i;  // 0 to 1000
+        threshold[i] = WATER_MIN + 1000 * i;  // 0 to 1000
         break;
       case wet:
-        thresholds[i] = 1000 + 650 * i;  // 1000 to 1650
+        threshold[i] = 1000 + 650 * i;  // 1000 to 1650
         break;
       case moist:
-        thresholds[i] = 1650 + 650 * i;  // 1650 to 2300
+        threshold[i] = 1650 + 650 * i;  // 1650 to 2300
         break;
       case dry:
-        thresholds[i] = 2300 + 1795 * i;  // 2300 to 4095 (max)
-        break;
-      default:
-        lightEval = evalUnknown;
-        return;
+        threshold[i] = 2300 + (WATER_MAX - 2300) * i;  // 2300 to 4095 (max)
     }
-  }
-  if (avgWater >= thresholds[0] && avgWater <= thresholds[1]) {
-    waterEval = evalOK;
-  } else if (avgWater < thresholds[0]) {  // lower reading = more water
-    waterEval = evalHigh;
-  } else if (avgWater > thresholds[1]) {
-    waterEval = evalLow;
   }
 }
 
 // Check average humidity values against static thresholds
-void Plant::humidityCheck() {
-  if (avgHumidity <= 60 && avgHumidity >= 30) {
-    humidityEval = evalOK;
-  } else if (avgHumidity < 30) {
-    humidityEval = evalLow;
-  } else if (avgHumidity > 60) {
-    humidityEval = evalHigh;
-  }
+void Plant::humidityCheck(int threshold[2]) {
+  threshold[0] = 30;
+  threshold[1] = 60;
+  // TODO: What do?
 }
 
 // Pull data from the plant file of the active plant's folder and parse it into a plant object
@@ -582,10 +543,22 @@ void Interface::displayMainMenu() {
   display.setCursor(startX + padX, Y_SCALE + 13 + 11 + 13 + padY*4 + 3 + 1);
   display.printf("%.0f%% %c", activePlant.avgHumidity);
   // Testing
-  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + padY, testBmp, 52, 11, 1);
-  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + padY*2, testBmp, 52, 11, 1);
-  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + padY*3, testBmp, 52, 11, 1);
-  display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 1, testBmp, 52, 11, 1);
+  int waterThresh[2] = {-1, -1};
+  activePlant.waterCheck(waterThresh);
+  displayRecommendation(0, WATER_MIN, WATER_MAX, waterThresh, activePlant.avgWater);
+  int lightThresh[2] = {-1, -1};
+  activePlant.lightCheck(lightThresh);
+  displayRecommendation(1, LIGHT_MIN, LIGHT_MAX, lightThresh, activePlant.avgLight);
+  int tempThresh[2] = {-1, -1};
+  activePlant.tempCheck(tempThresh);
+  displayRecommendation(2, TEMP_MIN, TEMP_MAX, tempThresh, activePlant.avgTemp);
+  int humidityThresh[2] = {-1, -1};
+  activePlant.humidityCheck(humidityThresh);
+  displayRecommendation(3, HUMIDITY_MIN, HUMIDITY_MAX, humidityThresh, activePlant.avgHumidity);
+  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + padY, testBmp, 52, 11, 1);
+  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + padY*2, testBmp, 52, 11, 1);
+  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + padY*3, testBmp, 52, 11, 1);
+  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 1, testBmp, 52, 11, 1);
   display.display();
   activeMenu = mainMenu;
 }
@@ -712,8 +685,30 @@ char Interface::getEvalIndicator(int eval) {
 // Probably will need to have the level checks return the threshold values as well as a min/max
 // to use in this function.
 //
-char Interface::displayRecommendation(int recInd, int min, int max, int lowThresh, int highThresh, int val) {
-
+void Interface::displayRecommendation(int recInd, int min, int max, int threshold[2], float val) {
+  int startY = Y_SCALE + 1 + recInd*(REC_HEIGHT + 3);
+  int startX = SCREEN_WIDTH - REC_WIDTH - 1;
+  int endX = SCREEN_WIDTH - 1;
+  float res = float(REC_WIDTH)/float(max - min);
+  int threshMinX = int(res*threshold[0]) + startX;
+  int threshMaxX = int(res*threshold[1]) + startX;
+  int markerX = int(res*val) + startX;
+  int markerY = startY + (REC_HEIGHT - THRESH_MARKER_HEIGHT - 8 - 1);
+  if (markerX < startX + 2) {
+    markerX = startX + 2;
+  } else if (markerX > endX - 6) { 
+    markerX = endX - 6;
+  }
+  
+  // Outer bounds
+  display.drawLine(startX, startY, startX, startY + REC_HEIGHT, SSD1306_WHITE);
+  display.drawLine(endX, startY, endX, startY + REC_HEIGHT, SSD1306_WHITE);
+  // Thresholds
+  display.drawLine(threshMinX, startY + (REC_HEIGHT - THRESH_MARKER_HEIGHT), threshMinX, startY + REC_HEIGHT, SSD1306_WHITE);
+  display.drawLine(threshMaxX, startY + (REC_HEIGHT - THRESH_MARKER_HEIGHT), threshMaxX, startY + REC_HEIGHT, SSD1306_WHITE);
+  // Marker
+  display.drawBitmap(markerX, markerY, plantMarkerBmp, 5, 8, 1);
+  // TODO: Arrow
 }
 
 // Increment/Decrement the current query position alphabetically

@@ -121,4 +121,12 @@ static const unsigned char PROGMEM plantMarkerBmp[] =
   0b10110000,
   0b01100000 };
 
+// 5x5
+static const unsigned char PROGMEM leftArrowBmp[] = 
+{ 0b00100000,
+  0b00010000,
+  0b11111000,
+  0b00010000,
+  0b00100000 };
+
 #endif
