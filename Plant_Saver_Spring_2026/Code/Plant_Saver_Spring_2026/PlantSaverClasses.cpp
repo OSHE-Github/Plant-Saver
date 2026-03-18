@@ -484,10 +484,26 @@ void Header::pushHeader() {
 
 // Initialization
 Interface::Interface(Error& errorRef, Plant& plantRef)
-  : activeMenu{}, selectedPlantIndex{}, numSelectCandidates{}, displayPlantIDs{}, displayPlantNames{}, selectedQueryChar{},
-    displayIndices{0, 1, 2}, displayMap{0, 1, 2, 0}, query{'A','A','A','A','A'}, error(errorRef), activePlant(plantRef) {
+  : error(errorRef), activePlant(plantRef) {
+    //i also changed how you intiialized these arrays, doing it in the intialization of the class wouldnt work because theyre not const --brandon
+    activeMenu = 0;
+    selectedPlantIndex = 0;
+    numSelectCandidates = 0;
+    selectedQueryChar = 0;
+    screenFocus = false;
     numMenus = 4; // Starts at 4, if data cached then 5
-  }
+
+    // Initialize arrays
+    for (int i = 0; i < NUM_CANDIDATES_SHOWN; i++) {
+        displayPlantIDs[i] = 0;
+        displayIndices[i] = i;
+        displayMap[i] = i;
+        memset(displayPlantNames[i], 0, NUM_CHARS_NAME);
+    }
+    displayMap[NUM_CANDIDATES_SHOWN] = 0;
+    memset(query, 'A', NUM_CHARS_QUERY + 1);
+    query[NUM_CHARS_QUERY] = '\0'; // Null terminate
+}
 
 // Initialize the display
 bool Interface::begin(uint8_t vcs, uint8_t addr) {
@@ -1062,4 +1078,27 @@ int horizontalCenterText(char text[], int bufferLen, int fontSize) {
   int startPt = int((SCREEN_WIDTH/2) - ((fontSize*X_SCALE*len)/2));
   startPt = startPt >= 0 ? startPt : 0;
   return startPt;
+}
+
+// Global container pointer for web API access
+Container* globalContainer = nullptr;
+
+// Function to get active plant sensor averages (for web API)
+void getActivePlantAverages(float& avgLight, float& avgTemp, float& avgWater, float& avgHumidity) {
+  
+  if (globalContainer != nullptr) {
+
+    avgLight = globalContainer->activePlant.avgLight;
+    avgTemp = globalContainer->activePlant.avgTemp;
+    avgWater = globalContainer->activePlant.avgWater;
+    avgHumidity = globalContainer->activePlant.avgHumidity;
+  } 
+  else {
+    
+    // Default values if container not set
+    avgLight = 0;
+    avgTemp = 0;
+    avgWater = 0;
+    avgHumidity = 0;
+  }
 }

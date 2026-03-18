@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include "PlantSaverClasses.h"
 
 /*--------------------------------------WiFi Configuration---------------------------------------------*/
 const char* ssid = "Plant-Saver";
@@ -16,8 +17,9 @@ const char* password = "plants123";
 AsyncWebServer server(80);  //create Web Server on port 80
 
 /*--------------------------------------Plant Object and Vector Storage--------------------------------*/
-struct Plant {
+struct serverPlant {
     String name;
+    int id; 
     int hardiness_zone_low;
     int hardiness_zone_high;
     int light_requirement_low;
@@ -27,7 +29,7 @@ struct Plant {
 };
 
 //global dynamic vector to store all plants
-std::vector<Plant> plants;
+std::vector<serverPlant> plants;
 //index for fast (O(1)) lookup by lowercase name
 std::unordered_map<std::string, size_t> plantIndex;
 //array for autocomplete --> stores only plant names
@@ -116,8 +118,9 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         }
 
         JsonObject plant = doc.as<JsonObject>();
-        Plant p;
+        serverPlant p;
         p.name = plant["name"].as<String>();
+        p.id = plant["id"].as<int>();
 
         //setting defaults
         p.hardiness_zone_low = -1;
@@ -219,7 +222,7 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 
 /*--------------------------------------Search for a plant---------------------------------------------*/
 //Search for a plant by name (case-insensitive), this is the important one for the 'search' function on the webpage
-Plant* findPlantByName(const String& name) {
+serverPlant* findPlantByName(const String& name) {
 
     //O(1) search with a hashmap
     String key = name; 
@@ -237,12 +240,12 @@ Plant* findPlantByName(const String& name) {
 }
 
 //Get all plants, maybe used for a 'list' of plants on the webpage? (menu button or something similar)
-const std::vector<Plant>& getAllPlants() {
+const std::vector<serverPlant>& getAllPlants() {
     return plants;
 }
 
 /*--------------------------------------Print Plants (Debugging)---------------------------------------*/
-void printPlant(const Plant& plant) {
+void printPlant(const serverPlant& plant) {
     Serial.print(" | Name: ");
     Serial.print(plant.name);
     Serial.print(" | Hardiness Zone: ");
@@ -268,7 +271,48 @@ void printAllPlants() {
 }
 
 /*-----------------------------------WEB SERVER API HANDLERS-------------------------------------------*/
-//API: Get plant by name
+//api endpoint for the currently selected plant, used for webapp to OLED sync
+void handleGetCurrentPlant(AsyncWebServerRequest *request) {
+    
+    DynamicJsonDocument doc(512);
+
+    if (globalContainer == nullptr) {
+
+        request->send(500, "application/json", "{\"error\": \"Device not ready\"}");
+        return;
+    }
+
+    //if no plant is selected yet, return empty
+    if (!globalContainer->header.plantSelected) {
+        
+        request->send(200, "application/json", "{\"selected\": false}");
+        return;
+    }
+
+    //return selected plant info (from activePlant)
+    doc["selected"] = true;
+    doc["name"] = globalContainer->activePlant.commonName;
+    doc["hardiness_zone_low"] = globalContainer->activePlant.hardiness[0];
+    doc["hardiness_zone_high"] = globalContainer->activePlant.hardiness[1];
+    doc["light_requirement_low"] = globalContainer->activePlant.lightReq[0];
+    doc["light_requirement_high"] = globalContainer->activePlant.lightReq[1];
+    doc["water_requirement_low"] = globalContainer->activePlant.waterReq[0];
+    doc["water_requirement_high"] = globalContainer->activePlant.waterReq[1];
+
+    //include the sensor averages for current plant
+    float avgLight, avgTemp, avgWater, avgHumidity;
+    getActivePlantAverages(avgLight, avgTemp, avgWater, avgHumidity);
+    doc["avgLight"] = avgLight;
+    doc["avgTemp"] = avgTemp;
+    doc["avgWater"] = avgWater;
+    doc["avgHumidity"] = avgHumidity;
+
+    String response;
+    serializeJson(doc, response);
+    request->send(200, "application/json", response);
+}
+
+
 void handleGetPlantByName(AsyncWebServerRequest *request) {
     
     //make sure that the request has a name, this should just be true because of the search but better safe than sorry
@@ -276,7 +320,7 @@ void handleGetPlantByName(AsyncWebServerRequest *request) {
 
         //get that name parameter and search the database for it
         String name = request->getParam("name")->value();
-        Plant* plant = findPlantByName(name);
+        serverPlant* plant = findPlantByName(name);
         
         //if the plant exists in the database, make and return a JSON object with the correct information
         if (plant) {
@@ -291,9 +335,36 @@ void handleGetPlantByName(AsyncWebServerRequest *request) {
             doc["water_requirement_low"] = plant->water_requirement_low;
             doc["water_requirement_high"] = plant->water_requirement_high;
 
+            //searching for a plant also selects it on the device
+            if (globalContainer != nullptr) {
+
+                globalContainer->activePlant.id = plant->id;
+                plant->name.toCharArray(globalContainer->activePlant.commonName, NUM_CHARS_NAME);
+
+                globalContainer->activePlant.hardiness[0] = plant->hardiness_zone_low;
+                globalContainer->activePlant.hardiness[1] = plant->hardiness_zone_high;
+                globalContainer->activePlant.lightReq[0] = plant->light_requirement_low;
+                globalContainer->activePlant.lightReq[1] = plant->light_requirement_high;
+                globalContainer->activePlant.waterReq[0] = plant->water_requirement_low;
+                globalContainer->activePlant.waterReq[1] = plant->water_requirement_high;
+
+                globalContainer->header.plantSelected = 1;
+                globalContainer->activePlant.plantPulled = 1;
+                Serial.println("Plant searched/selected: " + name);
+            }
+
+            //include current sensor averages (will be for the newly selected plant)
+            float avgLight, avgTemp, avgWater, avgHumidity;
+            getActivePlantAverages(avgLight, avgTemp, avgWater, avgHumidity);
+
+            doc["avgLight"] = avgLight;
+            doc["avgTemp"] = avgTemp;
+            doc["avgWater"] = avgWater;
+            doc["avgHumidity"] = avgHumidity;
+
             //send the JSON
             String response;
-            serializeJsonPretty(doc, response);
+            serializeJson(doc, response);
             request->send(200, "application/json", response);
         }
 
@@ -334,12 +405,21 @@ void setupWebServer() {
 
     Serial.println("Setting up Web Server API route...");
     
-    //defined API endpoint for the search function
+    //defined API endpoint for plant search (which also selects the plant on the device)
     server.on("/api/plant/name", HTTP_GET, handleGetPlantByName);
+
+    //API endpoint to get the currently selected plant (for webapp polling)
+    server.on("/api/current-plant", HTTP_GET, handleGetCurrentPlant);
     
     //API for all plants, primarily using for the autocomplete, could maybe be used as a list of all plants as well?
     server.on("/api/plants", HTTP_GET, [](AsyncWebServerRequest *request){
         
+        if(!globalContainer){
+            
+            request->send(500,"text/plain","Container not ready");
+            return;
+        }  
+
         //Get all plants names and return as JSON array
         DynamicJsonDocument doc(4096);
         JsonArray plantsArray = doc.createNestedArray("plants");
@@ -388,8 +468,4 @@ void initializePlantServer() {
     setupWebServer();
     
     Serial.println("=== Initialization Complete ===\n");
-}
-/*-------------------------------------Handle Plant Server (called in loop for sensor readings)--------------------------------*/
-void handlePlantServer() {
-    
 }

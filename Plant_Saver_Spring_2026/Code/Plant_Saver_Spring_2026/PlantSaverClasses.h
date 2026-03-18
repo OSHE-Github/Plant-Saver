@@ -197,6 +197,12 @@ int pullPlant(char fileName[], int id, JsonDocument& doc);
 // Standalone helper for centering text horizontally
 int horizontalCenterText(char text[], int bufferLen, int fontSize);
 
+// Function to get active plant sensor averages (for web API)
+void getActivePlantAverages(float& avgLight, float& avgTemp, float& avgWater, float& avgHumidity);
+
+// Global container pointer for web API access
+extern Container* globalContainer;
+
 /*---------------------------------------------------------- enumerables -----------------------------------------------------------*/
 
 // For tracking states
