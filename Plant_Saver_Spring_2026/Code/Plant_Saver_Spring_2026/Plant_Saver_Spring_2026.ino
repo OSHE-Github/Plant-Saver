@@ -100,8 +100,8 @@ void setup() {
   Error occurrence holds the active state to return if the error can be cleared.
 */
 void loop() {
-  handlePlantServer();
   static Container container;
+  globalContainer = &container;
   if (container.error.highestPriority) {
     errorModeHandler(container);
   } else {
