@@ -6,7 +6,6 @@
 #include <ArduinoJson.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <ESP32Time.h>  //necessary for keeping track of time through deep-sleep cycles
 /*------------------------------------------------------ Object Instantiation -----------------------------------------------------*/
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);  // Create OLED display object
@@ -77,7 +76,8 @@ void Error::indicateError() {
 
 // Initialization
 Plant::Plant(Error& errorRef)
-  : commonName{}, scientificName{}, fact{}, lightReq{}, waterReq{}, hardiness{}, error(errorRef) {
+  : commonName{}, scientificName{}, fact{}, lightReq{}, waterReq{}, hardiness{},
+    avgLightQuadrants{}, error(errorRef) {
   id = 0;
   avgLight = 0;
   avgWater = 0;
@@ -87,7 +87,7 @@ Plant::Plant(Error& errorRef)
 }
 
 // Take average of sensor readings
-float Plant::getAvgReading(JsonDocument sensorDoc) {
+float Plant::getAvgReading(JsonDocument& sensorDoc) {
   float avg = 0;
   int numReadings = sensorDoc["numReadings"];
   if (numReadings > 0) {
@@ -105,19 +105,6 @@ float Plant::getAvgReading(JsonDocument sensorDoc) {
 //
 // TODO: Calibration File
 //
-
-// Check all average values against thresholds
-// 
-// TODO: Implement error checking w/ default values (-1)
-//
-/*
-void Plant::checkThresholds() {
-  lightCheck();
-  waterCheck();
-  tempCheck();
-  humidityCheck();
-}
-*/
 
 // Map light requirements to thresholds, then check average reading
 //
@@ -188,23 +175,26 @@ void Plant::tempCheck(int threshold[2]) {
 }
 
 // Map water requirements and humidity readings to thresholds, then check average readings
+// Water thresholds are created to work with inverted reading values, such that dry < wet
+// This is due to the fact that capacitance is inversely proportional to water saturation
 void Plant::waterCheck(int threshold[2]) {
   int waterReqLowHigh[2];  // [0] = low value, [1] = high value
   waterReqLowHigh[0] = waterReq[0];
   waterReqLowHigh[1] = (waterReq[1] != 0) ? waterReq[1] : waterReq[0];
   for (int i = 0; i < 2; i++) {
     switch (waterReqLowHigh[i]) {
-      case water:
-        threshold[i] = WATER_MIN + 1000 * i;  // 0 to 1000
-        break;
-      case wet:
-        threshold[i] = 1000 + 650 * i;  // 1000 to 1650
+      case dry:
+        threshold[i] = WATER_MIN + 1795 * i; // 0 to 1795 (raw range 2300 to 4095)
         break;
       case moist:
-        threshold[i] = 1650 + 650 * i;  // 1650 to 2300
+        threshold[i] = 1795 + 650 * i; // 1795 to 2445 (raw range 1650 to 2300)
         break;
-      case dry:
-        threshold[i] = 2300 + (WATER_MAX - 2300) * i;  // 2300 to 4095 (max)
+      case wet:
+        threshold[i] = 2445 + 650 * i; // 2445 to 3095 (raw range 1000 to 1650)
+        break;
+      case water:
+        threshold[i] = 3095 + 4095*i; // 3095 to 4095 (raw range 0 to 1000)
+        break;
     }
   }
 }
@@ -214,6 +204,11 @@ void Plant::humidityCheck(int threshold[2]) {
   threshold[0] = 30;
   threshold[1] = 60;
   // TODO: What do?
+}
+
+// Calculate the average light out of the four quadrants
+void Plant::calcAvgLight() {
+  avgLight = (avgLightQuadrants[0] + avgLightQuadrants[1] + avgLightQuadrants[2] + avgLightQuadrants[3]) / 4.0;
 }
 
 // Pull data from the plant file of the active plant's folder and parse it into a plant object
@@ -274,24 +269,72 @@ void Plant::pushPlant() {
 /*---------------------------------------------------------- Sensor Reading Class ----------------------------------------------------------*/
 
 // Initialization
-SensorReading::SensorReading(){
+SensorReading::SensorReading(Error& errorRef)
+  : lightReadings{}, error(errorRef) {
   tempReading = 0;
   waterReading = 0;
   humidityReading = 0;
   lightReading = 0;
 }
 
-/*----------------------------------------------------------- Container Class --------------------------------------------------------------*/
 
-// Initialization
-Container::Container()
-  : activePlant(error), error(), header(error), sensorReading(), interface(error, activePlant) {
-  activeMode = startupMode;
+// Populate temperature data
+void SensorReading::addTemp(float reading, Plant& plant) {
+  tempReading = (reading * 1.8) + 32;
+  parseNewData(tempReading, plant.avgTemp, TEMP_PATH, plant);
+}
+
+// Populate water data
+void SensorReading::addWater(int reading, Plant& plant){
+  waterReading = reading;
+  parseNewData(waterReading, plant.avgWater, WATER_PATH, plant);
+}
+
+// Populate humidity data
+void SensorReading::addHumidity(float reading, Plant& plant){
+  humidityReading = reading;
+  parseNewData(humidityReading, plant.avgHumidity, HUMIDITY_PATH, plant);
+}
+
+// Populate light data
+void SensorReading::addLight(int reading1, int reading2, int reading3, int reading4, Plant& plant){
+  //lightReading = (0.6 * reading) / (LTR390_GAIN * INTEGRATION_TIME);  // Lux = 0.6*ALS_DATA/(Gain*integration time(ms))
+  lightReadings[0] = reading1;
+  lightReadings[1] = reading2;
+  lightReadings[2] = reading3;
+  lightReadings[3] = reading4;
+  parseNewData(lightReadings[0], plant.avgLightQuadrants[0], LIGHT_QUADRANT1_PATH, plant);
+  parseNewData(lightReadings[1], plant.avgLightQuadrants[1], LIGHT_QUADRANT2_PATH, plant);
+  parseNewData(lightReadings[2], plant.avgLightQuadrants[2], LIGHT_QUADRANT3_PATH, plant);
+  parseNewData(lightReadings[3], plant.avgLightQuadrants[3], LIGHT_QUADRANT4_PATH, plant);
+  plant.calcAvgLight();
+}
+
+// Pull data associated with a sensor reading type and add a new entry
+// Update average reading in the process
+template <typename readingType>
+void SensorReading::parseNewData(readingType newReading, float& avgReading, char fileName[MAX_CHARS_FILENAME], Plant& plant) {
+  if(!SD.exists(fileName)) {
+    newFile(fileName);
+  }
+  JsonDocument sensorDoc = readSDFile(fileName);
+  if (sensorDoc.isNull()) {
+    error.addError(fileOperation);
+    return;
+  }
+  addSensorReading(sensorDoc, newReading);
+  avgReading = plant.getAvgReading(sensorDoc);
+  int pushJsonError = pushJsonDoc(sensorDoc, fileName);
+  if (pushJsonError) {
+    error.addError(pushJsonError);
+  }
+  sensorDoc.clear();
 }
 
 // Add new sensor data to the JsonDocument.
 // Each sensor reading array is treated as a circular buffer
-JsonDocument Container::addSensorReading(JsonDocument sensorDoc, float reading) {
+template <typename readingType>
+void SensorReading::addSensorReading(JsonDocument& sensorDoc, readingType reading) {
   int startIndex = sensorDoc["startIndex"];
   sensorDoc["readings"][startIndex] = reading;
   startIndex = (startIndex + 1) % MAX_SENSOR_READINGS;
@@ -300,69 +343,61 @@ JsonDocument Container::addSensorReading(JsonDocument sensorDoc, float reading) 
   if (numReadings < MAX_SENSOR_READINGS) {
     sensorDoc["numReadings"] = numReadings + 1;
   }
-  return sensorDoc;
 }
 
-// Pull in plant data, add new readings, take averages, then push back to storage files
-// To avoid excessive memory usage, each file is modified separately
-void Container::updatePlantData() {
-  char fileName[MAX_CHARS_FILENAME] = { 0 };
-  JsonDocument sensorDoc;
-  for (int i = 0; i < 4; i++) {
-    switch (i) {
-      case lightFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, LIGHT_PATH);
-        sensorDoc = readSDFile(fileName);
-        if (sensorDoc.isNull()) {
-          error.addError(fileOperation);
-          return;
-        }
-        sensorDoc = addSensorReading(sensorDoc, sensorReading.lightReading);
-        activePlant.avgLight = activePlant.getAvgReading(sensorDoc);
-        break;
-      case waterFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, WATER_PATH);
-        sensorDoc = readSDFile(fileName);
-        if (sensorDoc.isNull()) {
-          error.addError(fileOperation);
-          return;
-        }
-        sensorDoc = addSensorReading(sensorDoc, sensorReading.waterReading);
-        activePlant.avgWater = activePlant.getAvgReading(sensorDoc);
-        break;
-      case humidityFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, HUMIDITY_PATH);
-        sensorDoc = readSDFile(fileName);
-        if (sensorDoc.isNull()) {
-          error.addError(fileOperation);
-          return;
-        }
-        sensorDoc = addSensorReading(sensorDoc, sensorReading.humidityReading);
-        activePlant.avgHumidity = activePlant.getAvgReading(sensorDoc);
-        break;
-      case tempFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, TEMP_PATH);
-        sensorDoc = readSDFile(fileName);
-        if (sensorDoc.isNull()) {
-          error.addError(fileOperation);
-          return;
-        }
-        sensorDoc = addSensorReading(sensorDoc, sensorReading.tempReading);
-        activePlant.avgTemp = activePlant.getAvgReading(sensorDoc);
-        break;
-    }
-    int pushJsonError = pushJsonDoc(sensorDoc, fileName);
-    if (pushJsonError) {
-      error.addError(jsonError);
-    }
-    sensorDoc.clear();
+// Remove data from a sensor readings file
+void SensorReading::clearFile(char fileName[MAX_CHARS_FILENAME]) {
+  if(!SD.exists(fileName)) {
+    newFile(fileName); // Create file if it doesn't exist
   }
+  JsonDocument emptyDoc;
+  emptyDoc["startIndex"] = 0;
+  emptyDoc["numReadings"] = 0;
+  JsonArray readings = emptyDoc["readings"].to<JsonArray>();
+  int pushJsonError = pushJsonDoc(emptyDoc, fileName);
+  emptyDoc.clear();
+  if (pushJsonError) {
+    error.addError(pushJsonError);
+    return;
+  }
+}
+
+void SensorReading::newFile(char fileName[MAX_CHARS_FILENAME]) {
+  File newFile = SD.open(fileName, FILE_WRITE);
+  if (!newFile) {
+    error.addError(fileOperation);
+    return;
+  }
+  newFile.close();
+  JsonDocument newDoc;
+  newDoc["startIndex"] = 0;
+  newDoc["numReadings"] = 0;
+  JsonArray readings = newDoc["readings"].to<JsonArray>();
+  int pushError = pushJsonDoc(newDoc, fileName);
+  newDoc.clear();
+  if (pushError) {
+    error.addError(fileOperation);
+  }
+}
+
+/*----------------------------------------------------------- Container Class --------------------------------------------------------------*/
+
+// Initialization
+Container::Container()
+  : activePlant(error), error(), header(error), sensorReading(error), interface(error, activePlant) {
+  activeMode = startupMode;
 }
 
 // Clear out data associated with the existing user plant (apart from average readings)
 // Create a new user plant from selected DB plant data
 void Container::newUserPlant() {
-  clearSensorData();
+  sensorReading.clearFile(TEMP_PATH); // Clear all existing data
+  sensorReading.clearFile(WATER_PATH);
+  sensorReading.clearFile(HUMIDITY_PATH);
+  sensorReading.clearFile(LIGHT_QUADRANT1_PATH);
+  sensorReading.clearFile(LIGHT_QUADRANT2_PATH);
+  sensorReading.clearFile(LIGHT_QUADRANT3_PATH);
+  sensorReading.clearFile(LIGHT_QUADRANT4_PATH);
   JsonDocument plantDoc;
   int pullError = pullPlant(PLANT_DB_PATH, interface.displayPlantIDs[interface.displayMap[interface.displayMap[3]]], plantDoc);
   if (pullError) {
@@ -387,48 +422,6 @@ void Container::newUserPlant() {
   activePlant.waterReq[1] = (jsonWaterReqs.size() > 1) ? jsonWaterReqs[jsonWaterReqs.size() - 1] : 0;
   plantDoc.clear();
   header.plantSelected = 1;
-}
-
-// Remove all sensor readings for the currently selected plant
-void Container::clearSensorData() {
-  for (int i = 0; i < 4; i++) {
-    char fileName[MAX_CHARS_FILENAME] = { 0 };
-    JsonDocument emptyDoc;
-    JsonArray readings;
-    switch (i) {
-      case lightFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, "%s", LIGHT_PATH);
-        emptyDoc["startIndex"] = 0;
-        emptyDoc["numReadings"] = 0;
-        readings = emptyDoc["readings"].to<JsonArray>();
-        break;
-      case waterFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, "%s", WATER_PATH);
-        emptyDoc["startIndex"] = 0;
-        emptyDoc["numReadings"] = 0;
-        readings = emptyDoc["readings"].to<JsonArray>();
-        break;
-      case humidityFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, "%s", HUMIDITY_PATH);
-        emptyDoc["startIndex"] = 0;
-        emptyDoc["numReadings"] = 0;
-        readings = emptyDoc["readings"].to<JsonArray>();
-        break;
-      case tempFile:
-        snprintf(fileName, MAX_CHARS_FILENAME, "%s", TEMP_PATH);
-        emptyDoc["startIndex"] = 0;
-        emptyDoc["numReadings"] = 0;
-        readings = emptyDoc["readings"].to<JsonArray>();
-        break;
-    }
-    int pushJsonError = pushJsonDoc(emptyDoc, fileName);
-    emptyDoc.clear();
-    readings.clear();
-    if (pushJsonError) {
-      error.addError(pushJsonError);
-      return;
-    }
-  }
 }
 
 /*-------------------------------------------------------------- Header Class --------------------------------------------------------------*/
@@ -484,26 +477,11 @@ void Header::pushHeader() {
 
 // Initialization
 Interface::Interface(Error& errorRef, Plant& plantRef)
-  : error(errorRef), activePlant(plantRef) {
-    //i also changed how you intiialized these arrays, doing it in the intialization of the class wouldnt work because theyre not const --brandon
-    activeMenu = 0;
-    selectedPlantIndex = 0;
-    numSelectCandidates = 0;
-    selectedQueryChar = 0;
-    screenFocus = false;
+  : activeMenu{}, selectedPlantIndex{}, numSelectCandidates{}, displayPlantIDs{}, displayPlantNames{}, indexer{},
+    displayIndices{0, 1, 2}, displayMap{0, 1, 2, 0}, query{'A','A','A','A','A', '\0'}, error(errorRef), activePlant(plantRef) {
     numMenus = 4; // Starts at 4, if data cached then 5
-
-    // Initialize arrays
-    for (int i = 0; i < NUM_CANDIDATES_SHOWN; i++) {
-        displayPlantIDs[i] = 0;
-        displayIndices[i] = i;
-        displayMap[i] = i;
-        memset(displayPlantNames[i], 0, NUM_CHARS_NAME);
-    }
-    displayMap[NUM_CANDIDATES_SHOWN] = 0;
-    memset(query, 'A', NUM_CHARS_QUERY + 1);
-    query[NUM_CHARS_QUERY] = '\0'; // Null terminate
-}
+    screenFocus = false;
+  }
 
 // Initialize the display
 bool Interface::begin(uint8_t vcs, uint8_t addr) {
@@ -520,47 +498,141 @@ void Interface::displayMainMenu() {
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(horizontalCenterText(activePlant.commonName, NUM_CHARS_NAME, 1), 0);
   display.println(activePlant.commonName);
+  int activeColor = SSD1306_WHITE;
   // Water
-  // 
-  // TODO: Need a more digestible way of showing this value
-  //
-  display.drawBitmap(startX + 2, Y_SCALE + padY - 1, waterBmp, 7, 13, 1);
+  if (screenFocus && indexer == 0) {
+    display.fillRect(0, Y_SCALE + padY - 2, SCREEN_WIDTH - REC_WIDTH - 2, 15, SSD1306_WHITE);
+  } 
+  display.drawBitmap(startX + 2, Y_SCALE + padY - 1, waterBmp, 7, 13, SSD1306_INVERSE);
+  display.setTextColor(SSD1306_INVERSE);
   display.setCursor(startX + padX, Y_SCALE + padY + 3 - 1);
-  display.printf("%.0f cts", activePlant.avgWater);
+  int waterInv = (WATER_MAX - activePlant.avgWater); // Invert raw water readings for display
+  int displayWater = int((float(waterInv) / float(WATER_MAX))*100.0);
+  display.printf("%d%%", displayWater);
+  int waterThresh[2] = {-1, -1};
+  activePlant.waterCheck(waterThresh);
+  displayRecommendation(0, WATER_MIN, WATER_MAX, waterThresh, waterInv);
   // Light
-  display.drawBitmap(startX, Y_SCALE + 13 + padY*2, lightBmp, 11, 11, 1);
+  if (screenFocus && indexer == 1) {
+    display.fillRect(0, Y_SCALE + 13 + padY*2 - 1, SCREEN_WIDTH - REC_WIDTH - 2, 15, SSD1306_WHITE);
+  }
+  display.drawBitmap(startX, Y_SCALE + 13 + padY*2, lightBmp, 11, 11, SSD1306_INVERSE);
   display.setCursor(startX + padX, Y_SCALE + 13 + padY*2 + 2);
-  display.printf("%.0f lux", activePlant.avgLight);
+  display.printf("%.0f lx", activePlant.avgLight);
+  int lightThresh[2] = {-1, -1};
+  activePlant.lightCheck(lightThresh);
+  displayRecommendation(1, LIGHT_MIN, LIGHT_MAX, lightThresh, activePlant.avgLight);
   // Temp
-  display.drawBitmap(startX + 1, Y_SCALE + 13 + 11 + padY*3, tempBmp, 8, 13, 1);
+  if (screenFocus && indexer == 2) {
+    display.fillRect(0, Y_SCALE + 13 + 11 + padY*3 - 1, SCREEN_WIDTH - REC_WIDTH - 2, 15, SSD1306_WHITE);
+  }
+  display.drawBitmap(startX + 1, Y_SCALE + 13 + 11 + padY*3, tempBmp, 8, 13, SSD1306_INVERSE);
   display.setCursor(startX + padX, Y_SCALE + 13 + 11 + padY*3 + 3);
   char tempReport[5] = {};
   int tempCharCt = snprintf(tempReport, 5, "%.0f", activePlant.avgTemp);
   display.print(tempReport);
-  display.drawBitmap(startX + padX + tempCharCt*X_SCALE + 1, Y_SCALE + 13 + 11 + padY*3 + 3, degFBmp, 8, 8, 1);
-  // Humidity
-  display.drawBitmap(startX + 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 1, rhBmp, 9, 13, 1);
-  display.setCursor(startX + padX, Y_SCALE + 13 + 11 + 13 + padY*4 + 3 + 1);
-  display.printf("%.0f%% %c", activePlant.avgHumidity);
-  // Testing
-  int waterThresh[2] = {-1, -1};
-  activePlant.waterCheck(waterThresh);
-  displayRecommendation(0, WATER_MIN, WATER_MAX, waterThresh, activePlant.avgWater);
-  int lightThresh[2] = {-1, -1};
-  activePlant.lightCheck(lightThresh);
-  displayRecommendation(1, LIGHT_MIN, LIGHT_MAX, lightThresh, activePlant.avgLight);
+  display.drawBitmap(startX + padX + tempCharCt*X_SCALE + 1, Y_SCALE + 13 + 11 + padY*3 + 3, degFBmp, 8, 8, SSD1306_INVERSE);
   int tempThresh[2] = {-1, -1};
   activePlant.tempCheck(tempThresh);
   displayRecommendation(2, TEMP_MIN, TEMP_MAX, tempThresh, activePlant.avgTemp);
+  // Humidity
+  if (screenFocus && indexer == 3) {
+    display.fillRect(0, Y_SCALE + 13 + 11 + 13 + padY*4 + 3 + 1 - 1, SCREEN_WIDTH - REC_WIDTH - 2, 15, SSD1306_WHITE);
+  }
+  display.setCursor(startX + 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 3 + 1);
+  display.print("RH");
+  display.setCursor(startX + padX + 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 3 + 1);
+  display.printf("%.0f%%", activePlant.avgHumidity);
   int humidityThresh[2] = {-1, -1};
   activePlant.humidityCheck(humidityThresh);
   displayRecommendation(3, HUMIDITY_MIN, HUMIDITY_MAX, humidityThresh, activePlant.avgHumidity);
-  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + padY, testBmp, 52, 11, 1);
-  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + padY*2, testBmp, 52, 11, 1);
-  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + padY*3, testBmp, 52, 11, 1);
-  //display.drawBitmap(SCREEN_WIDTH - 52 - 1, Y_SCALE + 13 + 11 + 13 + padY*4 + 1, testBmp, 52, 11, 1);
   display.display();
   activeMenu = mainMenu;
+}
+
+// Display additional data about one of the four measured characteristics
+void Interface::displayDataMenu() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  int thresh[2] = {-1, -1};
+  char title[15] = {};
+  char units[20] = {};
+  char avg[50] = {};
+  char min[50] = {};
+  char max[50] = {};
+  switch (indexer) {
+    case 0:
+      snprintf(title, 15, "Water");
+      snprintf(units, 20, "%% Saturation");
+      snprintf(avg, 50, "Avg: %.0f%%", (((float)WATER_MAX - activePlant.avgWater)/(float)WATER_MAX)*100.0);
+      activePlant.waterCheck(thresh);
+      snprintf(min, 50, "Min: %.0f%%", (((float)thresh[0])/(float)WATER_MAX)*100.0);
+      snprintf(max, 50, "Max: %.0f%%", (((float)thresh[1])/(float)WATER_MAX)*100.0);
+      break;
+    case 1:
+      {
+      snprintf(title, 15, "Light");
+      snprintf(units, 20, "Lux");
+      snprintf(avg, 50, "Avg: %.0f Lux", activePlant.avgLight);
+      activePlant.lightCheck(thresh);
+      snprintf(min, 50, "Min: %d Lux", thresh[0]);
+      snprintf(max, 50, "Max: %d Lux", thresh[1]);
+      int textX = horizontalCenterText("Highest Dir.", 50, 1);
+      int maxSolarIndex = 0;
+      for (int i = 1; i < NUM_SOLAR_PANELS; i++) {
+        if (activePlant.avgLightQuadrants[i] > activePlant.avgLightQuadrants[maxSolarIndex]) { // TODO: is this working?
+          maxSolarIndex = i;
+        }
+      }
+      const unsigned char* dirBmp;
+      switch (maxSolarIndex) { // TODO - ordering here
+        case 0:
+          dirBmp = lightArrowUpBmp;
+          break;
+        case 1:
+          dirBmp = lightArrowLeftBmp;
+          break;
+        case 2:
+          dirBmp = lightArrowDownBmp;
+          break;
+        case 3:
+          dirBmp = lightArrowRightBmp;
+      }
+      display.drawBitmap(textX - 7 - 5, SCREEN_HEIGHT - 7 - 2, dirBmp, 7, 7, 1);
+      display.setCursor(textX, SCREEN_HEIGHT - 7 -2);
+      display.print("Highest Dir.");
+      display.drawBitmap((int)(SCREEN_WIDTH/2) + ((int)(SCREEN_WIDTH/2) - textX) + 5, SCREEN_HEIGHT - 7 - 2, dirBmp, 7, 7, 1);
+      break;
+      }
+    case 2:
+      snprintf(title, 15, "Temperature");
+      snprintf(units, 20, "Degrees F");
+      snprintf(avg, 50, "Avg: %.0f", activePlant.avgTemp);
+      activePlant.tempCheck(thresh);
+      snprintf(min, 50, "Min: %d F", thresh[0]);
+      snprintf(max, 50, "Max: %d F", thresh[1]);
+      break;
+    case 3:
+      snprintf(title, 15, "Humidity");
+      snprintf(units, 20, "%% Rel. Humidity");
+      snprintf(avg, 50, "Avg: %.0f", activePlant.avgHumidity);
+      activePlant.humidityCheck(thresh);
+      snprintf(min, 50, "Min: %d%%", thresh[0]);
+      snprintf(max, 50, "Max: %d%%", thresh[1]);
+  }
+  display.setCursor(horizontalCenterText(title, 15, 1), 0);
+  display.println(title);
+  display.setCursor(horizontalCenterText(units, 20, 1), Y_SCALE + 1);
+  display.print(units);
+  display.setCursor(horizontalCenterText(avg, 50, 1), Y_SCALE*2 + 2);
+  display.print(avg);
+  display.setCursor(horizontalCenterText(min, 50, 1), Y_SCALE*3 + 3);
+  display.print(min);
+  display.setCursor(horizontalCenterText(max, 50, 1), Y_SCALE*4 + 4);
+  display.print(max);
+  display.display();
+  activeMenu = dataMenu;
 }
 
 // Build and display the info menu
@@ -570,18 +642,15 @@ void Interface::displayInfoMenu() {
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(horizontalCenterText(activePlant.commonName, NUM_CHARS_NAME, 1), 0);
   display.println(activePlant.commonName);
-  display.setCursor(horizontalCenterText(activePlant.scientificName, NUM_CHARS_NAME, 1), 10);
+  display.setCursor(horizontalCenterText(activePlant.scientificName, NUM_CHARS_NAME, 1), Y_SCALE + 1);
   display.println(activePlant.scientificName);
-  display.setCursor(0, 30);
+  display.setCursor(0, SCREEN_HEIGHT - (Y_SCALE * 3) - 12);
   display.println(activePlant.fact);
   display.display();
   activeMenu = infoMenu;
 }
 
 // Build and display query input menu
-// 
-// TODO: ugly, make pretty
-//
 void Interface::displayInputMenu() {
   int dx = int(SCREEN_WIDTH / (NUM_CHARS_QUERY + 1));
   display.clearDisplay();
@@ -597,8 +666,8 @@ void Interface::displayInputMenu() {
     display.print(query[i]);
   }
   if(screenFocus) {
-    display.drawBitmap(startX + (dx*selectedQueryChar) - 3, startY - 8 - 6, upArrowBmp, 16, 8, 1);
-    display.drawBitmap(startX + (dx*selectedQueryChar) - 3, startY + Y_SCALE*2 + 6, downArrowBmp, 16, 8, 1);
+    display.drawBitmap(startX + (dx*indexer) - 3, startY - 8 - 6, upArrowBmp, 16, 8, 1);
+    display.drawBitmap(startX + (dx*indexer) - 3, startY + Y_SCALE*2 + 6, downArrowBmp, 16, 8, 1);
   }
   display.display();
   activeMenu = inputMenu;
@@ -665,55 +734,108 @@ void Interface::displaySelectMenu() {
   numMenus = 5;
 }
 
-// Return a character to represent a threshold evaluation
-char Interface::getEvalIndicator(int eval) {
-  switch (eval) {
-    case evalUnknown:
-      return '?';
-    case evalLow:
-      return 'v';
-    case evalHigh:
-      return '^';
-    case evalOK:
-      return '-';
+// Report active error & potential solutions
+void Interface::displayErrorScreen() {
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  int startY = Y_SCALE*2;
+  char line1[40] = " ";
+  char line2[40] = " ";
+  char line3[40] = " ";
+  char line4[40] = " ";
+  switch (error.highestPriority) {
+    case lightSensorInit:
+      //
+      // TODO: can this even happen anymore?
+      //
+      break;
+    case tempSensorInit:
+      snprintf(line1, 40, "Temp. sensor Error:");
+      snprintf(line2, 40, "Attempt power reset");
+      snprintf(line3, 40, "Check DHT20 wiring");
+      break;
+    case moistureSensorInit:
+      //
+      // TODO: can this even happen?
+      //
+      break;
+    case jsonError:
+      snprintf(line1, 40, "File parsing Error:");
+      snprintf(line2, 40, "Attempt power reset");
+      snprintf(line3, 40, "Re-seat micro SD");
+      snprintf(line4, 40, "Check file system");
+      break;
+    case fileOperation:
+      snprintf(line1, 40, "File access error:");
+      snprintf(line2, 40, "Attempt power reset");
+      snprintf(line3, 40, "Re-seat micro SD");
+      snprintf(line4, 40, "Reload file system");
+      break;
+    case SDInit:
+      snprintf(line1, 40, "Micro SD init failed:");
+      snprintf(line2, 40, "Re-seat micro SD");
+      snprintf(line3, 40, "Attempt power reset");
+      snprintf(line4, 40, "Test other micro SD");
+      break;
+    default:
+      snprintf(line1, 40, "Unknown Error:");
+      snprintf(line2, 40, "Attempt power reset");
   }
-  return '?';
+  display.setCursor(horizontalCenterText(line1, 40, 1), startY);
+  display.print(line1);
+  display.setCursor(horizontalCenterText(line2, 40, 1), startY + Y_SCALE);
+  display.print(line2);
+  display.setCursor(horizontalCenterText(line3, 40, 1), startY + 2*Y_SCALE);
+  display.print(line3);
+  display.setCursor(horizontalCenterText(line4, 40, 1), startY + 3*Y_SCALE);
+  display.print(line4);
+  display.display();
 }
 
-//
-// TODO: Rework eval indication system - use this function to draw the recommendation indicator
-// Probably will need to have the level checks return the threshold values as well as a min/max
-// to use in this function.
-//
+// Add a recommendation to the main menu
 void Interface::displayRecommendation(int recInd, int min, int max, int threshold[2], float val) {
   int startY = Y_SCALE + 1 + recInd*(REC_HEIGHT + 3);
   int startX = SCREEN_WIDTH - REC_WIDTH - 1;
+  if (threshold[0] < 0 || threshold[1] < 0) {
+    display.setCursor(startY + int((REC_HEIGHT - Y_SCALE)/2), startX);
+    display.print("No Data");
+  }
   int endX = SCREEN_WIDTH - 1;
   float res = float(REC_WIDTH)/float(max - min);
-  int threshMinX = int(res*threshold[0]) + startX;
-  int threshMaxX = int(res*threshold[1]) + startX;
-  int markerX = int(res*val) + startX;
-  int markerY = startY + (REC_HEIGHT - THRESH_MARKER_HEIGHT - 8 - 1);
-  if (markerX < startX + 2) {
-    markerX = startX + 2;
-  } else if (markerX > endX - 6) { 
-    markerX = endX - 6;
-  }
-  
   // Outer bounds
   display.drawLine(startX, startY, startX, startY + REC_HEIGHT, SSD1306_WHITE);
   display.drawLine(endX, startY, endX, startY + REC_HEIGHT, SSD1306_WHITE);
   // Thresholds
+  int threshMinX = int(res*threshold[0]) + startX;
+  int threshMaxX = int(res*threshold[1]) + startX;
   display.drawLine(threshMinX, startY + (REC_HEIGHT - THRESH_MARKER_HEIGHT), threshMinX, startY + REC_HEIGHT, SSD1306_WHITE);
   display.drawLine(threshMaxX, startY + (REC_HEIGHT - THRESH_MARKER_HEIGHT), threshMaxX, startY + REC_HEIGHT, SSD1306_WHITE);
   // Marker
+  int markerX = int(res*val) + startX;
+  int markerY = startY + (REC_HEIGHT - THRESH_MARKER_HEIGHT - 8 - 1);
+  if (markerX < startX + 2) { // Clip position
+    markerX = startX + 2;
+  } else if (markerX > endX - 6) { 
+    markerX = endX - 6;
+  }
   display.drawBitmap(markerX, markerY, plantMarkerBmp, 5, 8, 1);
-  // TODO: Arrow
+  // Arrow (if outside of bounds)
+  int arrowY = markerY + 1;
+  if (val < threshold[0] && (markerX - startX) > int(REC_WIDTH/2)) { // Increase, left side
+    display.drawBitmap(markerX - 7, arrowY, arrowRightBmp, 5, 5, 1);
+  } else if (val < threshold[0] && (markerX - startX) <= int(REC_WIDTH/2)) { // Increase, right side
+    display.drawBitmap(markerX + 7, arrowY, arrowRightBmp, 5, 5, 1);
+  } else if (val > threshold[1] && (markerX - startX) > int(REC_WIDTH/2)) { // Decrease, left side
+    display.drawBitmap(markerX - 7, arrowY, arrowLeftBmp, 5, 5, 1);
+  } else if (val > threshold[1] && (markerX - startX) <= int(REC_WIDTH/2)) { // Decrease, right side
+    display.drawBitmap(markerX + 7, arrowY, arrowLeftBmp, 5, 5, 1);
+  }
 }
 
 // Increment/Decrement the current query position alphabetically
 void Interface::indexQueryPos(bool upDir) {
-  uint8_t pos = selectedQueryChar;
+  uint8_t pos = indexer;
   if (!upDir) { // Down
     if (query[pos] >= 65 && query[pos] < 90) { // A-Y
       query[pos]++;
@@ -721,7 +843,7 @@ void Interface::indexQueryPos(bool upDir) {
       query[pos] = '_';
     } else if (query[pos] == 95) { // '_'
       query[pos] = '\0';
-    } else { // ''
+    } else { // Default to 'A'
       query[pos] = 'A';
     } 
   } else {
@@ -733,7 +855,7 @@ void Interface::indexQueryPos(bool upDir) {
       query[pos] = 'Z';
     } else if (query[pos] == 0) { // ''
       query[pos] = '_';
-    } else {
+    } else { // Default to 'A'
       query[pos] = 'A';
     }
   }
@@ -829,7 +951,14 @@ void Interface::queryDBPlants() {
     return;
   }
   while (dbFile.available()) {
-    dbFile.find("\"name\":\"");
+    bool found = dbFile.find("\"name\":");
+    if (!found) {
+      break;
+    }
+    if (dbFile.peek() == ' ') { // Skip spaces
+      dbFile.seek(dbFile.position() + 1);
+    }
+    dbFile.seek(dbFile.position() + 1); // Skip beginning quote
     uint8_t diffCt = 0;
     char name[NUM_CHARS_NAME] = {};
     uint8_t nameCharCt = dbFile.readBytesUntil('\"', name, NUM_CHARS_NAME);
@@ -856,10 +985,20 @@ void Interface::queryDBPlants() {
   }
   int processCt = 0;
   while (dbFile.available() && processCt < numSelectCandidates){
-    dbFile.find("id\": "); // TODO: Make sure this matches Jackson's scripts
+    bool found = dbFile.find("id\":");
+    if (!found) {
+      break;
+    }
+    if (dbFile.peek() == ' ') { // Skip spaces
+      dbFile.seek(dbFile.position() + 1);
+    }
     char idChar[MAX_DIGITS_ID + 1] = {}; // Max 999,999
     uint8_t idDigitCt = dbFile.readBytesUntil(',', idChar, MAX_DIGITS_ID + 1);
-    dbFile.find("\"name\":\""); // Spaces or nah?
+    dbFile.find("\"name\":");
+    if (dbFile.peek() == ' ') { // Skip spaces
+      dbFile.seek(dbFile.position() + 1);
+    }
+    dbFile.seek(dbFile.position() + 1); // Skip beginning quote
     char name[NUM_CHARS_NAME] = {};
     uint8_t nameCharCt = dbFile.readBytesUntil('\"', name, NUM_CHARS_NAME);
     if (idDigitCt > 0 && nameCharCt > 0) {
@@ -963,6 +1102,10 @@ void Interface::pullCachedData(int index, char name[], int& id) {
 
 // Cycle through available screens
 void Interface::nextScreen(bool plantSelected) {
+  screenFocus = 0;
+  if (activeMenu == dataMenu) {
+    activeMenu = mainMenu;
+  }
   activeMenu = (activeMenu + 1) % (numMenus);
   activeMenu = activeMenu == 0 ? 1 : activeMenu;
   switch (activeMenu) {
