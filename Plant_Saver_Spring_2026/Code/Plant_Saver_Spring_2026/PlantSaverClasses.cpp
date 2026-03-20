@@ -523,25 +523,16 @@ void Header::pushHeader() {
 
 // Initialization
 Interface::Interface(Error& errorRef, Plant& plantRef)
-  : error(errorRef), activePlant(plantRef) {
-    //i also changed how you intiialized these arrays, doing it in the intialization of the class wouldnt work because theyre not const --brandon
-    activeMenu = 0;
-    selectedPlantIndex = 0;
-    numSelectCandidates = 0;
-    selectedQueryChar = 0;
-    screenFocus = false;
-    numMenus = 4; // Starts at 4, if data cached then 5
-
-    // Initialize arrays
-    for (int i = 0; i < NUM_CANDIDATES_SHOWN; i++) {
-        displayPlantIDs[i] = 0;
-        displayIndices[i] = i;
-        displayMap[i] = i;
-        memset(displayPlantNames[i], 0, NUM_CHARS_NAME);
-    }
-    displayMap[NUM_CANDIDATES_SHOWN] = 0;
-    memset(query, 'A', NUM_CHARS_QUERY + 1);
-    query[NUM_CHARS_QUERY] = '\0'; // Null terminate
+  : activeMenu{}, selectedPlantIndex{}, numSelectCandidates{}, displayPlantIDs{}, displayPlantNames{}, selectedQueryChar{},
+    displayIndices{0, 1, 2}, displayMap{0, 1, 2, 0}, query{'A','A','A','A','A'}, error(errorRef), activePlant(plantRef) {
+      
+      activeMenu = 0;
+      selectedPlantIndex = 0;
+      numSelectCandidates = 0;
+      selectedQueryChar = 0;
+      screenFocus = false;
+      numMenus = 4; // Starts at 4, if data cached then 5
+    
 }
 
 // Initialize the display

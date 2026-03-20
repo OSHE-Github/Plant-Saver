@@ -1,0 +1,154 @@
+body{
+    display:flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin:0;
+    padding:0;
+    background-color: #606C38;
+    color: #FEFAE0;
+    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+
+/* Header Styles */
+header{
+    display:flex;
+    flex-direction: row;
+    background-color: #283618;
+    padding-left: 1rem;
+    margin:0;
+    height: 100px;
+}
+
+.header-left{
+    display:flex;
+    flex: 0 0 90%; 
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+/*Auto-complete formatting*/
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    background-color: #FEFAE0;
+    color: #283618;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 250px;
+    font-size: 1rem;
+}
+
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.autocomplete-items div:hover {
+    background-color: #e9e9e9;
+}
+
+.header-right{
+    display:flex;
+    flex: 0 0 10%;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.header-left h1{
+    margin:0;
+    padding:0.5rem;
+    font-size:2.5rem;
+    align-self: flex-start;
+}
+
+.header-left .header-menus{
+    display:flex;
+    flex-direction: row;
+    align-self: flex-start;
+    gap:.5rem;
+    padding-left: .75rem;
+}
+
+.header-left .subtitle{
+    margin:0;
+    padding-left: 1rem;
+    font-size:1.2rem;
+}
+
+
+.header-right a{
+    margin:0;
+    padding:0;
+}
+
+.header-right img {
+    width: 100%;
+    height:100%;
+    max-width: 100px;
+    max-height: 100px;
+}
+
+
+/* Main Content Styles */
+main{
+    display:flex;
+    flex-direction: row;
+    padding: 1rem;
+}
+
+.main-left{
+    display:flex;
+    flex-direction:column;
+    flex: 0 0 48%;
+    gap:.5rem;
+    padding-right: 1%;
+    margin:10px;
+}
+
+.main-right{
+    display:flex;
+    flex-direction:column;
+    flex: 0 0 48%;
+    gap:.5rem;
+    padding-left: 1%;
+    margin: 10px;
+}
+
+.Current-Plant{
+    display:flex;
+    gap:.5rem;
+}
+
+.Info-Box{
+    display:flex;
+    flex-direction: column;
+    padding: .5rem;
+    margin: .5rem;
+    background-color: #283618;
+    border: 2px solid #FEFAE0;
+    border-width: medium;
+}
+
+.Sensor-Data-Label{
+    display: flex;
+    gap: .5rem;
+}
+
+.Sensor-Data-Table table{
+    width: 100%;
+    border-collapse: collapse;
+    border: #FEFAE0 solid medium;
+    background-color: #283618;
+    margin-top:2.5rem;
+}
+
+.Sensor-Data-Table th, .Sensor-Data-Table td{
+    text-align: center;
+    padding:0.5rem;
+    border: #FEFAE0 solid medium;
+}

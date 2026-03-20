@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>PlantSaver Web-App</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/main.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <div class ="header-left">
+            <h1>Welcome to Plant-Saver!</h1>
+            
+            <div class="header-menus">
+
+                <form method="GET" id="searchForm">
+                    <input id="searchField" type="search" name="name" placeholder="Search Plants" autocomplete="off">
+                    <div id="autocomplete-list" class="autocomplete-items"></div>
+                    <button type="submit">Search</button>
+                </form>
+                <p class="subtitle">
+                    Thank you to PermaPeople for making this Project Possible!
+                </p>
+            </div>
+            
+        </div>
+
+        <div class = "header-right">
+            <a target="_blank" href="https://github.com/OSHE-Github">
+                <img src="images/OSHE gear.jpg">
+            </a>
+        </div>
+    </header>
+    
+    <main>
+        <div class="main-left">
+            <div class="Current-Plant">
+                <h2>Current Plant:</h2>
+                <h2 id="plantName"></h2>
+            </div>
+            <div class="Info-Box">
+                <p><strong>USDA Hardiness Zone:</strong> <span id="hardinessZone">--</span></p>
+                <p><strong>Light Requirement:</strong> <span id="lightRequirement">--</span></p>
+                <p><strong>Water Requirement:</strong> <span id="waterRequirement">--</span></p>
+            </div>
+        </div>
+
+        <div class="main-right">
+            <div class="Sensor-Data-Label">
+                <h2>Sensor Readings</h2>
+            </div>
+            <div class="Sensor-Data-Table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Water Level</th>
+                            <th>Light Level</th>
+                            <th>Temperature</th>
+                            <th>Humidity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="waterData">--</td>
+                            <td id="lightData">--</td>
+                            <td id="tempData">--</td>
+                            <td id="humidityData">--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="Clarifications">
+                <p>All measurements are rolling average values</p>
+            </div>
+            
+        </div>
+    </main>
+</body>
+
+
+</html>

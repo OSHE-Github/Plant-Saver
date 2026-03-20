@@ -24,7 +24,7 @@
 #define SCREEN_WIDTH 128  // OLED display width, in pixels
 #define SCREEN_HEIGHT 64  // OLED display height, in pixels
 #define OLED_RESET -1     // OLED Reset pin # (or -1 if sharing Arduino reset pin)
-#define NUM_CANDIDATES_SHOWN 3
+#define NUM_CANDIDATES_SHOWN 3 //im setting a random number here so i can test on my end --brandon
 #define X_SCALE 6 // X (width) scaling for characters
 #define Y_SCALE 8 // Y (height) scaling for characters
 #define REC_WIDTH 52 // This stuff vvv for recommendation display
