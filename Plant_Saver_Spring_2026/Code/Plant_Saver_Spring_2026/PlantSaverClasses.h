@@ -33,6 +33,16 @@
 #define MARKER_HEIGHT 8
 #define THRESH_MARKER_HEIGHT 3
 
+// Thresholds
+#define LIGHT_MIN 0
+#define LIGHT_MAX 999999 // TODO
+#define TEMP_MIN 26 
+#define TEMP_MAX 100
+#define WATER_MIN 0
+#define WATER_MAX 4095
+#define HUMIDITY_MIN 0
+#define HUMIDITY_MAX 100
+
 // Paths
 #define PLANT_DB_PATH "/plantDB.txt"
 #define HEADER_PATH "/header.txt"
@@ -83,17 +93,12 @@ public:
   float avgHumidity;
   float avgTemp;
   // These variables ARE NOT stored:
-  int lightEval;
-  int waterEval;
-  int humidityEval;
-  int tempEval;
   bool plantPulled;
   Error& error;
-private:
-  void tempCheck();
-  void waterCheck();
-  void lightCheck();
-  void humidityCheck();
+  void tempCheck(int threshold[2]);
+  void waterCheck(int threshold[2]);
+  void lightCheck(int threshold[2]);
+  void humidityCheck(int threshold[2]);
 };
 
 // Data associated with an instanced multi-sensor reading
@@ -131,6 +136,7 @@ public:
   void displayInfoMenu();
   void displayInputMenu();
   char getEvalIndicator(int eval);
+  void displayRecommendation(int recInd, int min, int max, int threshold[2], float val);
   void indexQueryPos(bool upDir);
   void displaySelectMenu();
   void scrollSelectDown();

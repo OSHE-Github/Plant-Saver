@@ -232,7 +232,7 @@ void displayModeHandler(Container &container) {
   unsigned long currentTime = millis();
 
   if (container.interface.activeMenu == noMenu) {
-    container.activePlant.checkThresholds();
+    //container.activePlant.checkThresholds();
     container.interface.displayMainMenu();
   }
 
@@ -296,7 +296,7 @@ void displayModeHandler(Container &container) {
       }
     } else if (container.interface.activeMenu == selectMenu && container.interface.numSelectCandidates > 0){
       container.newUserPlant();
-      container.activePlant.checkThresholds();
+      //container.activePlant.checkThresholds();
       container.interface.displayMainMenu();
     }
   } else if (digitalRead(SELECT_BTN) && selOns && millis() - selDb > BUTTON_DEBOUNCE) {
