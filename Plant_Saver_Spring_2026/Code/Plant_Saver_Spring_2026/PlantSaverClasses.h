@@ -16,7 +16,6 @@
 // TODO - decrease max sensor readings
 #define MAX_SENSOR_READINGS 200  // # of sensor readings allowed in FIFO
 #define NUM_CHARS_NAME 50
-#define NUM_CHARS_FACT 100
 #define QUERY_DIFF_THRESH 3 // Diff. between query and candidate must be < this #
 #define NUM_CHARS_QUERY 5
 #define MAX_DIGITS_ID 6
@@ -50,7 +49,7 @@
 #define HUMIDITY_MAX 100
 
 // Paths
-#define PLANT_DB_PATH "/plantDB.txt"
+#define PLANT_DB_PATH "/plantDBTest.txt"
 #define HEADER_PATH "/header.txt"
 #define PLANT_PATH "/Plant/plant.txt"
 #define HUMIDITY_PATH "/Plant/humidity.txt"
@@ -98,7 +97,6 @@ public:
   int id;  // ID within the plant database
   char commonName[NUM_CHARS_NAME];
   char scientificName[NUM_CHARS_NAME];
-  char fact[NUM_CHARS_FACT];
   int lightReq[2];
   int waterReq[2];
   int hardiness[2];
@@ -160,6 +158,7 @@ public:
   void displayInfoMenu();
   void displayInputMenu();
   void displayErrorScreen();
+  void displayLoadingScreen();
   void displayRecommendation(int recInd, int min, int max, int threshold[2], float val);
   void indexQueryPos(bool upDir);
   void displaySelectMenu();

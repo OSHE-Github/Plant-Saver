@@ -76,7 +76,7 @@ void Error::indicateError() {
 
 // Initialization
 Plant::Plant(Error& errorRef)
-  : commonName{}, scientificName{}, fact{}, lightReq{}, waterReq{}, hardiness{},
+  : commonName{}, scientificName{}, lightReq{}, waterReq{}, hardiness{},
     avgLightQuadrants{}, error(errorRef) {
   id = 0;
   avgLight = 0;
@@ -223,8 +223,6 @@ void Plant::pullPlant() {
   snprintf(commonName, NUM_CHARS_NAME, "%s", jsonCommonName);
   const char* jsonScientificName = plantDoc["scientificName"];
   snprintf(scientificName, NUM_CHARS_NAME, "%s", jsonScientificName);
-  const char* jsonFact = plantDoc["fact"];
-  snprintf(fact, NUM_CHARS_FACT, "%s", jsonFact);
   lightReq[0] = plantDoc["lightReq"][0];
   lightReq[1] = plantDoc["lightReq"][1];
   waterReq[0] = plantDoc["waterReq"][0];
@@ -245,7 +243,6 @@ void Plant::pushPlant() {
   plantDoc["id"] = id;
   plantDoc["commonName"] = commonName;
   plantDoc["scientificName"] = scientificName;
-  plantDoc["fact"] = fact;
   JsonArray jsonLightReq = plantDoc["lightReq"].to<JsonArray>();
   jsonLightReq.add(lightReq[0]);
   jsonLightReq.add(lightReq[1]);
@@ -400,17 +397,18 @@ void Container::newUserPlant() {
   sensorReading.clearFile(LIGHT_QUADRANT4_PATH);
   JsonDocument plantDoc;
   int pullError = pullPlant(PLANT_DB_PATH, interface.displayPlantIDs[interface.displayMap[interface.displayMap[3]]], plantDoc);
+  Serial.print("Pulled Plant: "); Serial.println(interface.displayPlantIDs[interface.displayMap[interface.displayMap[3]]]);
   if (pullError) {
     error.addError(pullError);
+    Serial.println(pullError);
     return;
   }
   activePlant.id = plantDoc["id"];
+  Serial.print("Transferred ID: "); Serial.println(activePlant.id);
   const char* commonName = plantDoc["name"];
   snprintf(activePlant.commonName, NUM_CHARS_NAME, "%s", commonName);
   const char* scientificName = plantDoc["scientific_name"];
   snprintf(activePlant.scientificName, NUM_CHARS_NAME, "%s", scientificName);
-  const char* fact = plantDoc["cultivation_fact"];
-  snprintf(activePlant.fact, NUM_CHARS_FACT, "%s", fact);
   JsonArray jsonHardinessVals = plantDoc["data"][0]["value"];
   JsonArray jsonLightReqs = plantDoc["data"][1]["value"];
   JsonArray jsonWaterReqs = plantDoc["data"][2]["value"];
@@ -420,6 +418,7 @@ void Container::newUserPlant() {
   activePlant.lightReq[1] = (jsonLightReqs.size() > 1) ? jsonLightReqs[jsonLightReqs.size() - 1] : 0;
   activePlant.waterReq[0] = jsonWaterReqs[0];
   activePlant.waterReq[1] = (jsonWaterReqs.size() > 1) ? jsonWaterReqs[jsonWaterReqs.size() - 1] : 0;
+  Serial.println("Plant Data copied");
   plantDoc.clear();
   header.plantSelected = 1;
 }
@@ -645,7 +644,6 @@ void Interface::displayInfoMenu() {
   display.setCursor(horizontalCenterText(activePlant.scientificName, NUM_CHARS_NAME, 1), Y_SCALE + 1);
   display.println(activePlant.scientificName);
   display.setCursor(0, SCREEN_HEIGHT - (Y_SCALE * 3) - 12);
-  display.println(activePlant.fact);
   display.display();
   activeMenu = infoMenu;
 }
@@ -791,6 +789,26 @@ void Interface::displayErrorScreen() {
   display.setCursor(horizontalCenterText(line4, 40, 1), startY + 3*Y_SCALE);
   display.print(line4);
   display.display();
+}
+
+// Temporary loading screen for collecting plant data
+//
+// TODO: It could have more character to it. Maybe something like (plant image) -> (file image)
+void Interface::displayLoadingScreen() {
+  display.clearDisplay();
+  display.fillCircle(64, 13, 2, 1);
+  display.fillCircle(53, 19, 2, 1);
+  display.fillCircle(75, 19, 2, 1);
+  display.fillCircle(75, 30, 2, 1);
+  display.fillCircle(64, 36, 2, 1);
+  display.fillCircle(53, 30, 2, 1);
+  display.setTextColor(1);
+  display.setTextSize(1);
+  display.setTextWrap(false);
+  display.setCursor(horizontalCenterText("Loading...", 20, 1), 48);
+  display.print("Loading...");
+  display.display();
+
 }
 
 // Add a recommendation to the main menu
@@ -1182,27 +1200,36 @@ uint8_t compareToQuery(char candidate[], char query[]) {
 
 // Helper to grab a plant from the database
 // Pulls data into the passed JsonDocument
+// TODO: Should probably rename this function
 int pullPlant(char fileName[], int id, JsonDocument& doc) {
   File file = SD.open(fileName, FILE_READ);
   char searchID1[20] = {};
-  uint8_t search1CharCt = snprintf(searchID1, 20, "{\"id\": %d", id);
+  uint8_t search1CharCt = snprintf(searchID1, 20, "{\"id\": %d", id); // TODO - if possible, make space-tolerant
   bool found = file.find(searchID1);
+  Serial.print("Found Plant ID: "); Serial.println(id);
   if (!found) {
     file.close();
     return fileOperation;
   }
   unsigned long marker1 = file.position() - search1CharCt;
-  uint8_t interListTerminalCt = 7;
+  uint8_t interListTerminalCt = 8;
   uint8_t endListTerminalCt = 2;
-  found = file.findUntil(",{\"id\":", "}]}");
+  found = file.findUntil("{\"id\":", "}]}");
   unsigned long marker2 = file.position();
   marker2 = found ? marker2 - interListTerminalCt : marker2 - endListTerminalCt;
   const int len = marker2 - marker1 + 1;
+  Serial.print("Length of JSON: "); Serial.println(len);
   char raw[len] = {};
   file.seek(marker1);
-  file.readBytes(raw, len - 1);
+  file.readBytes(raw, len - 1); // TODO - Fine-Tune/Check this
+  Serial.print(raw);
+  Serial.println("");
   file.close();
-  deserializeJson(doc, raw);
+  DeserializationError error = deserializeJson(doc, raw);
+  if (error) {
+    Serial.println(error.c_str());
+    return jsonError;
+  }
   return noError;
 }
 

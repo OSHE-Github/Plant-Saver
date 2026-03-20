@@ -21,7 +21,7 @@
 #define OLED_RESET -1               // OLED Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3D         // OLED screen I2C address
 #define WAKE_PIN_BITMASK 201347072  // Pins 12, 14, 26 & 27
-#define DISPLAY_TIMEOUT_M 1         // delay before timing out the display in minutes
+#define DISPLAY_TIMEOUT_M 3         // delay before timing out the display in minutes
 #define MS_PER_MINUTE 60000         // Milliseconds per minute conversion factor
 #define INTEGRATION_TIME 0.25       // LTR390 integration time
 #define LTR390_GAIN 3               // Gain of the LTR390
@@ -299,6 +299,8 @@ void displayModeHandler(Container &container) {
         container.interface.displayInputMenu();
       } else {
         container.interface.screenFocus = 0;
+        // TODO: Add some kind of loading screen here, 30s is too long to just "pause"
+        container.interface.displayLoadingScreen();
         container.interface.queryDBPlants();
         container.interface.displaySelectMenu();
       }
