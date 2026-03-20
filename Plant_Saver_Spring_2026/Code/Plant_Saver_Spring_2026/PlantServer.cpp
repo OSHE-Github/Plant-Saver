@@ -294,10 +294,28 @@ void handleGetCurrentPlant(AsyncWebServerRequest *request) {
     doc["name"] = globalContainer->activePlant.commonName;
     doc["hardiness_zone_low"] = globalContainer->activePlant.hardiness[0];
     doc["hardiness_zone_high"] = globalContainer->activePlant.hardiness[1];
+    
     doc["light_requirement_low"] = globalContainer->activePlant.lightReq[0];
-    doc["light_requirement_high"] = globalContainer->activePlant.lightReq[1];
+    
+    if(globalContainer->activePlant.lightReq[1] == 0){
+        
+        doc["light_requirement_high"] = globalContainer->activePlant.lightReq[0];
+    }
+    else{
+        
+        doc["light_requirement_high"] = globalContainer->activePlant.lightReq[1];
+    }
+
     doc["water_requirement_low"] = globalContainer->activePlant.waterReq[0];
-    doc["water_requirement_high"] = globalContainer->activePlant.waterReq[1];
+
+    if(globalContainer->activePlant.waterReq[1] == 0){
+
+        doc["water_requirement_high"] = globalContainer->activePlant.waterReq[0];
+    }
+     else{
+    
+        doc["water_requirement_high"] = globalContainer->activePlant.waterReq[1];
+    }
 
     //include the sensor averages for current plant
     float avgLight, avgTemp, avgWater, avgHumidity;
