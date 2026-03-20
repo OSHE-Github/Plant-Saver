@@ -241,7 +241,7 @@ void displayModeHandler(Container &container) {
     chgOns = 1;
     chgDb = startTime = millis();
     if (container.interface.activeMenu == inputMenu && container.interface.screenFocus) {
-      container.interface.selectedQueryChar = (container.interface.selectedQueryChar + 1) % NUM_CHARS_QUERY;
+      container.interface.indexer = (container.interface.indexer + 1) % NUM_CHARS_QUERY;
       container.interface.displayInputMenu();
     } else if (container.interface.activeMenu != inputMenu || !container.interface.screenFocus) {
       container.interface.nextScreen(container.header.plantSelected);
@@ -254,7 +254,11 @@ void displayModeHandler(Container &container) {
   if (!digitalRead(UP_BTN) && upOns == 0) {
     upOns = 1;
     upDb = startTime = millis();
-    if (container.interface.activeMenu == inputMenu && container.interface.screenFocus) {
+    if (container.interface.activeMenu == mainMenu && container.interface.screenFocus) {
+      container.interface.indexer = container.interface.indexer > 0 ? container.interface.indexer - 1 : 3;
+      container.interface.displayMainMenu();
+    }
+    else if (container.interface.activeMenu == inputMenu && container.interface.screenFocus) {
       container.interface.indexQueryPos(1);
       container.interface.displayInputMenu();
     } else if (container.interface.activeMenu == selectMenu) {
@@ -269,11 +273,14 @@ void displayModeHandler(Container &container) {
   if (!digitalRead(DOWN_BTN) && downOns == 0) {
     downOns = 1;
     downDb = startTime = millis();
+    if (container.interface.activeMenu == mainMenu && container.interface.screenFocus) {
+      container.interface.indexer = (container.interface.indexer + 1) % 4;
+      container.interface.displayMainMenu();
+    }
     if (container.interface.activeMenu == inputMenu && container.interface.screenFocus) {
       container.interface.indexQueryPos(0);
       container.interface.displayInputMenu();
     } else if (container.interface.activeMenu == selectMenu) {
-      Serial.println("Scrolling down");
       container.interface.scrollSelectDown();
       container.interface.displaySelectMenu();
     }
@@ -288,6 +295,7 @@ void displayModeHandler(Container &container) {
     if (container.interface.activeMenu == inputMenu) {
       if (!container.interface.screenFocus) {
         container.interface.screenFocus = 1;
+        container.interface.indexer = 0;
         container.interface.displayInputMenu();
       } else {
         container.interface.screenFocus = 0;
@@ -296,8 +304,16 @@ void displayModeHandler(Container &container) {
       }
     } else if (container.interface.activeMenu == selectMenu && container.interface.numSelectCandidates > 0){
       container.newUserPlant();
-      //container.activePlant.checkThresholds();
       container.interface.displayMainMenu();
+    } else if (container.interface.activeMenu == mainMenu) {
+      if (!container.interface.screenFocus) {
+        container.interface.screenFocus = 1;
+        container.interface.indexer = 0;
+        container.interface.displayMainMenu();
+      } else {
+        container.interface.screenFocus = 0;
+        container.interface.displayDataMenu();
+      }
     }
   } else if (digitalRead(SELECT_BTN) && selOns && millis() - selDb > BUTTON_DEBOUNCE) {
     selOns = 0;
@@ -321,38 +337,38 @@ void sensingModeHandler(Container &container) {
   static bool waterRead = 0;
 
   // Get data from each device
-  // Light measurement - Prototype
+  // TODO: Replace w/ actual light readings
   if (lightRead == 0) {
-    container.sensorReading.lightReading = (0.6 * ltr390.readALS()) / (LTR390_GAIN * INTEGRATION_TIME);  // Lux = 0.6*ALS_DATA/(Gain*integration time(ms))
+    float light1 = (0.6 * ltr390.readALS()) / (LTR390_GAIN * INTEGRATION_TIME) + 100000;
+    float light2 = light1 + 10;
+    float light3 = light2 + 10;
+    float light4 = light3 + 10;
+    container.sensorReading.addLight(light1, light2, light3, light4, container.activePlant);
     lightRead = 1;
   }
-
-  //
-  // TODO: Light measurement - PCB
-  //
 
   if (humidityRead == 0 || tempRead == 0) {
     sensors_event_t humidity, temp;  // AHT20
     aht20.getEvent(&humidity, &temp);
-    container.sensorReading.humidityReading = humidity.relative_humidity;
-    container.sensorReading.tempReading = temp.temperature * 1.8 + 32;
+    container.sensorReading.addHumidity(humidity.relative_humidity, container.activePlant);
+    container.sensorReading.addTemp(temp.temperature, container.activePlant);
     humidityRead = 1;
     tempRead = 1;
   }
 
   if (waterRead == 0) {
-    container.sensorReading.waterReading = analogRead(CAP_SOIL_AOUT);  // Capacitive soil sensor
+    container.sensorReading.addWater(analogRead(CAP_SOIL_AOUT), container.activePlant);
     waterRead = 1;
   }
 
   if (lightRead == 1 && humidityRead == 1 && tempRead == 1 && waterRead == 1) {
-    container.updatePlantData();
     container.activeMode = triggerMode;
   }
 }
 
 /*
  Check user-set trigger thresholds, output a pulse if any are met
+ // TODO: Remove? 
 */
 void triggerModeHandler(Container &container) {
   if (container.sensorReading.lightReading > container.header.lightThreshold || container.sensorReading.waterReading > container.header.waterThreshold || container.sensorReading.humidityReading > container.header.humidityThreshold || container.sensorReading.tempReading > container.header.tempThreshold) {
@@ -416,4 +432,5 @@ void errorModeHandler(Container &container) {
     startTime = currentTime;
   }
   container.error.indicateError();
+  container.interface.displayErrorScreen();
 }
