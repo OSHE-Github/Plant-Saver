@@ -111,6 +111,8 @@ float Plant::getAvgReading(JsonDocument& sensorDoc) {
 // TODO: Re-vamp to work w/ solar cells
 //
 void Plant::lightCheck(int threshold[2]) {
+  threshold[0] = -1;
+  threshold[1] = -1;
   int lightReqLowHigh[2] = { 0 };  // [0] = low value, [1] = high value
   lightReqLowHigh[0] = lightReq[0];
   lightReqLowHigh[1] = (lightReq[1] != 0) ? lightReq[1] : lightReq[0];
@@ -130,6 +132,8 @@ void Plant::lightCheck(int threshold[2]) {
 
 // Map hardiness zones to temperature thresholds, then check average reading
 void Plant::tempCheck(int threshold[2]) {
+  threshold[0] = -1;
+  threshold[1] = -1;
   int hardinessLowHigh[2];  // [0] = low value, [1] = high value
   hardinessLowHigh[0] = hardiness[0];
   hardinessLowHigh[1] = (hardiness[1] != 0) ? hardiness[1] : hardiness[0];
@@ -178,6 +182,8 @@ void Plant::tempCheck(int threshold[2]) {
 // Water thresholds are created to work with inverted reading values, such that dry < wet
 // This is due to the fact that capacitance is inversely proportional to water saturation
 void Plant::waterCheck(int threshold[2]) {
+  threshold[0] = -1;
+  threshold[1] = -1;
   int waterReqLowHigh[2];  // [0] = low value, [1] = high value
   waterReqLowHigh[0] = waterReq[0];
   waterReqLowHigh[1] = (waterReq[1] != 0) ? waterReq[1] : waterReq[0];
@@ -230,6 +236,9 @@ void Plant::pullPlant() {
   hardiness[0] = plantDoc["hardiness"][0];
   hardiness[1] = plantDoc["hardiness"][1];
   avgLight = plantDoc["avgLight"];
+  for (int i = 0; i < NUM_SOLAR_PANELS; i++) {
+    avgLightQuadrants[i] = plantDoc["avgLightQuadrants"][i];
+  }
   avgWater = plantDoc["avgWater"];
   avgHumidity = plantDoc["avgHumidity"];
   avgTemp = plantDoc["avgTemp"];
@@ -253,6 +262,10 @@ void Plant::pushPlant() {
   jsonHardiness.add(hardiness[0]);
   jsonHardiness.add(hardiness[1]);
   plantDoc["avgLight"] = avgLight;
+  JsonArray jsonLightQuadrants = plantDoc["avgLightQuadrants"].to<JsonArray>();
+  for (int i = 0; i < NUM_SOLAR_PANELS; i++) {
+    jsonLightQuadrants.add(avgLightQuadrants[i]);
+  }
   plantDoc["avgWater"] = avgWater;
   plantDoc["avgHumidity"] = avgHumidity;
   plantDoc["avgTemp"] = avgTemp;
@@ -387,6 +400,7 @@ Container::Container()
 
 // Clear out data associated with the existing user plant (apart from average readings)
 // Create a new user plant from selected DB plant data
+// TODO: Call on plant selection from webapp
 void Container::newUserPlant() {
   sensorReading.clearFile(TEMP_PATH); // Clear all existing data
   sensorReading.clearFile(WATER_PATH);
@@ -397,28 +411,38 @@ void Container::newUserPlant() {
   sensorReading.clearFile(LIGHT_QUADRANT4_PATH);
   JsonDocument plantDoc;
   int pullError = pullPlant(PLANT_DB_PATH, interface.displayPlantIDs[interface.displayMap[interface.displayMap[3]]], plantDoc);
-  Serial.print("Pulled Plant: "); Serial.println(interface.displayPlantIDs[interface.displayMap[interface.displayMap[3]]]);
   if (pullError) {
     error.addError(pullError);
-    Serial.println(pullError);
     return;
   }
   activePlant.id = plantDoc["id"];
-  Serial.print("Transferred ID: "); Serial.println(activePlant.id);
   const char* commonName = plantDoc["name"];
   snprintf(activePlant.commonName, NUM_CHARS_NAME, "%s", commonName);
   const char* scientificName = plantDoc["scientific_name"];
   snprintf(activePlant.scientificName, NUM_CHARS_NAME, "%s", scientificName);
-  JsonArray jsonHardinessVals = plantDoc["data"][0]["value"];
-  JsonArray jsonLightReqs = plantDoc["data"][1]["value"];
-  JsonArray jsonWaterReqs = plantDoc["data"][2]["value"];
+  //TODO: This order isn't set. write some code to find the ordering based on key 0,1,2 pair names first
+  const char* keyPairs[3] = {plantDoc["data"][0]["key"], plantDoc["data"][1]["key"], plantDoc["data"][2]["key"]};
+  int hardinessInd = 0;
+  int lightInd = 0;
+  int waterInd = 0;
+  for (int i = 0; i < 3; i++) {
+    if (strcmp(keyPairs[i], "USDA Hardiness zone") == 0) {
+      hardinessInd = i;
+    } else if (strcmp(keyPairs[i], "Light requirement") == 0) {
+      lightInd = i;
+    } else if (strcmp(keyPairs[i], "Water requirement") == 0) {
+      waterInd = i;
+    }
+  }
+  JsonArray jsonHardinessVals = plantDoc["data"][hardinessInd]["value"];
+  JsonArray jsonLightReqs = plantDoc["data"][lightInd]["value"];
+  JsonArray jsonWaterReqs = plantDoc["data"][waterInd]["value"];
   activePlant.hardiness[0] = jsonHardinessVals[0];  // Only need first and last elements of each
   activePlant.hardiness[1] = (jsonHardinessVals.size() > 1) ? jsonHardinessVals[jsonHardinessVals.size() - 1] : 0;
   activePlant.lightReq[0] = jsonLightReqs[0];
   activePlant.lightReq[1] = (jsonLightReqs.size() > 1) ? jsonLightReqs[jsonLightReqs.size() - 1] : 0;
   activePlant.waterReq[0] = jsonWaterReqs[0];
   activePlant.waterReq[1] = (jsonWaterReqs.size() > 1) ? jsonWaterReqs[jsonWaterReqs.size() - 1] : 0;
-  Serial.println("Plant Data copied");
   plantDoc.clear();
   header.plantSelected = 1;
 }
@@ -484,10 +508,18 @@ Interface::Interface(Error& errorRef, Plant& plantRef)
 
 // Initialize the display
 bool Interface::begin(uint8_t vcs, uint8_t addr) {
-  return display.begin(vcs, addr);
+  bool began = display.begin(vcs, addr);
+  if (began) {
+    display.clearDisplay();
+    display.display();
+  }
+  return began;
 }
 
 // Build and display the main menu
+//
+// TODO: Need to truncate names to not spill over
+// Try truncation, scrolling?
 void Interface::displayMainMenu() {
   int startX = 5;
   int padX = 15;
@@ -495,8 +527,10 @@ void Interface::displayMainMenu() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(horizontalCenterText(activePlant.commonName, NUM_CHARS_NAME, 1), 0);
-  display.println(activePlant.commonName);
+  char formattedName[NUM_CHARS_NAME] = {};
+  truncateText(activePlant.commonName, NUM_CHARS_NAME, 1, SCREEN_WIDTH, formattedName);
+  display.setCursor(horizontalCenterText(formattedName, NUM_CHARS_NAME, 1), 0);
+  display.println(formattedName);
   int activeColor = SSD1306_WHITE;
   // Water
   if (screenFocus && indexer == 0) {
@@ -580,7 +614,7 @@ void Interface::displayDataMenu() {
       int textX = horizontalCenterText("Highest Dir.", 50, 1);
       int maxSolarIndex = 0;
       for (int i = 1; i < NUM_SOLAR_PANELS; i++) {
-        if (activePlant.avgLightQuadrants[i] > activePlant.avgLightQuadrants[maxSolarIndex]) { // TODO: is this working?
+        if (activePlant.avgLightQuadrants[i] > activePlant.avgLightQuadrants[maxSolarIndex]) {
           maxSolarIndex = i;
         }
       }
@@ -635,15 +669,67 @@ void Interface::displayDataMenu() {
 }
 
 // Build and display the info menu
+//
+// TODO: Make this display requirements (in readable form) or smth
+//
 void Interface::displayInfoMenu() {
   display.clearDisplay();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
-  display.setCursor(horizontalCenterText(activePlant.commonName, NUM_CHARS_NAME, 1), 0);
-  display.println(activePlant.commonName);
-  display.setCursor(horizontalCenterText(activePlant.scientificName, NUM_CHARS_NAME, 1), Y_SCALE + 1);
-  display.println(activePlant.scientificName);
-  display.setCursor(0, SCREEN_HEIGHT - (Y_SCALE * 3) - 12);
+  char truncatedName[NUM_CHARS_NAME] = {};
+  truncateText(activePlant.commonName, NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, truncatedName);
+  display.setCursor(horizontalCenterText(truncatedName, NUM_CHARS_NAME, 1), 0);
+  display.print(truncatedName);
+  char splitSciName[NUM_CHARS_NAME] = {};
+  int nLinesSciName = splitLines(activePlant.scientificName, NUM_CHARS_NAME, 1, SCREEN_WIDTH, splitSciName);
+  if (nLinesSciName == 1) {
+    display.setCursor(horizontalCenterText(activePlant.scientificName, NUM_CHARS_NAME, 1), Y_SCALE);
+  } else {
+    display.setCursor(0, Y_SCALE);
+  }
+  display.print(splitSciName);
+  char waterReq1[NUM_CHARS_REQ] = {};
+  if (parseWaterReq(activePlant.waterReq[0], NUM_CHARS_REQ, waterReq1)) {
+    display.setCursor(0, Y_SCALE*3);
+    display.print("Water:");
+    display.setCursor(X_SCALE*7, Y_SCALE*3);
+    display.print(waterReq1);
+  }
+  char waterReq2[NUM_CHARS_REQ] = {};
+  if (parseWaterReq(activePlant.waterReq[1], NUM_CHARS_REQ, waterReq2)) {
+    display.setCursor(0, Y_SCALE*3);
+    display.print("to");
+    display.setCursor(X_SCALE*3, Y_SCALE*4);
+    display.print(waterReq2);
+  }
+  char lightReq1[NUM_CHARS_REQ] = {};
+  if (parseLightReq(activePlant.lightReq[0], NUM_CHARS_REQ, lightReq1)) {
+    display.setCursor(0, Y_SCALE*5);
+    display.print("Light:");
+    display.setCursor(X_SCALE*8, Y_SCALE*5);
+    display.print(lightReq1);
+  }
+  char lightReq2[NUM_CHARS_REQ] = {};
+  if (parseLightReq(activePlant.lightReq[1], NUM_CHARS_REQ, lightReq2)) {
+    display.setCursor(0, Y_SCALE*6);
+    display.print("to");
+    display.setCursor(X_SCALE*3, Y_SCALE*6);
+    display.print(lightReq2);
+  }
+  char hardinessStr[22] = {};
+  if (activePlant.hardiness[0] != 0 && activePlant.hardiness[1] != 0) {
+    display.setCursor(0, Y_SCALE*7);
+    snprintf(hardinessStr, 22, "Hardiness: %d - %d", activePlant.hardiness[0], activePlant.hardiness[1]);
+    display.print(hardinessStr);
+  } else if (activePlant.hardiness[0] != 0 && activePlant.hardiness[1] == 0) {
+    display.setCursor(0, Y_SCALE*7);
+    snprintf(hardinessStr, 22, "Hardiness: %d", activePlant.hardiness[0]);
+    display.print(hardinessStr);
+  } else if (activePlant.hardiness[0] == 0 && activePlant.hardiness[1] != 0) {
+    display.setCursor(0, Y_SCALE*7);
+    snprintf(hardinessStr, 22, "Hardiness: %d", activePlant.hardiness[1]);
+    display.print(hardinessStr);
+  }
   display.display();
   activeMenu = infoMenu;
 }
@@ -687,44 +773,61 @@ void Interface::displaySelectMenu() {
     activeMenu = selectMenu;
     return;
   }
-  display.fillRect(0, 25, 3*display.width()/4, 20, SSD1306_WHITE);
+  int y1 = 0;
+  int y2 = Y_SCALE * 3;
+  int y3 = Y_SCALE * 6;
+  char splitName1[NUM_CHARS_NAME] = {};
+  char splitName2[NUM_CHARS_NAME] = {};
+  char splitName3[NUM_CHARS_NAME] = {};
+  int nLines1 = 1;
+  int nLines2 = 1;
+  int nLines3 = 1;
+  display.fillRect(0, 22, SCREEN_WIDTH, 20, SSD1306_WHITE);
+  display.setTextColor(SSD1306_INVERSE);
   switch (displayMap[3]) {
     case 0:
       if (numSelectCandidates > 0) {
-        display.setCursor(0, 30);
-        display.setTextColor(SSD1306_BLACK);
-        display.println(displayPlantNames[displayMap[0]]);
+        nLines1 = splitLines(displayPlantNames[displayMap[0]], NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, splitName1);
+        y2 = (nLines1 == 1) ? y2 + int(Y_SCALE/2) : y2;
+        display.setCursor(0, y2);
+        display.print(splitName1);
       }
       if (numSelectCandidates > 1) {
-        display.setCursor(0, 55);
-        display.setTextColor(SSD1306_WHITE);
-        display.println(displayPlantNames[displayMap[1]]);
+        nLines2 = splitLines(displayPlantNames[displayMap[1]], NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, splitName2);
+        y3 = (nLines2 == 1) ? y3 + int(Y_SCALE/2) : y3;
+        display.setCursor(0, y3);
+        display.print(splitName2);
       }
       break;
     case 1:
       if (numSelectCandidates > 0) {
-        display.setCursor(0, 10);
-        display.setTextColor(SSD1306_WHITE);
-        display.println(displayPlantNames[displayMap[0]]);
+        nLines1 = splitLines(displayPlantNames[displayMap[0]], NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, splitName1);
+        y1 = (nLines1 == 1) ? y1 + int(Y_SCALE/2) : y1;
+        display.setCursor(0, y1);
+        display.print(splitName1);
       }
       if (numSelectCandidates > 1) {
-        display.setCursor(0, 30);
-        display.setTextColor(SSD1306_BLACK);
-        display.println(displayPlantNames[displayMap[1]]);
+        nLines2 = splitLines(displayPlantNames[displayMap[1]], NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, splitName2);
+        y2 = (nLines2 == 1) ? y2 + int(Y_SCALE/2) : y2;
+        display.setCursor(0, y2);
+        display.print(splitName2);
       }
       if (numSelectCandidates > 2) {
-        display.setCursor(0, 55);
-        display.setTextColor(SSD1306_WHITE);
-        display.println(displayPlantNames[displayMap[2]]);
+        nLines3 = splitLines(displayPlantNames[displayMap[2]], NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, splitName3);
+        y3 = (nLines3 == 1) ? y3 + int(Y_SCALE/2) : y3;
+        display.setCursor(0, y3);
+        display.print(splitName3);
       }
       break;
     case 2:
-      display.setCursor(0, 10);
-      display.setTextColor(SSD1306_WHITE);
-      display.println(displayPlantNames[displayMap[1]]);
-      display.setCursor(0, 30);
-      display.setTextColor(SSD1306_BLACK);
-      display.println(displayPlantNames[displayMap[2]]);
+      nLines2 = splitLines(displayPlantNames[displayMap[1]], NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, splitName2);
+      y1 = (nLines2 == 1) ? y1 + int(Y_SCALE/2) : y1;
+      display.setCursor(0, y1);
+      display.print(splitName2);
+      nLines3 = splitLines(displayPlantNames[displayMap[2]], NUM_CHARS_NAME, 1, SCREEN_WIDTH - 10, splitName3);
+      y2 = (nLines3 == 1) ? y2 + int(Y_SCALE/2) : y2;
+      display.setCursor(0, y2);
+      display.print(splitName3);
       break;
   }
   display.display();
@@ -816,8 +919,11 @@ void Interface::displayRecommendation(int recInd, int min, int max, int threshol
   int startY = Y_SCALE + 1 + recInd*(REC_HEIGHT + 3);
   int startX = SCREEN_WIDTH - REC_WIDTH - 1;
   if (threshold[0] < 0 || threshold[1] < 0) {
-    display.setCursor(startY + int((REC_HEIGHT - Y_SCALE)/2), startX);
+    display.setTextColor(SSD1306_WHITE);
+    display.setTextSize(1);
+    display.setCursor(startX, startY + int((REC_HEIGHT - Y_SCALE)/2));
     display.print("No Data");
+    return;
   }
   int endX = SCREEN_WIDTH - 1;
   float res = float(REC_WIDTH)/float(max - min);
@@ -1206,7 +1312,6 @@ int pullPlant(char fileName[], int id, JsonDocument& doc) {
   char searchID1[20] = {};
   uint8_t search1CharCt = snprintf(searchID1, 20, "{\"id\": %d", id); // TODO - if possible, make space-tolerant
   bool found = file.find(searchID1);
-  Serial.print("Found Plant ID: "); Serial.println(id);
   if (!found) {
     file.close();
     return fileOperation;
@@ -1218,16 +1323,12 @@ int pullPlant(char fileName[], int id, JsonDocument& doc) {
   unsigned long marker2 = file.position();
   marker2 = found ? marker2 - interListTerminalCt : marker2 - endListTerminalCt;
   const int len = marker2 - marker1 + 1;
-  Serial.print("Length of JSON: "); Serial.println(len);
   char raw[len] = {};
   file.seek(marker1);
-  file.readBytes(raw, len - 1); // TODO - Fine-Tune/Check this
-  Serial.print(raw);
-  Serial.println("");
+  file.readBytes(raw, len - 1);
   file.close();
   DeserializationError error = deserializeJson(doc, raw);
   if (error) {
-    Serial.println(error.c_str());
     return jsonError;
   }
   return noError;
@@ -1235,8 +1336,41 @@ int pullPlant(char fileName[], int id, JsonDocument& doc) {
 
 // Standalone helper for centering text horizontally
 int horizontalCenterText(char text[], int bufferLen, int fontSize) {
+  int len = strlen(text);
+  int startPt = int((SCREEN_WIDTH/2) - ((fontSize*X_SCALE*len)/2));
+  startPt = startPt >= 0 ? startPt : 0;
+  return startPt;
+}
+
+// Standalone text formatting tool
+// textLen is maximum length of text buffer
+void truncateText(char text[], int textLen, int textSize, int widthPx, char truncatedText[]) {
+  memset(truncatedText, 0, textLen * sizeof(truncatedText[0]));
+  int len = strlen(text);
+  if (len*X_SCALE*textSize <= widthPx ) {
+    snprintf(truncatedText, textLen, "%s", text);
+    return;
+  } else {
+    int numChars = int(widthPx/(textSize*X_SCALE)) - 2;
+    if (numChars <= 0 || numChars > textLen) {
+      return;
+    }
+    snprintf(truncatedText, numChars, "%s", text);
+    truncatedText[numChars - 1] = '.'; // TODO - Why this not working?
+    truncatedText[numChars] = '.';
+  }
+}
+
+// Standalone text formatting tool to split text into two lines if necessary
+// Returns number of lines 
+int splitLines(char text[], int textLen, int textSize, int widthPx, char splitText[]) {
+  memset(splitText, 0, textLen * sizeof(splitText[0]));
   int len = 0;
-  for (int i = 0; i < bufferLen; i++) {
+  int spaceInd = 0;
+  for (int i = 0; i < textLen; i++) {
+    if (text[i] == ' ') {
+      spaceInd = i;
+    }
     if (text[i] == '\0') {
       len = i;
       break;
@@ -1245,9 +1379,69 @@ int horizontalCenterText(char text[], int bufferLen, int fontSize) {
       len = i + 1;
     }
   }
-  int startPt = int((SCREEN_WIDTH/2) - ((fontSize*X_SCALE*len)/2));
-  startPt = startPt >= 0 ? startPt : 0;
-  return startPt;
+  if (len*X_SCALE*textSize <= widthPx) {
+    snprintf(splitText, textLen, "%s", text);
+    return 1;
+  }
+  if (spaceInd > 0) { // Has space, replace w/ newline to split
+    snprintf(splitText, textLen, "%s", text);
+    splitText[spaceInd] = '\n';
+    return 2;
+  }
+  if (len < textLen - 1) { // Room in the buffer for a newline
+    int numCharsLine = int(widthPx/(textSize*X_SCALE));
+    for (int i = 0; i < numCharsLine; i++) {
+      splitText[i] = text[i];
+    }
+    splitText[numCharsLine] = '\n';
+    for (int i = numCharsLine + 1; i < len; i++) {
+      splitText[i] = text[i - 1];
+    }
+    return 2;
+  }
+  snprintf(splitText, textLen, "%s", text);
+  return 2; // Otherwise just let the dang display library handle it.
+}
+
+// Parse a water requirement int into a string
+bool parseWaterReq(int waterReq, int bufferLen, char reqStr[]) {
+  switch (waterReq) {
+    case water:
+      snprintf(reqStr, bufferLen, "%s", "water");
+      break;
+    case wet:
+      snprintf(reqStr, bufferLen, "%s", "wet");
+      break;
+    case moist:
+      snprintf(reqStr, bufferLen, "%s", "moist");
+      break;
+    case dry:
+      snprintf(reqStr, bufferLen, "%s", "dry");
+      break;
+    default:
+      return 0;
+      break;
+  }
+  return 1;
+}
+
+// Parse a light requirement int into a string
+bool parseLightReq(int lightReq, int bufferLen, char reqStr[]) {
+  switch (lightReq) {
+    case fullShade:
+      snprintf(reqStr, bufferLen, "%s", "full shade");
+      break;
+    case partialSun:
+      snprintf(reqStr, bufferLen, "%s", "partial sun");
+      break;
+    case fullSun:
+      snprintf(reqStr, bufferLen, "%s", "full sun");
+      break;
+    default:
+      return 0;
+      break;
+  }
+  return 1;
 }
 
 // Global container pointer for web API access

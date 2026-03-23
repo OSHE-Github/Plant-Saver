@@ -14,11 +14,13 @@
 #define ERROR_IND_PIN 4  // Error indication LED
 #define MAX_CHARS_FILENAME 21
 // TODO - decrease max sensor readings
-#define MAX_SENSOR_READINGS 200  // # of sensor readings allowed in FIFO
+#define MAX_SENSOR_READINGS 48  // # of sensor readings allowed in FIFO
 #define NUM_CHARS_NAME 50
 #define QUERY_DIFF_THRESH 3 // Diff. between query and candidate must be < this #
 #define NUM_CHARS_QUERY 5
 #define MAX_DIGITS_ID 6
+#define NUM_CHARS_REQ 12
+
 
 // Device params
 #define INTEGRATION_TIME 0.25  // LTR390 integration time
@@ -219,6 +221,19 @@ int horizontalCenterText(char text[], int bufferLen, int fontSize);
 // Standalone helper for creating new files
 int newReadingsFile(char fileName[MAX_CHARS_FILENAME]);
 
+// Standalone text formatting tool to truncate and add ellipses
+void truncateText(char text[], int textLen, int textSize, int widthPx, char truncatedText[]);
+
+// Standalone text formatting tool to split text into two lines if necessary
+// Returns number of lines 
+int splitLines(char text[], int textLen, int textSize, int widthPx, char splitText[]);
+
+// Parse a water requirement int into a string
+bool parseWaterReq(int waterReq, int bufferLen, char reqStr[]);
+
+// Parse a light requirement int into a string
+bool parseLightReq(int lightReq, int bufferLen, char reqStr[]);
+
 // Function to get active plant sensor averages (for web API)
 void getActivePlantAverages(float& avgLight, float& avgTemp, float& avgWater, float& avgHumidity);
 
@@ -232,7 +247,6 @@ enum StateTracker {
   startupMode,
   displayMode,
   sensingMode,
-  triggerMode,
   shutdownMode,
   errorMode
 };
