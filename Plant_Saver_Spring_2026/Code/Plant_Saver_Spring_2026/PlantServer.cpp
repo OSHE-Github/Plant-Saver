@@ -466,10 +466,21 @@ void initializePlantServer() {
     
     // Initialize SD card --> have to check the CS pin, but pictures in drive on the prototype look like its on 5
     if (!SD.begin(5)) {
-
-        //stop it forever, can't do anything without the database
+        
+        //log SD card initialization failure
         Serial.println("SD Card initialization failed!");
-        while (1);
+        
+        //Add error to the error system for display on OLED
+        if (globalContainer != nullptr) {
+            globalContainer->error.addError(SDInit);
+        }
+        
+        //Setup WiFi and Web Server anyway so user can see error on webapp
+        setupWiFi();
+        setupWebServer();
+        
+        Serial.println("=== Initialization Complete (SD Card Error) ===\n");
+        return;
     }
     
     Serial.println("SD Card initialized successfully");

@@ -146,6 +146,20 @@ async function loadAllPlants() {
     catch (err) {
 
         console.error("Error loading all plants:", err);
+        
+        //sshow alert to user about potential SD card initialization failure
+        window.alert(
+            "ERROR: Could not load plant database from device.\n\n" +
+            "This may indicate:\n" +
+            "-SD card failed to initialize\n" +
+            "-SD card not detected\n" +
+            "-Corrupted plant database file\n\n" +
+            "Solutions:\n" +
+            "1. Check device display for error details\n" +
+            "2. Re-seat the micro SD card\n" +
+            "3. Power cycle the device\n" +
+            "4. Try a different micro SD card"
+        );
     }
 }
 
