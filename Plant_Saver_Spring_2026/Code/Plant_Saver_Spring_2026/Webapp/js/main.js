@@ -78,8 +78,9 @@ document.addEventListener("DOMContentLoaded", function() {
     //loading all the plants found in the database for the autocomplete
     loadAllPlants();
 
-    //start polling device for current selection (updates UI when OLED selection changes)
+    //start polling device for current selection and status (updates UI when OLED selection changes)
     setInterval(pollCurrentPlant, 1000);
+    setInterval(pollStatus, 2000);
 });
 
 //fetch plant data from ESP32
@@ -134,7 +135,6 @@ async function loadAllPlants() {
         if(!response.ok){
 
             throw new Error("Error fetching all plants --> status: " + response.status);
-
         }
 
         //if the response is good, pull the plant array and store it in the global variable
@@ -147,7 +147,7 @@ async function loadAllPlants() {
 
         console.error("Error loading all plants:", err);
         
-        //sshow alert to user about potential SD card initialization failure
+        //sshow alert about potential SD card initialization failure
         window.alert(
             "ERROR: Could not load plant database from device.\n\n" +
             "This may indicate:\n" +
@@ -193,10 +193,10 @@ function displayPlantData(plantData) {
     }
 
     
-    document.getElementById("waterData").textContent = `${plantData.avgWater}`;
-    document.getElementById("lightData").textContent = `${plantData.avgLight}`;
-    document.getElementById("tempData").textContent = `${plantData.avgTemp}`;
-    document.getElementById("humidityData").textContent = `${plantData.avgHumidity}`;
+    document.getElementById("waterData").textContent = `${convertAvgWaterToKey(plantData.avgWater)}`;
+    document.getElementById("lightData").textContent = `${convertAvgLightToKey(plantData.avgLight)}`;
+    document.getElementById("tempData").textContent = `${convertAvgTempToKey(plantData.avgTemp)}`;
+    document.getElementById("humidityData").textContent = `${convertAvgHumidityToKey(plantData.avgHumidity)}`;
 }
 
 
@@ -242,23 +242,80 @@ function convertWaterToKey(plantData){
     return "Unknown";
 }
 
-//display error if plant is not found
-function displayPlantNotFound(plantName) {
+//mapping the average readings to the key for UI usefulness
+function convertAvgWaterToKey(avgWater){
 
-    document.getElementById("plantName").textContent = `Plant not found: ${plantName}`;
-    document.getElementById("hardinessZone").textContent = "--";
-    document.getElementById("lightRequirement").textContent = "--";
-    document.getElementById("waterRequirement").textContent = "--";
+    if(4095 >= avgWater >= 2300){
+
+        return "Dry";
+    }
+    else if(2300 > avgWater >= 1650){
+
+        return "Moist";
+    }
+    else if(1650 > avgWater >= 1000){
+
+        return "Wet";
+    }
+    else if(1000 > avgWater >= 0){
+
+        return "Water";
+    }
+
+    return "Unknown";
 }
 
-//display error if the fetch request fails for some reason other than 404
-function displayFetchError(error) {
+function convertAvgLightToKey(avgLight){
 
-    console.log("Fetch error details:", error);
-    document.getElementById("plantName").textContent = "Error loading plant";
-    document.getElementById("hardinessZone").textContent = "--";
-    document.getElementById("lightRequirement").textContent = "--";
-    document.getElementById("waterRequirement").textContent = "--";
+    if(0 <= avgLight < 1075){
+
+        return "Full Shade";
+    }
+    else if(1075 <= avgLight < 10750){
+
+        return "Partial Sun/Shade";
+    }
+    else if(avgLight >= 10750){
+
+        return "Full Sun";
+    }
+
+    return "Unknown";
+}
+
+function convertAvgTempToKey(avgTemp){
+
+    let lowThreshold = 0;
+    let highThreshold = 0;
+    const LowList = [80, 75, 68, 64, 61, 54, 50, 45, 39, 32, 26];
+    const HighList = [30, 36, 43, 48, 54, 57, 64, 68, 72, 79, 80];
+
+    for (let i = 0; i < LowList.length; i++) {
+
+        if(avgTemp <= LowList[i]){
+
+            lowThreshold = 12 - i;
+        }
+
+        if(avgTemp >= HighList[i]){
+        
+            highThreshold = 2 + i;
+        
+        }
+    }
+
+    if(lowThreshold === highThreshold){
+        return lowThreshold;
+    }
+    else {
+        return lowThreshold + " - " + highThreshold;
+    }
+}   
+
+function convertAvgHumidityToKey(avgHumidity){
+
+    //todo: humidityCheck doesn't exist what do?
+
 }
 
 //poll the device for which plant is currently selected on the OLED
@@ -300,4 +357,113 @@ async function pollCurrentPlant() {
         //ignoring these for now
         //console.warn("Polling error:", err);
     }
+}
+
+async function pollStatus(){
+
+    try {
+
+        const response = await fetch(`${ESP32_IP}/api/status`);
+
+        if (!response.ok){
+
+            console.error("Status polling error --> status: " + response.status);
+            return;
+        }
+
+        const data = await response.json();
+        console.log("Device status:", data.status, "Error code:", data.errorCode);
+        
+        //display error banner if device reports an error
+        if (data.errorCode && data.errorCode !== 0) {
+
+            displayErrorBanner(data.errorCode);
+        } 
+        else {
+
+            hideErrorBanner();
+        }
+    } 
+    catch (err) {
+
+        console.error("Error polling status:", err);
+    }
+}
+
+//display error banner based on error code
+function displayErrorBanner(errorCode) {
+
+    const errorBanner = document.getElementById("error-banner");
+    const errorMessage = document.getElementById("error-message");
+    
+    if (!errorBanner) return;
+    
+    let message = "Device Error: ";
+    
+    //map error codes from PlantSaverClasses.h enum ErrorStatus
+    switch(errorCode) {
+
+        case 1: //displayInit
+
+            message += "Display initialization failed. Check OLED connection.";
+            break;
+        case 2: //lightSensorInit
+
+            message += "Light sensor initialization failed. Check sensor wiring.";
+            break;
+        case 3: //tempSensorInit
+
+            message += "Temperature sensor initialization failed. Check DHT20 wiring.";
+            break;
+        case 4: //moistureSensorInit
+
+            message += "Moisture sensor initialization failed.";
+            break;
+        case 5: //jsonError
+
+            message += "JSON parsing error. Plant database may be corrupted.";
+            break;
+        case 6: //fileOperation
+
+            message += "File access error. SD card or file system issue.";
+            break;
+        case 7: //SDInit
+
+            message += "SD card initialization failed! Re-seat card, check connections, or try a different card.";
+            break;
+        default:
+
+            message += "Unknown error (code " + errorCode + ").";
+    }
+    
+    errorMessage.textContent = message;
+    errorBanner.style.display = "block";
+}
+
+//hide error banner
+function hideErrorBanner() {
+    const errorBanner = document.getElementById("error-banner");
+    if (errorBanner) {
+        errorBanner.style.display = "none";
+    }
+}
+
+
+//display error if plant is not found
+function displayPlantNotFound(plantName) {
+
+    document.getElementById("plantName").textContent = `Plant not found: ${plantName}`;
+    document.getElementById("hardinessZone").textContent = "--";
+    document.getElementById("lightRequirement").textContent = "--";
+    document.getElementById("waterRequirement").textContent = "--";
+}
+
+//display error if the fetch request fails for some reason other than 404
+function displayFetchError(error) {
+
+    console.log("Fetch error details:", error);
+    document.getElementById("plantName").textContent = "Error loading plant";
+    document.getElementById("hardinessZone").textContent = "--";
+    document.getElementById("lightRequirement").textContent = "--";
+    document.getElementById("waterRequirement").textContent = "--";
 }

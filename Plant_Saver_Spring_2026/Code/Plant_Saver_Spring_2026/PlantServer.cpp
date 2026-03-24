@@ -44,7 +44,11 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 
     //make sure the file opened successfully
     if (!file) {
-        Serial.println("Failed to open file for reading");
+        Serial.println("Failed to open plantDB file for reading");
+
+        if (globalContainer != nullptr) {
+            globalContainer->error.addError(fileOperation);
+        }
         return false;
     }
 
@@ -73,7 +77,7 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         while(c!='{'){
 
             if (!file.available()) {
-                
+                //end of file
                 break;
             }
 
@@ -114,6 +118,10 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
             Serial.print(" : ");
             Serial.println(error.c_str());
             doc.clear();
+
+            if (globalContainer != nullptr) {
+                globalContainer->error.addError(jsonError);
+            }
             continue;
         }
 
@@ -449,6 +457,18 @@ void setupWebServer() {
         String response;
         serializeJson(doc, response);
         request->send(200, "application/json", response);
+    });
+
+    server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request){
+        
+        DynamicJsonDocument doc(128);
+        
+        doc["status"] = globalContainer ? "ready" : "starting";
+        doc["errorCode"] = globalContainer ? globalContainer->error.highestPriority : 0;
+        
+        String body;
+        serializeJson(doc, body);
+        request->send(200, "application/json", body);
     });
     
     //Serve static files from SD card, set index.html as default
