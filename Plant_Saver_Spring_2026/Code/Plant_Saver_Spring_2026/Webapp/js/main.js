@@ -245,19 +245,19 @@ function convertWaterToKey(plantData){
 //mapping the average readings to the key for UI usefulness
 function convertAvgWaterToKey(avgWater){
 
-    if(4095 >= avgWater >= 2300){
+    if(4095 >= avgWater >= 1650){
 
         return "Dry";
     }
-    else if(2300 > avgWater >= 1650){
+    else if(1650 > avgWater >= 1100){
 
         return "Moist";
     }
-    else if(1650 > avgWater >= 1000){
+    else if(1100 > avgWater >= 700){
 
         return "Wet";
     }
-    else if(1000 > avgWater >= 0){
+    else if(700 > avgWater >= 0){
 
         return "Water";
     }
