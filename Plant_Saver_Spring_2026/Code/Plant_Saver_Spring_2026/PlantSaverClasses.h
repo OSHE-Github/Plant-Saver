@@ -64,6 +64,7 @@
 #define LIGHT_QUADRANT2_PATH "/Plant/light2.txt"
 #define LIGHT_QUADRANT3_PATH "/Plant/light3.txt"
 #define LIGHT_QUADRANT4_PATH "/Plant/light4.txt"
+#define PARAMS_PATH "/params.txt"
 
 /*------------------------------------------------------- Class Definitions -------------------------------------------------------*/
 
@@ -116,6 +117,7 @@ public:
 class SensorReading {
 public:
   SensorReading(Error& errorRef);
+  void pullParams();
   void addTemp(float reading, Plant& plant);
   void addWater(int reading, Plant& plant);
   void addHumidity(float reading, Plant& plant);
@@ -129,7 +131,12 @@ public:
   float tempReading;
   int waterReading;
   float humidityReading;
-  float lightReading;    // TODO: old light reading, remove when possible
+  float lightM;
+  float lightB;
+  float lightA;
+  float lightC;
+  float waterM;
+  float waterB;
   int lightReadings[4];  // Quadrant-wise light readings (0 = top, CCW order)
   Error& error;
 };
@@ -140,11 +147,6 @@ public:
   Header(Error& errorRef);
   void pullHeader();
   void pushHeader();
-  int numDBPlants;  // Number of plants in the larger read-only database
-  int lightThreshold;
-  int tempThreshold;
-  int waterThreshold;
-  int humidityThreshold;
   bool plantSelected;
   bool headerPulled;
   Error& error;
@@ -153,7 +155,7 @@ public:
 // Class to store data/methods surrounding the user interface
 class Interface {
 public:
-  Interface(Error& errorRef, Plant& plantRef);
+  Interface(Error& errorRef, Plant& plantRef, SensorReading& sensorReadingRef);
   bool begin(uint8_t vcs, uint8_t addr);
   void displayMainMenu();
   void displayDataMenu();
@@ -184,6 +186,7 @@ public:
   bool screenFocus;
   Error& error;
   Plant& activePlant;
+  SensorReading& sensorReading;
 };
 
 // Class to store/pass around multiple objects between functions
@@ -271,14 +274,6 @@ enum ErrorStatus {
   jsonError,
   fileOperation,
   SDInit
-};
-
-// For iterating/checking threshold evaluations
-enum Eval {
-  evalUnknown,
-  evalLow,
-  evalHigh,
-  evalOK
 };
 
 // For checking light requirements

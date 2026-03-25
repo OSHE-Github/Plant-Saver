@@ -21,7 +21,7 @@
 #define OLED_RESET -1               // OLED Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C         // OLED screen I2C address
 #define WAKE_PIN_BITMASK 201347072  // Pins 12, 14, 26 & 27
-#define DISPLAY_TIMEOUT_M 3         // delay before timing out the display in minutes
+#define DISPLAY_TIMEOUT_M 1         // delay before timing out the display in minutes
 #define MS_PER_MINUTE 60000         // Milliseconds per minute conversion factor
 #define INTEGRATION_TIME 0.25       // LTR390 integration time
 #define LTR390_GAIN 3               // Gain of the LTR390
@@ -176,6 +176,7 @@ void startupModeHandler(Container &container) {
     initFailed = 1;
     container.error.addError(SDInit);
   } else {
+    // TODO: Move to display mode
     initializePlantServer();
     container.error.clearError(SDInit);
     if (!container.header.headerPulled) {
@@ -226,7 +227,6 @@ void displayModeHandler(Container &container) {
   unsigned long currentTime = millis();
 
   if (container.interface.activeMenu == noMenu) {
-    //container.activePlant.checkThresholds();
     container.interface.displayMainMenu();
   }
 
@@ -326,37 +326,43 @@ void displayModeHandler(Container &container) {
  as well as each sensor readings file
 */
 void sensingModeHandler(Container &container) {
-  static bool lightRead = 0;
-  static bool humidityRead = 0;
-  static bool tempRead = 0;
-  static bool waterRead = 0;
+  static bool lightRead = false;
+  static bool humidityRead = false;
+  static bool tempRead = false;
+  static bool waterRead = false;
+  static bool paramsPulled = false;
+
+  if (paramsPulled == false) {
+    container.sensorReading.pullParams();
+    paramsPulled = true;
+  }
 
   // Get data from each device
   // TODO: Replace w/ actual light readings
-  if (lightRead == 0) {
+  if (lightRead == false) {
     float light1 = (0.6 * ltr390.readALS()) / (LTR390_GAIN * INTEGRATION_TIME) + 100000;
     float light2 = light1 + 10;
     float light3 = light2 + 10;
     float light4 = light3 + 10;
     container.sensorReading.addLight(light1, light2, light3, light4, container.activePlant);
-    lightRead = 1;
+    lightRead = true;
   }
 
-  if (humidityRead == 0 || tempRead == 0) {
+  if (humidityRead == false || tempRead == false) {
     sensors_event_t humidity, temp;  // AHT20
     aht20.getEvent(&humidity, &temp);
     container.sensorReading.addHumidity(humidity.relative_humidity, container.activePlant);
     container.sensorReading.addTemp(temp.temperature, container.activePlant);
-    humidityRead = 1;
-    tempRead = 1;
+    humidityRead = true;
+    tempRead = true;
   }
 
-  if (waterRead == 0) {
+  if (waterRead == false) {
     container.sensorReading.addWater(analogRead(CAP_SOIL_AOUT), container.activePlant);
-    waterRead = 1;
+    waterRead = true;
   }
 
-  if (lightRead == 1 && humidityRead == 1 && tempRead == 1 && waterRead == 1) {
+  if (lightRead == true && humidityRead == true && tempRead == true && waterRead == true) {
     container.activeMode = shutdownMode;
   }
 }
