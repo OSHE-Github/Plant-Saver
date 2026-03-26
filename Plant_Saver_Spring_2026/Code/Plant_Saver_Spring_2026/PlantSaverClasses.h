@@ -131,12 +131,12 @@ public:
   float tempReading;
   int waterReading;
   float humidityReading;
-  float lightM;
-  float lightB;
-  float lightA;
-  float lightC;
-  float waterM;
-  float waterB;
+  double lightM;
+  double lightB;
+  double lightA;
+  double lightC;
+  double waterM;
+  double waterB;
   int lightReadings[4];  // Quadrant-wise light readings (0 = top, CCW order)
   Error& error;
 };

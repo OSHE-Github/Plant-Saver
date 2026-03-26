@@ -184,7 +184,9 @@ void Plant::waterCheck(int threshold[2]) {
   waterReqLowHigh[0] = waterReq[0];
   waterReqLowHigh[1] = (waterReq[1] != 0) ? waterReq[1] : waterReq[0];
   for (int i = 0; i < 2; i++) {
-    switch (waterReqLowHigh[i]) {
+    int j = (i + 1) % 2; // Need to invert indices as well
+    Serial.println(waterReqLowHigh[j]);
+    switch (waterReqLowHigh[j]) {
       case dry:
         threshold[i] = WATER_MIN + 2445 * i; // 0 to 2445 (raw range 1650 to 4095)
         break;
@@ -198,6 +200,7 @@ void Plant::waterCheck(int threshold[2]) {
         threshold[i] = 3395 + (WATER_MAX - 3395) * i; // 3395 to 4095 (raw range 0 to 700)
         break;
     }
+    Serial.println(threshold[j]);
   }
 }
 
@@ -546,7 +549,9 @@ void Interface::displayMainMenu() {
   display.setTextColor(SSD1306_INVERSE);
   display.setCursor(startX + padX, Y_SCALE + padY + 3 - 1);
   int waterInv = (WATER_MAX - activePlant.avgWater); // Invert raw water readings for display
-  int displayWater = int((sensorReading.waterM * activePlant.avgWater) + sensorReading.waterB);
+  Serial.print("Active water: "); Serial.println(waterInv);
+  int displayWater = int(((sensorReading.waterM * double(activePlant.avgWater)) + sensorReading.waterB)*100.0);
+  displayWater = (displayWater < 0) ? 0 : displayWater;
   display.printf("%d%%", displayWater);
   int waterThresh[2] = {-1, -1};
   activePlant.waterCheck(waterThresh);
@@ -602,14 +607,21 @@ void Interface::displayDataMenu() {
   char max[50] = {};
   switch (indexer) {
     case 0:
+    {
       snprintf(title, 15, "Water");
       snprintf(units, 20, "%% Saturation");
-      snprintf(avg, 50, "Avg: %d%%", int((sensorReading.waterM * activePlant.avgWater)+ sensorReading.waterB));
+      int avgWater = int(((sensorReading.waterM * double(activePlant.avgWater))+ sensorReading.waterB)*100.0);
+      avgWater = (avgWater < 0) ? 0 : avgWater;
+      snprintf(avg, 50, "Avg: %d%%", avgWater);
       activePlant.waterCheck(thresh);
-      snprintf(min, 50, "Min: %d%%", (((float)thresh[0])/(float)WATER_MAX)*100.0);
-      snprintf(min, 50, "Min: %d%%", int((sensorReading.waterM * float(thresh[0])) + sensorReading.waterB));
-      snprintf(max, 50, "Max: %d%%", int((sensorReading.waterM * float(thresh[1])) + sensorReading.waterB));
+      int minWater = int(((sensorReading.waterM * double(WATER_MAX - thresh[0])) + sensorReading.waterB)*100.0);
+      minWater = (minWater < 0) ? 0 : minWater;
+      snprintf(min, 50, "Min: %d%%", minWater);
+      int maxWater = int(((sensorReading.waterM * double(WATER_MAX - thresh[1])) + sensorReading.waterB)*100.0);
+      maxWater = (maxWater < 0) ? 0 : maxWater;
+      snprintf(max, 50, "Max: %d%%", maxWater);
       break;
+    }
     case 1:
       {
       snprintf(title, 15, "Light");

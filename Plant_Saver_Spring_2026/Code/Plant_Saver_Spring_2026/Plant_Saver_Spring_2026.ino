@@ -181,7 +181,7 @@ void startupModeHandler(Container &container) {
     container.error.clearError(SDInit);
     if (!container.header.headerPulled) {
       container.header.pullHeader();
-      
+      container.sensorReading.pullParams();
     }
     if (!container.activePlant.plantPulled && container.header.headerPulled && container.header.plantSelected) {
       container.activePlant.pullPlant();  // Grab the active user plant only if it exists
@@ -295,9 +295,11 @@ void displayModeHandler(Container &container) {
         container.interface.screenFocus = 0;
         container.interface.displayLoadingScreen();
         container.interface.queryDBPlants();
+        container.interface.indexer = 0;
         container.interface.displaySelectMenu();
       }
     } else if (container.interface.activeMenu == selectMenu && container.interface.numSelectCandidates > 0){
+      container.interface.displayLoadingScreen();
       container.newUserPlant();
       container.interface.displayMainMenu();
     } else if (container.interface.activeMenu == mainMenu) {
