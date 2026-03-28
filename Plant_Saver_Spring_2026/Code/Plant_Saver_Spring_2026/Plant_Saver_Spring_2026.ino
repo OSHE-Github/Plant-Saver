@@ -19,7 +19,7 @@
 #define SCREEN_WIDTH 128            // OLED display width, in pixels
 #define SCREEN_HEIGHT 64            // OLED display height, in pixels
 #define OLED_RESET -1               // OLED Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3D         // OLED screen I2C address
+#define SCREEN_ADDRESS 0x3C         // OLED screen I2C address
 #define WAKE_PIN_BITMASK 201347072  // Pins 12, 14, 26 & 27
 #define DISPLAY_TIMEOUT_M 1         // delay before timing out the display in minutes
 #define MS_PER_MINUTE 60000         // Milliseconds per minute conversion factor
@@ -36,12 +36,11 @@
 #define DOWN_BTN 27          // Down btton
 #define CAP_SOIL_AOUT 34     // Capacitive soil sensor reading
 #define SPI_CS 5             // CS pin for SPI
-#define TRIG_OUTPUT_PIN 32   // External trigger output pin
 #define ERROR_IND_PIN 4      // Error indication LED
 
 // Pin Definitions - PCB
 /*
-#define CAP_SOIL_AOUT // Capacitive soil sensor reading (ADC)
+#define CAP_SOIL_AOUT 25 // Capacitive soil sensor reading (ADC)
 #define UP_BTN 26 // Up button
 #define DOWN_BTN 27 // Down button
 #define CHG_SCREEN_BTN 14 // Change screen/cycle button
@@ -79,7 +78,6 @@ void setup() {
   pinMode(UP_BTN, INPUT_PULLUP);
   pinMode(DOWN_BTN, INPUT_PULLUP);
   pinMode(CAP_SOIL_AOUT, INPUT);
-  pinMode(TRIG_OUTPUT_PIN, OUTPUT);
   pinMode(ERROR_IND_PIN, OUTPUT);
   pinMode(SOLAR_CHG_EN, OUTPUT);
   pinMode(SOLAR1, INPUT);
@@ -88,9 +86,7 @@ void setup() {
   pinMode(SOLAR4, INPUT);
   // Start serial monitor
   Serial.begin(115200);
-  delay(2000);  // Allow time for serial to initialize
-
-  initializePlantServer();
+  delay(1000);  // Allow time for serial to initialize
 }
 
 /*---------------------------------------------------------- Main Loop ----------------------------------------------------------*/
@@ -114,9 +110,6 @@ void loop() {
         break;
       case sensingMode:
         sensingModeHandler(container);
-        break;
-      case triggerMode:
-        triggerModeHandler(container);
         break;
       case shutdownMode:
         shutdownModeHandler(container);
@@ -147,7 +140,7 @@ void startupModeHandler(Container &container) {
   digitalWrite(SOLAR_CHG_EN, LOW);
   digitalWrite(V_GATE_PERIPHERAL, HIGH);  // Power-up peripherals
   digitalWrite(ERROR_IND_PIN, LOW);       // Reset error indicator
-  delay(20); // brief delay to prevent weird transient effects w/ transistors
+  delay(1000); // brief delay to prevent weird transient effects w/ transistors
 
   // SSD1306 Initialization
   if (!container.interface.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
@@ -183,10 +176,12 @@ void startupModeHandler(Container &container) {
     initFailed = 1;
     container.error.addError(SDInit);
   } else {
+    // TODO: Move to display mode
+    initializePlantServer();
     container.error.clearError(SDInit);
     if (!container.header.headerPulled) {
       container.header.pullHeader();
-      
+      container.sensorReading.pullParams();
     }
     if (!container.activePlant.plantPulled && container.header.headerPulled && container.header.plantSelected) {
       container.activePlant.pullPlant();  // Grab the active user plant only if it exists
@@ -232,7 +227,6 @@ void displayModeHandler(Container &container) {
   unsigned long currentTime = millis();
 
   if (container.interface.activeMenu == noMenu) {
-    //container.activePlant.checkThresholds();
     container.interface.displayMainMenu();
   }
 
@@ -299,10 +293,13 @@ void displayModeHandler(Container &container) {
         container.interface.displayInputMenu();
       } else {
         container.interface.screenFocus = 0;
+        container.interface.displayLoadingScreen();
         container.interface.queryDBPlants();
+        container.interface.indexer = 0;
         container.interface.displaySelectMenu();
       }
     } else if (container.interface.activeMenu == selectMenu && container.interface.numSelectCandidates > 0){
+      container.interface.displayLoadingScreen();
       container.newUserPlant();
       container.interface.displayMainMenu();
     } else if (container.interface.activeMenu == mainMenu) {
@@ -331,52 +328,45 @@ void displayModeHandler(Container &container) {
  as well as each sensor readings file
 */
 void sensingModeHandler(Container &container) {
-  static bool lightRead = 0;
-  static bool humidityRead = 0;
-  static bool tempRead = 0;
-  static bool waterRead = 0;
+  static bool lightRead = false;
+  static bool humidityRead = false;
+  static bool tempRead = false;
+  static bool waterRead = false;
+  static bool paramsPulled = false;
+
+  if (paramsPulled == false) {
+    container.sensorReading.pullParams();
+    paramsPulled = true;
+  }
 
   // Get data from each device
   // TODO: Replace w/ actual light readings
-  if (lightRead == 0) {
+  if (lightRead == false) {
     float light1 = (0.6 * ltr390.readALS()) / (LTR390_GAIN * INTEGRATION_TIME) + 100000;
     float light2 = light1 + 10;
     float light3 = light2 + 10;
     float light4 = light3 + 10;
     container.sensorReading.addLight(light1, light2, light3, light4, container.activePlant);
-    lightRead = 1;
+    lightRead = true;
   }
 
-  if (humidityRead == 0 || tempRead == 0) {
+  if (humidityRead == false || tempRead == false) {
     sensors_event_t humidity, temp;  // AHT20
     aht20.getEvent(&humidity, &temp);
     container.sensorReading.addHumidity(humidity.relative_humidity, container.activePlant);
     container.sensorReading.addTemp(temp.temperature, container.activePlant);
-    humidityRead = 1;
-    tempRead = 1;
+    humidityRead = true;
+    tempRead = true;
   }
 
-  if (waterRead == 0) {
+  if (waterRead == false) {
     container.sensorReading.addWater(analogRead(CAP_SOIL_AOUT), container.activePlant);
-    waterRead = 1;
+    waterRead = true;
   }
 
-  if (lightRead == 1 && humidityRead == 1 && tempRead == 1 && waterRead == 1) {
-    container.activeMode = triggerMode;
+  if (lightRead == true && humidityRead == true && tempRead == true && waterRead == true) {
+    container.activeMode = shutdownMode;
   }
-}
-
-/*
- Check user-set trigger thresholds, output a pulse if any are met
- // TODO: Remove? 
-*/
-void triggerModeHandler(Container &container) {
-  if (container.sensorReading.lightReading > container.header.lightThreshold || container.sensorReading.waterReading > container.header.waterThreshold || container.sensorReading.humidityReading > container.header.humidityThreshold || container.sensorReading.tempReading > container.header.tempThreshold) {
-    digitalWrite(TRIG_OUTPUT_PIN, HIGH);
-    delay(TRIG_PULSE_LEN_MS);
-    digitalWrite(TRIG_OUTPUT_PIN, LOW);
-  }
-  container.activeMode = shutdownMode;
 }
 
 /*
@@ -406,6 +396,7 @@ void shutdownModeHandler(Container &container) {
 */
 void errorModeHandler(Container &container) {
   static unsigned long startTime = millis();
+  static unsigned long displayStartTime = millis();
   unsigned long currentTime = millis();
   if (currentTime - startTime > 500) {  // Re-check existing errors
     switch (container.error.highestPriority) {
@@ -431,6 +422,8 @@ void errorModeHandler(Container &container) {
     }
     startTime = currentTime;
   }
-  container.error.indicateError();
-  container.interface.displayErrorScreen();
+  if (currentTime - displayStartTime > 2000) {
+    container.error.indicateError();
+    container.interface.displayErrorScreen();
+  }
 }

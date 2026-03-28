@@ -14,12 +14,13 @@
 #define ERROR_IND_PIN 4  // Error indication LED
 #define MAX_CHARS_FILENAME 21
 // TODO - decrease max sensor readings
-#define MAX_SENSOR_READINGS 200  // # of sensor readings allowed in FIFO
+#define MAX_SENSOR_READINGS 48  // # of sensor readings allowed in FIFO
 #define NUM_CHARS_NAME 50
-#define NUM_CHARS_FACT 100
 #define QUERY_DIFF_THRESH 3 // Diff. between query and candidate must be < this #
 #define NUM_CHARS_QUERY 5
 #define MAX_DIGITS_ID 6
+#define NUM_CHARS_REQ 12
+
 
 // Device params
 #define INTEGRATION_TIME 0.25  // LTR390 integration time
@@ -50,7 +51,7 @@
 #define HUMIDITY_MAX 100
 
 // Paths
-#define PLANT_DB_PATH "/plantDB.txt"
+#define PLANT_DB_PATH "/plantDBTest.txt"
 #define HEADER_PATH "/header.txt"
 #define PLANT_PATH "/Plant/plant.txt"
 #define HUMIDITY_PATH "/Plant/humidity.txt"
@@ -63,6 +64,7 @@
 #define LIGHT_QUADRANT2_PATH "/Plant/light2.txt"
 #define LIGHT_QUADRANT3_PATH "/Plant/light3.txt"
 #define LIGHT_QUADRANT4_PATH "/Plant/light4.txt"
+#define PARAMS_PATH "/params.txt"
 
 /*------------------------------------------------------- Class Definitions -------------------------------------------------------*/
 
@@ -98,7 +100,6 @@ public:
   int id;  // ID within the plant database
   char commonName[NUM_CHARS_NAME];
   char scientificName[NUM_CHARS_NAME];
-  char fact[NUM_CHARS_FACT];
   int lightReq[2];
   int waterReq[2];
   int hardiness[2];
@@ -116,6 +117,7 @@ public:
 class SensorReading {
 public:
   SensorReading(Error& errorRef);
+  void pullParams();
   void addTemp(float reading, Plant& plant);
   void addWater(int reading, Plant& plant);
   void addHumidity(float reading, Plant& plant);
@@ -129,7 +131,12 @@ public:
   float tempReading;
   int waterReading;
   float humidityReading;
-  float lightReading;    // TODO: old light reading, remove when possible
+  double lightM;
+  double lightB;
+  double lightA;
+  double lightC;
+  double waterM;
+  double waterB;
   int lightReadings[4];  // Quadrant-wise light readings (0 = top, CCW order)
   Error& error;
 };
@@ -140,11 +147,6 @@ public:
   Header(Error& errorRef);
   void pullHeader();
   void pushHeader();
-  int numDBPlants;  // Number of plants in the larger read-only database
-  int lightThreshold;
-  int tempThreshold;
-  int waterThreshold;
-  int humidityThreshold;
   bool plantSelected;
   bool headerPulled;
   Error& error;
@@ -153,13 +155,14 @@ public:
 // Class to store data/methods surrounding the user interface
 class Interface {
 public:
-  Interface(Error& errorRef, Plant& plantRef);
+  Interface(Error& errorRef, Plant& plantRef, SensorReading& sensorReadingRef);
   bool begin(uint8_t vcs, uint8_t addr);
   void displayMainMenu();
   void displayDataMenu();
   void displayInfoMenu();
   void displayInputMenu();
   void displayErrorScreen();
+  void displayLoadingScreen();
   void displayRecommendation(int recInd, int min, int max, int threshold[2], float val);
   void indexQueryPos(bool upDir);
   void displaySelectMenu();
@@ -183,6 +186,7 @@ public:
   bool screenFocus;
   Error& error;
   Plant& activePlant;
+  SensorReading& sensorReading;
 };
 
 // Class to store/pass around multiple objects between functions
@@ -220,6 +224,19 @@ int horizontalCenterText(char text[], int bufferLen, int fontSize);
 // Standalone helper for creating new files
 int newReadingsFile(char fileName[MAX_CHARS_FILENAME]);
 
+// Standalone text formatting tool to truncate and add ellipses
+void truncateText(char text[], int textLen, int textSize, int widthPx, char truncatedText[]);
+
+// Standalone text formatting tool to split text into two lines if necessary
+// Returns number of lines 
+int splitLines(char text[], int textLen, int textSize, int widthPx, char splitText[]);
+
+// Parse a water requirement int into a string
+bool parseWaterReq(int waterReq, int bufferLen, char reqStr[]);
+
+// Parse a light requirement int into a string
+bool parseLightReq(int lightReq, int bufferLen, char reqStr[]);
+
 // Function to get active plant sensor averages (for web API)
 void getActivePlantAverages(float& avgLight, float& avgTemp, float& avgWater, float& avgHumidity);
 
@@ -233,7 +250,6 @@ enum StateTracker {
   startupMode,
   displayMode,
   sensingMode,
-  triggerMode,
   shutdownMode,
   errorMode
 };
@@ -258,14 +274,6 @@ enum ErrorStatus {
   jsonError,
   fileOperation,
   SDInit
-};
-
-// For iterating/checking threshold evaluations
-enum Eval {
-  evalUnknown,
-  evalLow,
-  evalHigh,
-  evalOK
 };
 
 // For checking light requirements
