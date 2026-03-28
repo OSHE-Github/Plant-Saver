@@ -17,6 +17,7 @@
 #define MAX_SENSOR_READINGS 48  // # of sensor readings allowed in FIFO
 #define NUM_CHARS_NAME 50
 #define QUERY_DIFF_THRESH 3 // Diff. between query and candidate must be < this #
+#define REC_DIFF_THRESH 1 // Less than this # disparities in recommendation candidate
 #define NUM_CHARS_QUERY 5
 #define MAX_DIGITS_ID 6
 #define NUM_CHARS_REQ 12
@@ -60,6 +61,7 @@
 #define WATER_PATH "/Plant/water.txt"
 #define TMP_GATHER_PATH "/Tmp/gather.txt"
 #define TMP_SORT_PATH "/Tmp/sort.txt"
+#define TMP_REC_PATH "/Tmp/rec.txt"
 #define LIGHT_QUADRANT1_PATH "/Plant/light1.txt"
 #define LIGHT_QUADRANT2_PATH "/Plant/light2.txt"
 #define LIGHT_QUADRANT3_PATH "/Plant/light3.txt"
@@ -92,9 +94,9 @@ public:
   float getAvgReading(JsonDocument& sensorDoc);
   void pullPlant();
   void pushPlant();
-  void tempCheck(int threshold[2]);
-  void waterCheck(int threshold[2]);
-  void lightCheck(int threshold[2]);
+  void tempCheck(int threshold[2], int req[2]);
+  void waterCheck(int threshold[2], int req[2]);
+  void lightCheck(int threshold[2], int req[2]);
   void humidityCheck(int threshold[2]);
   void calcAvgLight();
   int id;  // ID within the plant database
@@ -137,6 +139,10 @@ public:
   double lightC;
   double waterM;
   double waterB;
+  double tempM;
+  double tempB;
+  double humidityM;
+  double humidityB;
   int lightReadings[4];  // Quadrant-wise light readings (0 = top, CCW order)
   Error& error;
 };
@@ -148,6 +154,8 @@ public:
   void pullHeader();
   void pushHeader();
   bool plantSelected;
+  int numReadings;
+  int numRecCandidates;
   bool headerPulled;
   Error& error;
 };
@@ -161,6 +169,7 @@ public:
   void displayDataMenu();
   void displayInfoMenu();
   void displayInputMenu();
+  void displayRecMenu();
   void displayErrorScreen();
   void displayLoadingScreen();
   void displayRecommendation(int recInd, int min, int max, int threshold[2], float val);
@@ -169,21 +178,26 @@ public:
   void scrollSelectDown();
   void scrollSelectUp();
   void queryDBPlants();
-  void pullCachedData(int index, char name[], int& id);
+  void initSelectMenu(char fileName[]);
+  void pullCachedData(char fileName[], int index, char name[], int& id);
   void nextScreen(bool plantSelected);
   void displayOff();
   char displayRecommendation(int recInd, int min, int max, int lowThresh, int highThresh, int val);
   int selectedPlantIndex;
   int activeMenu;
+  int prevMenu;
   int numSelectCandidates;
+  int numSearchCandidates;
+  int numRecCandidates;
   int displayPlantIDs[NUM_CANDIDATES_SHOWN];
   int displayIndices[NUM_CANDIDATES_SHOWN];
   uint8_t displayMap[NUM_CANDIDATES_SHOWN + 1];
   uint8_t indexer; // Generic indexing variable
-  uint8_t numMenus;
+  bool plantSearched;
+  bool screenFocus;
   char query[NUM_CHARS_QUERY + 1];
   char displayPlantNames[NUM_CANDIDATES_SHOWN][NUM_CHARS_NAME];
-  bool screenFocus;
+  char selectFileSource[MAX_CHARS_FILENAME];
   Error& error;
   Plant& activePlant;
   SensorReading& sensorReading;
@@ -194,14 +208,15 @@ class Container {
 public:
   Container();
   void pullCachedData(int index, char name[], int& id);
-  void getDBPlants();
   void newUserPlant();
+  void gatherRecCandidates();
   Plant activePlant;
   Error error;
   Header header;
   SensorReading sensorReading;
   Interface interface;
   int activeMode;
+  bool newPlant;
 };
 
 /*------------------------------------------------------- Standalone Helpers -------------------------------------------------------*/
@@ -261,6 +276,7 @@ enum Menu {
   infoMenu,
   inputMenu,
   selectMenu,
+  recMenu,
   dataMenu
 };
 

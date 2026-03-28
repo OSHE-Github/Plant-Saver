@@ -21,12 +21,15 @@
 #define OLED_RESET -1               // OLED Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_ADDRESS 0x3C         // OLED screen I2C address
 #define WAKE_PIN_BITMASK 201347072  // Pins 12, 14, 26 & 27
-#define DISPLAY_TIMEOUT_M 1         // delay before timing out the display in minutes
+#define DISPLAY_TIMEOUT_M 5         // delay before timing out the display in minutes
 #define MS_PER_MINUTE 60000         // Milliseconds per minute conversion factor
 #define INTEGRATION_TIME 0.25       // LTR390 integration time
 #define LTR390_GAIN 3               // Gain of the LTR390
 #define TRIG_PULSE_LEN_MS 2000      // Trigger mode pulse length in ms
 #define BUTTON_DEBOUNCE 150         // Millisecond debounce
+#define REC_INTERVAL 0
+#define SCROLL_INTERVAL_1 300         // Millisecond scroll interval
+#define SCROLL_INTERVAL_2 100
 
 // Pin Definitions - Prototype
 #define V_GATE_PERIPHERAL 2  // Gate control pin of peripheral low-side power MOSFET
@@ -61,7 +64,7 @@
 /*------------------------------------------------------ Global Variables ------------------------------------------------------*/
 
 const uint64_t usPerMinute = 60000000;  // Conversion factor between minutes and microseconds
-const uint64_t samplingPeriodM = 1;     // Time between sensor measurements in minutes
+const uint64_t samplingPeriodM = 60;     // Time between sensor measurements in minutes
 
 /*---------------------------------------------------- Object Instantiation ----------------------------------------------------*/
 
@@ -125,9 +128,6 @@ void loop() {
 
 /*---------------------------------------------------- Function Definitions ------------------------------------------------------*/
 
-// 
-// TODO : General - make sure large objects are passed by ref
-//
 
 /*
   Initialize all peripherals, then pull header data.
@@ -176,11 +176,10 @@ void startupModeHandler(Container &container) {
     initFailed = 1;
     container.error.addError(SDInit);
   } else {
-    // TODO: Move to display mode
-    initializePlantServer();
     container.error.clearError(SDInit);
     if (!container.header.headerPulled) {
       container.header.pullHeader();
+      container.interface.numRecCandidates = container.header.numRecCandidates;
       container.sensorReading.pullParams();
     }
     if (!container.activePlant.plantPulled && container.header.headerPulled && container.header.plantSelected) {
@@ -215,6 +214,8 @@ void startupModeHandler(Container &container) {
   Inactivity is tracked, and after a set period the device is set into shutdown mode.
 */
 void displayModeHandler(Container &container) {
+  static int scrollInt = SCROLL_INTERVAL_1;
+  static bool serverInit = 0;
   static bool chgOns = 0;
   static bool selOns = 0;  // One-shot bits for triggering events from button inputs
   static bool upOns = 0;
@@ -225,6 +226,12 @@ void displayModeHandler(Container &container) {
   static unsigned long chgDb = 0;
   static unsigned long startTime = millis();  // Timekeeping for inactivity watchdog
   unsigned long currentTime = millis();
+  static uint8_t prevMenu = noMenu;
+
+  if (serverInit == false) {
+    initializePlantServer();
+    serverInit = true;
+  }
 
   if (container.interface.activeMenu == noMenu) {
     container.interface.displayMainMenu();
@@ -242,6 +249,11 @@ void displayModeHandler(Container &container) {
     }
   } else if (digitalRead(CHG_SCREEN_BTN) && chgOns && millis() - chgDb > BUTTON_DEBOUNCE) {
     chgOns = 0;
+  }  else if (!digitalRead(CHG_SCREEN_BTN) && chgOns && millis() - chgDb > 700) {
+    if (container.interface.activeMenu == inputMenu && container.interface.screenFocus) {
+      container.interface.screenFocus = false;
+      container.interface.displayInputMenu();
+    }
   }
 
   // Up button
@@ -261,6 +273,10 @@ void displayModeHandler(Container &container) {
     }
   } else if (digitalRead(UP_BTN) && upOns && millis() - upDb > BUTTON_DEBOUNCE) {
     upOns = 0;
+    scrollInt = SCROLL_INTERVAL_1;
+  } else if (!digitalRead(UP_BTN) && upOns && millis() - upDb > scrollInt) {
+    upOns = 0;
+    scrollInt = SCROLL_INTERVAL_2;
   }
 
   // Down button
@@ -280,37 +296,57 @@ void displayModeHandler(Container &container) {
     }
   } else if (digitalRead(DOWN_BTN) && downOns && millis() - downDb > BUTTON_DEBOUNCE) {
     downOns = 0;
+    scrollInt = SCROLL_INTERVAL_1;
+  }  else if (!digitalRead(DOWN_BTN) && downOns && millis() - downDb > scrollInt) {
+    downOns = 0;
+    scrollInt = SCROLL_INTERVAL_2;
   }
 
   // Select button
   if (!digitalRead(SELECT_BTN) && selOns == 0) {
     selOns = 1;
     selDb = startTime = millis();
-    if (container.interface.activeMenu == inputMenu) {
-      if (!container.interface.screenFocus) {
-        container.interface.screenFocus = 1;
+    switch (container.interface.activeMenu) {
+      case inputMenu:
+        if (!container.interface.screenFocus) {
+          container.interface.screenFocus = 1;
+          container.interface.indexer = 0;
+          container.interface.displayInputMenu();
+        } else {
+          container.interface.screenFocus = 0;
+          container.interface.displayLoadingScreen();
+          container.interface.queryDBPlants();
+          container.interface.numSelectCandidates = container.interface.numSearchCandidates;
+          snprintf(container.interface.selectFileSource, MAX_CHARS_FILENAME, "%s", TMP_SORT_PATH);
+          container.interface.initSelectMenu(TMP_SORT_PATH);
+          container.interface.indexer = 0;
+          container.interface.displaySelectMenu();
+        }
+        break;
+      case selectMenu:
+        if (container.interface.numSelectCandidates > 0) {
+          container.interface.displayLoadingScreen();
+          container.newUserPlant();
+          container.interface.displayMainMenu();
+        }
+        break;
+      case mainMenu:
+        if (!container.interface.screenFocus) {
+          container.interface.screenFocus = 1;
+          container.interface.indexer = 0;
+          container.interface.displayMainMenu();
+        } else {
+          container.interface.screenFocus = 0;
+          container.interface.displayDataMenu();
+        }
+        break;
+      case recMenu:
         container.interface.indexer = 0;
-        container.interface.displayInputMenu();
-      } else {
-        container.interface.screenFocus = 0;
-        container.interface.displayLoadingScreen();
-        container.interface.queryDBPlants();
-        container.interface.indexer = 0;
+        container.interface.numSelectCandidates = container.interface.numRecCandidates;
+        snprintf(container.interface.selectFileSource, MAX_CHARS_FILENAME, "%s", TMP_REC_PATH);
+        container.interface.initSelectMenu(TMP_REC_PATH);
         container.interface.displaySelectMenu();
-      }
-    } else if (container.interface.activeMenu == selectMenu && container.interface.numSelectCandidates > 0){
-      container.interface.displayLoadingScreen();
-      container.newUserPlant();
-      container.interface.displayMainMenu();
-    } else if (container.interface.activeMenu == mainMenu) {
-      if (!container.interface.screenFocus) {
-        container.interface.screenFocus = 1;
-        container.interface.indexer = 0;
-        container.interface.displayMainMenu();
-      } else {
-        container.interface.screenFocus = 0;
-        container.interface.displayDataMenu();
-      }
+        break;
     }
   } else if (digitalRead(SELECT_BTN) && selOns && millis() - selDb > BUTTON_DEBOUNCE) {
     selOns = 0;
@@ -365,6 +401,11 @@ void sensingModeHandler(Container &container) {
   }
 
   if (lightRead == true && humidityRead == true && tempRead == true && waterRead == true) {
+    container.header.numReadings++;
+    if (container.header.numReadings >= REC_INTERVAL) {
+      container.header.numReadings = 0;
+      container.gatherRecCandidates();
+    }
     container.activeMode = shutdownMode;
   }
 }
@@ -377,6 +418,9 @@ void shutdownModeHandler(Container &container) {
   container.header.pushHeader();
   container.activePlant.pushPlant();
   SD.remove(TMP_SORT_PATH);
+  if (container.newPlant) {
+    SD.remove(TMP_REC_PATH);
+  }
   // Set ESP32 into deep sleep mode
   container.interface.displayOff();
   digitalWrite(V_GATE_PERIPHERAL, LOW);  // Shut down peripherals
