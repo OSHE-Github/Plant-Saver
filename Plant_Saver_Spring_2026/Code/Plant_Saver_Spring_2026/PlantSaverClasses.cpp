@@ -6,6 +6,7 @@
 #include <ArduinoJson.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <vector>
 /*------------------------------------------------------ Object Instantiation -----------------------------------------------------*/
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);  // Create OLED display object
@@ -106,12 +107,12 @@ float Plant::getAvgReading(JsonDocument& sensorDoc) {
 //
 // TODO: Re-vamp to work w/ solar cells
 //
-void Plant::lightCheck(int threshold[2]) {
+void Plant::lightCheck(int threshold[2], int req[2] = NULL) {
   threshold[0] = -1;
   threshold[1] = -1;
   int lightReqLowHigh[2] = { 0 };  // [0] = low value, [1] = high value
-  lightReqLowHigh[0] = lightReq[0];
-  lightReqLowHigh[1] = (lightReq[1] != 0) ? lightReq[1] : lightReq[0];
+  lightReqLowHigh[0] = (req == NULL) ? lightReq[0] : req[1];
+  lightReqLowHigh[1] = (req == NULL) ? ((lightReq[1] != 0) ? lightReq[1] : lightReq[0]) : ((req[1] != 0) ? req[1] : req[0]);
   for (int i = 0; i < 2; i++) {
     switch (lightReqLowHigh[i]) {
       case fullShade:
@@ -127,12 +128,12 @@ void Plant::lightCheck(int threshold[2]) {
 }
 
 // Map hardiness zones to temperature thresholds, then check average reading
-void Plant::tempCheck(int threshold[2]) {
+void Plant::tempCheck(int threshold[2], int req[2] = NULL) {
   threshold[0] = -1;
   threshold[1] = -1;
   int hardinessLowHigh[2];  // [0] = low value, [1] = high value
-  hardinessLowHigh[0] = hardiness[0];
-  hardinessLowHigh[1] = (hardiness[1] != 0) ? hardiness[1] : hardiness[0];
+  hardinessLowHigh[0] = (req == NULL) ? hardiness[0] : req[1];
+  hardinessLowHigh[1] = (req == NULL) ? ((hardiness[1] != 0) ? hardiness[1] : hardiness[0]) : ((req[1] != 0) ? req[1] : req[0]);
   for (int i = 0; i < 2; i++) {
     switch (hardinessLowHigh[i]) {
       case 2:
@@ -177,15 +178,14 @@ void Plant::tempCheck(int threshold[2]) {
 // Map water requirements and humidity readings to thresholds, then check average readings
 // Water thresholds are created to work with inverted reading values, such that dry < wet
 // This is due to the fact that capacitance is inversely proportional to water saturation
-void Plant::waterCheck(int threshold[2]) {
+void Plant::waterCheck(int threshold[2], int req[2] = NULL) {
   threshold[0] = -1;
   threshold[1] = -1;
   int waterReqLowHigh[2];  // [0] = low value, [1] = high value
-  waterReqLowHigh[0] = waterReq[0];
-  waterReqLowHigh[1] = (waterReq[1] != 0) ? waterReq[1] : waterReq[0];
+  waterReqLowHigh[0] = (req == NULL) ? waterReq[0] : req[1];
+  waterReqLowHigh[1] = (req == NULL) ? ((waterReq[1] != 0) ? waterReq[1] : waterReq[0]) : ((req[1] != 0) ? req[1] : req[0]);
   for (int i = 0; i < 2; i++) {
     int j = (i + 1) % 2; // Need to invert indices as well
-    Serial.println(waterReqLowHigh[j]);
     switch (waterReqLowHigh[j]) {
       case dry:
         threshold[i] = WATER_MIN + 2445 * i; // 0 to 2445 (raw range 1650 to 4095)
@@ -200,7 +200,6 @@ void Plant::waterCheck(int threshold[2]) {
         threshold[i] = 3395 + (WATER_MAX - 3395) * i; // 3395 to 4095 (raw range 0 to 700)
         break;
     }
-    Serial.println(threshold[j]);
   }
 }
 
@@ -289,6 +288,10 @@ SensorReading::SensorReading(Error& errorRef)
   lightC = 0.0;
   waterM = 0.0;
   waterB = 0.0;
+  tempM = 0.0;
+  tempB = 0.0;
+  humidityM = 0.0;
+  humidityB = 0.0;
 }
 
 void SensorReading::pullParams() {
@@ -303,11 +306,16 @@ void SensorReading::pullParams() {
   lightB = paramsDoc["lightParams"]["b"];
   lightA = paramsDoc["lightParams"]["a"];
   lightC = paramsDoc["lightParams"]["c"];
+  tempM = paramsDoc["tempParams"]["m"];
+  tempB = paramsDoc["tempParams"]["b"];
+  humidityM = paramsDoc["humidityParams"]["m"];
+  humidityB = paramsDoc["humidityParams"]["b"];
   paramsDoc.clear();
 }
 
 // Populate temperature data
 void SensorReading::addTemp(float reading, Plant& plant) {
+  reading = (reading*tempM) + tempB;
   tempReading = (reading * 1.8) + 32;
   parseNewData(tempReading, plant.avgTemp, TEMP_PATH, plant);
 }
@@ -320,7 +328,8 @@ void SensorReading::addWater(int reading, Plant& plant){
 
 // Populate humidity data
 void SensorReading::addHumidity(float reading, Plant& plant){
-  humidityReading = reading;
+  humidityReading = (reading * humidityM) + humidityB;
+  humidityReading = (humidityReading < 0) ? 0 : humidityReading;
   parseNewData(humidityReading, plant.avgHumidity, HUMIDITY_PATH, plant);
 }
 
@@ -422,6 +431,7 @@ void SensorReading::newFile(char fileName[MAX_CHARS_FILENAME]) {
 Container::Container()
   : activePlant(error), error(), header(error), sensorReading(error), interface(error, activePlant, sensorReading) {
   activeMode = startupMode;
+  newPlant = false;
 }
 
 // Clear out data associated with the existing user plant (apart from average readings)
@@ -446,11 +456,10 @@ void Container::newUserPlant() {
   snprintf(activePlant.commonName, NUM_CHARS_NAME, "%s", commonName);
   const char* scientificName = plantDoc["scientific_name"];
   snprintf(activePlant.scientificName, NUM_CHARS_NAME, "%s", scientificName);
-  //TODO: This order isn't set. write some code to find the ordering based on key 0,1,2 pair names first
-  const char* keyPairs[3] = {plantDoc["data"][0]["key"], plantDoc["data"][1]["key"], plantDoc["data"][2]["key"]};
-  int hardinessInd = 0;
-  int lightInd = 0;
-  int waterInd = 0;
+  const char* keyPairs[3] = {plantDoc["data"][0]["key"] | "Missing", plantDoc["data"][1]["key"] | "Missing", plantDoc["data"][2]["key"] | "Missing"};
+  int hardinessInd = 3;
+  int lightInd = 3;
+  int waterInd = 3;
   for (int i = 0; i < 3; i++) {
     if (strcmp(keyPairs[i], "USDA Hardiness zone") == 0) {
       hardinessInd = i;
@@ -459,6 +468,10 @@ void Container::newUserPlant() {
     } else if (strcmp(keyPairs[i], "Water requirement") == 0) {
       waterInd = i;
     }
+  }
+  if (hardinessInd >= 3 || lightInd >= 3 || waterInd >= 3) {
+    error.addError(jsonError);
+    return;
   }
   JsonArray jsonHardinessVals = plantDoc["data"][hardinessInd]["value"];
   JsonArray jsonLightReqs = plantDoc["data"][lightInd]["value"];
@@ -471,6 +484,162 @@ void Container::newUserPlant() {
   activePlant.waterReq[1] = (jsonWaterReqs.size() > 1) ? jsonWaterReqs[jsonWaterReqs.size() - 1] : 0;
   plantDoc.clear();
   header.plantSelected = 1;
+  newPlant = true;
+}
+
+// Sort through database, looking for possible candidate plants to recommend
+// Creates a cache file in /Tmp to store candidates.
+void Container::gatherRecCandidates() {
+  File file = SD.open(PLANT_DB_PATH, FILE_READ);
+  File tmpGatherFile = SD.open(TMP_GATHER_PATH, FILE_WRITE);
+  if (!file || !tmpGatherFile) {
+    file.close();
+    tmpGatherFile.close();
+    error.addError(fileOperation);
+    return;
+  }
+  JsonDocument filter;
+  filter["id"] = true;
+  filter["name"] = true;
+  filter["data"] = true;
+  std::vector<int> candidateDiffs = {};
+  candidateDiffs.reserve(400);
+  std::vector<int> candidateIDs = {};
+  candidateDiffs.reserve(400);
+  while (file.available()) {
+    // Step 1: Read plant data
+    bool found = file.find("{\"id\":");
+    if (!found) { // No more plants in DB
+      file.close();
+      break;
+    }
+    unsigned long marker1 = file.position() - 6;
+    uint8_t interListTerminalCt = 8;
+    uint8_t endListTerminalCt = 2;
+    found = file.findUntil("{\"id\":", "}]}");
+    unsigned long marker2 = file.position();
+    marker2 = found ? marker2 - interListTerminalCt : marker2 - endListTerminalCt;
+    const int len = marker2 - marker1 + 1;
+    char raw[len] = {};
+    file.seek(marker1);
+    file.readBytes(raw, len - 1);
+
+    // Step 2: Parse data
+    JsonDocument doc;
+    DeserializationError deserError = deserializeJson(doc, raw, DeserializationOption::Filter(filter));
+    if (deserError) {
+      error.addError(jsonError);
+      return;
+    }
+    int id = doc["id"];
+    const char* name = doc["name"];
+    const char* keyPairs[3] = {doc["data"][0]["key"] | "Missing", doc["data"][1]["key"] | "Missing", doc["data"][2]["key"] | "Missing"};
+    int hardinessInd = 3;
+    int lightInd = 3;
+    int waterInd = 3;
+    for (int i = 0; i < 3; i++) {
+      if (strcmp(keyPairs[i], "USDA Hardiness zone") == 0) {
+        hardinessInd = i;
+      } else if (strcmp(keyPairs[i], "Light requirement") == 0) {
+        lightInd = i;
+      } else if (strcmp(keyPairs[i], "Water requirement") == 0) {
+        waterInd = i;
+      }
+    }
+    if (hardinessInd >= 3 || lightInd >= 3 || waterInd >= 3) {
+      continue;
+    }
+    JsonArray jsonHardinessVals = doc["data"][hardinessInd]["value"];
+    JsonArray jsonLightReqs = doc["data"][lightInd]["value"];
+    JsonArray jsonWaterReqs = doc["data"][waterInd]["value"];
+    int hardiness[2] = {};
+    int lightReq[2] = {};
+    int waterReq[2] = {};
+    hardiness[0] = jsonHardinessVals[0];  // Only need first and last elements of each
+    hardiness[1] = (jsonHardinessVals.size() > 1) ? jsonHardinessVals[jsonHardinessVals.size() - 1] : 0;
+    lightReq[0] = jsonLightReqs[0];
+    lightReq[1] = (jsonLightReqs.size() > 1) ? jsonLightReqs[jsonLightReqs.size() - 1] : 0;
+    waterReq[0] = jsonWaterReqs[0];
+    waterReq[1] = (jsonWaterReqs.size() > 1) ? jsonWaterReqs[jsonWaterReqs.size() - 1] : 0;
+    doc.clear();
+
+    // Step 3: Compare averages to thresholds
+    int diffCt = 0;
+    int thresh[2] = {-1, -1};
+    activePlant.waterCheck(thresh, waterReq);
+    int waterInv = (WATER_MAX - activePlant.avgWater); // TODO - make sure this works
+    if (waterInv < thresh[0] || waterInv > thresh[1]) { 
+      diffCt++;
+    }
+    activePlant.lightCheck(thresh, lightReq);
+    if (activePlant.avgLight < thresh[0] || activePlant.avgLight > thresh[1]) {
+      diffCt++;
+    }
+    activePlant.tempCheck(thresh, hardiness);
+    if (activePlant.avgTemp < thresh[0] || activePlant.avgTemp > thresh[1]) {
+      diffCt++;
+    }
+
+    // Step 4: Store candidates
+    if (diffCt < REC_DIFF_THRESH) {
+        char newTmpLine[70] = {};
+        snprintf(newTmpLine, 70, "<%d-%s>", id, name);
+        tmpGatherFile.println(newTmpLine); // Copy over data to the collection file for caching
+        candidateDiffs.push_back(diffCt);
+        candidateIDs.push_back(id);
+      }
+    // After this loop completes, should have a temp file full of data and two vectors ready to be sorted
+  }
+  tmpGatherFile.close();
+  file.close();
+  filter.clear();
+  candidateDiffs.shrink_to_fit();
+  candidateIDs.shrink_to_fit();
+  // Step 5: Sort by difference count 
+  bool sorted = 0;
+  int numCandidates = candidateIDs.size(); 
+  header.numRecCandidates = numCandidates;
+  if (numCandidates < 2) {
+    sorted = 1;
+  }
+  while (!sorted) {
+    sorted = 1;
+    for (int i = 1; i < numCandidates; i++) {
+      if (candidateDiffs[i] < candidateDiffs[i - 1]) {
+        uint8_t swapDiff = candidateDiffs[i];
+        int swapID = candidateIDs[i];
+        candidateDiffs[i] = candidateDiffs[i - 1];
+        candidateIDs[i] = candidateIDs[i - 1];
+        candidateDiffs[i - 1] = swapDiff;
+        candidateIDs[i - 1] = swapID;
+        sorted = 0;
+      }
+    }
+  }
+  // Step 6: Store sorted list
+  tmpGatherFile = SD.open(TMP_GATHER_PATH, FILE_READ);
+  File tmpRecFile = SD.open(TMP_REC_PATH, FILE_WRITE);
+  if (!tmpGatherFile || !tmpRecFile) {
+    tmpGatherFile.close();
+    tmpRecFile.close();
+    error.addError(fileOperation);
+    return;
+  }
+  for (int i = 0; i < numCandidates; i++) {
+    tmpGatherFile.seek(0);
+    char searchChar[MAX_DIGITS_ID + 4] = {};
+    snprintf(searchChar, MAX_DIGITS_ID + 4, "<%d-", candidateIDs[i]);
+    bool found = tmpGatherFile.find(searchChar);
+    char name[NUM_CHARS_NAME] = {};
+    tmpGatherFile.readBytesUntil('>', name, NUM_CHARS_NAME);
+    char newLine[70] = {};
+    snprintf(newLine, 70, "<%d-%d-%s>", i, candidateIDs[i], name);
+    tmpRecFile.println(newLine); // Re-cache sorted list to reduce memory load
+  }
+  // At this point, have a file full of sorted candidates
+  tmpGatherFile.close();
+  tmpRecFile.close();
+  //SD.remove(TMP_GATHER_PATH);
 }
 
 /*-------------------------------------------------------------- Header Class --------------------------------------------------------------*/
@@ -478,6 +647,8 @@ void Container::newUserPlant() {
 // Initialization
 Header::Header(Error& errorRef) : error(errorRef) {
   plantSelected = 0;
+  numRecCandidates = 0;
+  numReadings = 0;
   headerPulled = 0;
 }
 
@@ -491,6 +662,8 @@ void Header::pullHeader() {
     return;
   }
   plantSelected = headerDoc["plantSelected"];
+  numReadings = headerDoc["numReadings"];
+  numRecCandidates = headerDoc["numRecCandidates"];
   headerDoc.clear();
   headerPulled = 1;
 }
@@ -499,6 +672,8 @@ void Header::pullHeader() {
 void Header::pushHeader() {
   JsonDocument headerDoc;
   headerDoc["plantSelected"] = plantSelected;
+  headerDoc["numReadings"] = numReadings;
+  headerDoc["numRecCandidates"] = numRecCandidates;
   char fileName[MAX_CHARS_FILENAME] = HEADER_PATH;
   int pushJsonError = pushJsonDoc(headerDoc, fileName);
   if (pushJsonError) {
@@ -513,9 +688,12 @@ void Header::pushHeader() {
 Interface::Interface(Error& errorRef, Plant& plantRef, SensorReading& sensorReadingRef)
   : activeMenu{}, selectedPlantIndex{}, numSelectCandidates{}, displayPlantIDs{}, displayPlantNames{}, indexer{},
     displayIndices{0, 1, 2}, displayMap{0, 1, 2, 0}, query{'A','A','A','A','A', '\0'}, error(errorRef), activePlant(plantRef),
-    sensorReading(sensorReadingRef) {
-    numMenus = 4; // Starts at 4, if data cached then 5
+    sensorReading(sensorReadingRef), webRecPlants{} {
+    plantSearched = false;
     screenFocus = false;
+    numSearchCandidates = 0;
+    numRecCandidates = 0;
+    prevMenu = noMenu;
   }
 
 // Initialize the display
@@ -549,7 +727,6 @@ void Interface::displayMainMenu() {
   display.setTextColor(SSD1306_INVERSE);
   display.setCursor(startX + padX, Y_SCALE + padY + 3 - 1);
   int waterInv = (WATER_MAX - activePlant.avgWater); // Invert raw water readings for display
-  Serial.print("Active water: "); Serial.println(waterInv);
   int displayWater = int(((sensorReading.waterM * double(activePlant.avgWater)) + sensorReading.waterB)*100.0);
   displayWater = (displayWater < 0) ? 0 : displayWater;
   display.printf("%d%%", displayWater);
@@ -591,6 +768,9 @@ void Interface::displayMainMenu() {
   activePlant.humidityCheck(humidityThresh);
   displayRecommendation(3, HUMIDITY_MIN, HUMIDITY_MAX, humidityThresh, activePlant.avgHumidity);
   display.display();
+  if (activeMenu != mainMenu) { // first time displaying this screen
+    prevMenu = activeMenu;
+  }
   activeMenu = mainMenu;
 }
 
@@ -684,6 +864,9 @@ void Interface::displayDataMenu() {
   display.setCursor(horizontalCenterText(max, 50, 1), Y_SCALE*4 + 4);
   display.print(max);
   display.display();
+  if (activeMenu != dataMenu) {
+    prevMenu = activeMenu;
+  }
   activeMenu = dataMenu;
 }
 
@@ -747,6 +930,9 @@ void Interface::displayInfoMenu() {
     display.print(hardinessStr);
   }
   display.display();
+  if (activeMenu != infoMenu) {
+    prevMenu = activeMenu;
+  }
   activeMenu = infoMenu;
 }
 
@@ -770,7 +956,28 @@ void Interface::displayInputMenu() {
     display.drawBitmap(startX + (dx*indexer) - 3, startY + Y_SCALE*2 + 6, downArrowBmp, 16, 8, 1);
   }
   display.display();
+  if (activeMenu != inputMenu) {
+    prevMenu = activeMenu;
+  }
   activeMenu = inputMenu;
+}
+
+void Interface::displayRecMenu() {
+  int startX = 0;
+  int startY = 15;
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.drawBitmap(startX, startY, plantGuyBmp, 21, 29, 1);
+  display.setCursor(startX + 25, startY + 7);
+  display.print("Press Select For");
+  display.setCursor(startX + 25, startY + 7 + Y_SCALE);
+  display.print("Recommendation");
+  display.display();
+  if (activeMenu != recMenu) {
+    prevMenu = activeMenu;
+  }
+  activeMenu = recMenu;
 }
 
 // Build and display menu for selecting candidates from a search
@@ -847,8 +1054,10 @@ void Interface::displaySelectMenu() {
       break;
   }
   display.display();
+  if (activeMenu != selectMenu) {
+    prevMenu = activeMenu;
+  }
   activeMenu = selectMenu;
-  numMenus = 5;
 }
 
 // Report active error & potential solutions
@@ -1025,7 +1234,7 @@ void Interface::scrollSelectDown() {
       displayMap[i] = (displayMap[i] + 1) % NUM_CANDIDATES_SHOWN; // Cycle mappings "upward"
     }
     displayIndices[displayMap[bot]] = newBottomIndex;
-    pullCachedData(displayIndices[displayMap[bot]], displayPlantNames[displayMap[bot]], displayPlantIDs[displayMap[bot]]);
+    pullCachedData(selectFileSource, displayIndices[displayMap[bot]], displayPlantNames[displayMap[bot]], displayPlantIDs[displayMap[bot]]);
   } else if (displayMap[act] == 1 && displayIndices[displayMap[bot]] >= (numSelectCandidates - 1)) { // Bottom of list reached
     displayMap[act] = bot; // Move active pos. to bottom
   } else if (displayMap[act] == bot) { // At bottom
@@ -1036,9 +1245,9 @@ void Interface::scrollSelectDown() {
     displayMap[mid] = mid;
     displayMap[bot] = bot;
     displayMap[act] = top; // Move active pos. to top
-    pullCachedData(displayIndices[displayMap[top]], displayPlantNames[displayMap[top]], displayPlantIDs[displayMap[top]]); // Pull data
-    pullCachedData(displayIndices[displayMap[mid]], displayPlantNames[displayMap[mid]], displayPlantIDs[displayMap[mid]]);
-    pullCachedData(displayIndices[displayMap[bot]], displayPlantNames[displayMap[bot]], displayPlantIDs[displayMap[bot]]);
+    pullCachedData(selectFileSource, displayIndices[displayMap[top]], displayPlantNames[displayMap[top]], displayPlantIDs[displayMap[top]]); // Pull data
+    pullCachedData(selectFileSource, displayIndices[displayMap[mid]], displayPlantNames[displayMap[mid]], displayPlantIDs[displayMap[mid]]);
+    pullCachedData(selectFileSource, displayIndices[displayMap[bot]], displayPlantNames[displayMap[bot]], displayPlantIDs[displayMap[bot]]);
   }
 }
 
@@ -1064,16 +1273,16 @@ void Interface::scrollSelectUp() {
     displayMap[mid] = mid;
     displayMap[bot] = bot;
     displayMap[act] = bot; // Move active pos. to bottom
-    pullCachedData(displayIndices[displayMap[top]], displayPlantNames[displayMap[top]], displayPlantIDs[displayMap[top]]); // Pull data
-    pullCachedData(displayIndices[displayMap[mid]], displayPlantNames[displayMap[mid]], displayPlantIDs[displayMap[mid]]);
-    pullCachedData(displayIndices[displayMap[bot]], displayPlantNames[displayMap[bot]], displayPlantIDs[displayMap[bot]]);
+    pullCachedData(selectFileSource, displayIndices[displayMap[top]], displayPlantNames[displayMap[top]], displayPlantIDs[displayMap[top]]); // Pull data
+    pullCachedData(selectFileSource, displayIndices[displayMap[mid]], displayPlantNames[displayMap[mid]], displayPlantIDs[displayMap[mid]]);
+    pullCachedData(selectFileSource, displayIndices[displayMap[bot]], displayPlantNames[displayMap[bot]], displayPlantIDs[displayMap[bot]]);
   } else if (displayMap[act] == mid && displayIndices[displayMap[top]] > 0) { // Inside list (middle active)
     int newTopIndex = displayIndices[displayMap[top]] - 1;
     for (int i = 0; i < NUM_CANDIDATES_SHOWN; i++) {
       displayMap[i] = displayMap[i] > top ? (displayMap[i] - 1) : bot; // Cycle mappings "downward"
     }
     displayIndices[displayMap[top]] = newTopIndex;
-    pullCachedData(displayIndices[displayMap[top]], displayPlantNames[displayMap[top]], displayPlantIDs[displayMap[top]]);
+    pullCachedData(selectFileSource, displayIndices[displayMap[top]], displayPlantNames[displayMap[top]], displayPlantIDs[displayMap[top]]);
   } else if (displayMap[act] == 1 && displayIndices[displayMap[top]] <= 0) { // Top of list reached
     displayMap[act] = top; // Move active pos. to top
   } else if (displayMap[act] == bot) { // At bottom
@@ -1086,7 +1295,7 @@ void Interface::scrollSelectUp() {
 // Sorted results are cached in a temporary file which is deleted before sleeping
 void Interface::queryDBPlants() {
   // Step 1 -> Find # of candidates
-  numSelectCandidates = 0;
+  numSearchCandidates = 0;
   File dbFile = SD.open(PLANT_DB_PATH, FILE_READ);
   if (!dbFile) {
     error.addError(fileOperation);
@@ -1106,15 +1315,15 @@ void Interface::queryDBPlants() {
     uint8_t nameCharCt = dbFile.readBytesUntil('\"', name, NUM_CHARS_NAME);
     if (nameCharCt > 0) {
       diffCt = compareToQuery(name, query);
-      numSelectCandidates = diffCt < QUERY_DIFF_THRESH ? numSelectCandidates + 1 : numSelectCandidates;
+      numSearchCandidates = diffCt < QUERY_DIFF_THRESH ? numSearchCandidates + 1 : numSearchCandidates;
     }
   }
   dbFile.close();
-  if (numSelectCandidates < 1) { 
+  if (numSearchCandidates < 1) { 
     return;
   }
-  uint8_t candidateDiffs[numSelectCandidates] = {};
-  int candidateIDs[numSelectCandidates] = {};
+  uint8_t candidateDiffs[numSearchCandidates] = {};
+  int candidateIDs[numSearchCandidates] = {};
 
   // Step 2 -> Find each candidate name, ID, and difference count
   dbFile = SD.open(PLANT_DB_PATH, FILE_READ);
@@ -1126,7 +1335,7 @@ void Interface::queryDBPlants() {
     return;
   }
   int processCt = 0;
-  while (dbFile.available() && processCt < numSelectCandidates){
+  while (dbFile.available() && processCt < numSearchCandidates){
     bool found = dbFile.find("id\":");
     if (!found) {
       break;
@@ -1161,12 +1370,12 @@ void Interface::queryDBPlants() {
 
   // Step 3 -> Sort by difference count (lowest first)
   bool sorted = 0;
-  if (numSelectCandidates < 2) {
+  if (numSearchCandidates < 2) {
     sorted = 1;
   }
   while (!sorted) {
     sorted = 1;
-    for (int i = 1; i < numSelectCandidates; i++) {
+    for (int i = 1; i < numSearchCandidates; i++) {
       if (candidateDiffs[i] < candidateDiffs[i - 1]) {
         uint8_t swapDiff = candidateDiffs[i];
         int swapID = candidateIDs[i];
@@ -1188,7 +1397,7 @@ void Interface::queryDBPlants() {
     error.addError(fileOperation);
     return;
   }
-  for (int i = 0; i < numSelectCandidates; i++) {
+  for (int i = 0; i < numSearchCandidates; i++) {
     tmpGatherFile.seek(0);
     char searchChar[MAX_DIGITS_ID + 3] = {};
     snprintf(searchChar, MAX_DIGITS_ID + 3, "<%d-", candidateIDs[i]);
@@ -1202,18 +1411,25 @@ void Interface::queryDBPlants() {
   tmpGatherFile.close();
   tmpSortFile.close();
   SD.remove(TMP_GATHER_PATH);
-  // Step 5 -> pull first three plants to display
+  plantSearched = true;
+}
+
+void Interface::initSelectMenu(char fileName[]) {
+  displayMap[0] = 0; // Reset mappings
+  displayMap[1] = 1;
+  displayMap[2] = 2;
+  displayMap[3] = 0; // Move active pos. to top
   for (int i = 0; i < 3; i++) {
     if ((i + 1) > numSelectCandidates) {
       break;
     }
-    pullCachedData(i, displayPlantNames[i], displayPlantIDs[i]);
+    pullCachedData(fileName, i, displayPlantNames[i], displayPlantIDs[i]);
   }
 }
 
 // Pull plant name & id from cache file
-void Interface::pullCachedData(int index, char name[], int& id) {
-  File file = SD.open(TMP_SORT_PATH, FILE_READ);
+void Interface::pullCachedData(char fileName[], int index, char name[], int& id) {
+  File file = SD.open(fileName, FILE_READ);
   if (!file) {
     error.addError(fileOperation);
     file.close();
@@ -1245,32 +1461,51 @@ void Interface::pullCachedData(int index, char name[], int& id) {
 // Cycle through available screens
 void Interface::nextScreen(bool plantSelected) {
   screenFocus = 0;
-  if (activeMenu == dataMenu) {
-    activeMenu = mainMenu;
-  }
-  activeMenu = (activeMenu + 1) % (numMenus);
-  activeMenu = activeMenu == 0 ? 1 : activeMenu;
+  numSelectCandidates = (activeMenu == inputMenu) ? numSearchCandidates : numRecCandidates;
   switch (activeMenu) {
     case noMenu:
       displayMainMenu();
       break;
     case mainMenu:
-      displayMainMenu();
-      break;
-    case infoMenu:
-      if (plantSelected) { 
+      if (plantSelected) {
         displayInfoMenu();
       } else {
         displayInputMenu();
       }
       break;
-    case inputMenu:
+    case dataMenu:
+      if (plantSelected) {
+        displayInfoMenu();
+      } else {
+        displayInputMenu();
+      }
+      break;
+    case infoMenu:
       displayInputMenu();
       break;
-    case selectMenu:
-      displaySelectMenu();
+    case inputMenu:
+      if (plantSearched) {
+        numSelectCandidates = numSearchCandidates;
+        initSelectMenu(TMP_SORT_PATH);
+        snprintf(selectFileSource, MAX_CHARS_FILENAME, "%s", TMP_SORT_PATH);
+        displaySelectMenu();
+      } else if (!plantSearched && SD.exists(TMP_REC_PATH)){
+        displayRecMenu();
+      } else {
+        displayMainMenu();
+      }
       break;
-  }
+    case selectMenu:
+      if (SD.exists(TMP_REC_PATH) && prevMenu == inputMenu) {
+        displayRecMenu();
+      } else {
+        displayMainMenu();
+      }
+      break;
+    case recMenu:
+      displayMainMenu();
+      break;
+  } 
 }
 
 // Set all pixels to 0 and send a display off command
@@ -1279,6 +1514,16 @@ void Interface::displayOff() {
   display.clearDisplay();
   display.display();
   display.ssd1306_command(SSD1306_DISPLAYOFF);
+}
+
+void Interface::pullWebRecs() {
+  for (int i = 0; i < NUM_WEB_RECS; i++) {
+    if (i + 1 > numRecCandidates) {
+      break;
+    }
+    int plantID = 0;
+    pullCachedData(TMP_REC_PATH, i, webRecPlants[i], plantID);
+  }
 }
 
 /*-------------------------------------------------------------- Standalone Functions --------------------------------------------------------------*/
