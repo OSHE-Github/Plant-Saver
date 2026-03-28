@@ -245,24 +245,19 @@ function convertWaterToKey(plantData){
 //mapping the average readings to the key for UI usefulness
 function convertAvgWaterToKey(avgWater){
 
-    if(4095 >= avgWater >= 2300){
+    if(0 <= avgWater <= 30 || avgWater < 0){
 
         return "Dry";
+
     }
-    else if(2300 > avgWater >= 1650){
+    else if(30 < avgWater <= 70){
 
         return "Moist";
     }
-    else if(1650 > avgWater >= 1000){
-
+    else if(70 < avgWater <= 100 || avgWater > 100){
+        
         return "Wet";
     }
-    else if(1000 > avgWater >= 0){
-
-        return "Water";
-    }
-
-    return "Unknown";
 }
 
 function convertAvgLightToKey(avgLight){
@@ -314,8 +309,22 @@ function convertAvgTempToKey(avgTemp){
 
 function convertAvgHumidityToKey(avgHumidity){
 
-    //todo: humidityCheck doesn't exist what do?
+    if( avgHumidity < 30){
 
+        return "Low Humidity";
+    }
+    else if(30 <= avgHumidity < 60){
+
+        return "Good";
+
+    }
+    else if (avgHumidity >= 60){
+
+        return "High Humidity";
+
+    }
+
+    return "Unknown";
 }
 
 //poll the device for which plant is currently selected on the OLED

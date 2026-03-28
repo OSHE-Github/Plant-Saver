@@ -134,6 +134,16 @@ main{
     border-width: medium;
 }
 
+.Plant-Recommendations{
+    display:flex;
+    flex-direction: column;
+    padding: .5rem;
+    margin: .5rem;
+    background-color: #283618;
+    border: 2px solid #FEFAE0;
+    border-width: medium;
+}
+
 .Sensor-Data-Label{
     display: flex;
     gap: .5rem;
