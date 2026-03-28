@@ -21,6 +21,7 @@
 #define NUM_CHARS_QUERY 5
 #define MAX_DIGITS_ID 6
 #define NUM_CHARS_REQ 12
+#define NUM_WEB_RECS 5
 
 
 // Device params
@@ -183,6 +184,7 @@ public:
   void nextScreen(bool plantSelected);
   void displayOff();
   char displayRecommendation(int recInd, int min, int max, int lowThresh, int highThresh, int val);
+  void pullWebRecs();
   int selectedPlantIndex;
   int activeMenu;
   int prevMenu;
@@ -198,6 +200,7 @@ public:
   char query[NUM_CHARS_QUERY + 1];
   char displayPlantNames[NUM_CANDIDATES_SHOWN][NUM_CHARS_NAME];
   char selectFileSource[MAX_CHARS_FILENAME];
+  char webRecPlants[NUM_WEB_RECS][NUM_CHARS_NAME];
   Error& error;
   Plant& activePlant;
   SensorReading& sensorReading;

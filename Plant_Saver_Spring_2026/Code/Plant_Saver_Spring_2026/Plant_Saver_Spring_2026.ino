@@ -27,7 +27,7 @@
 #define LTR390_GAIN 3               // Gain of the LTR390
 #define TRIG_PULSE_LEN_MS 2000      // Trigger mode pulse length in ms
 #define BUTTON_DEBOUNCE 150         // Millisecond debounce
-#define REC_INTERVAL 0
+#define REC_INTERVAL 10
 #define SCROLL_INTERVAL_1 300         // Millisecond scroll interval
 #define SCROLL_INTERVAL_2 100
 
@@ -229,6 +229,7 @@ void displayModeHandler(Container &container) {
   static uint8_t prevMenu = noMenu;
 
   if (serverInit == false) {
+    container.interface.pullWebRecs();
     initializePlantServer();
     serverInit = true;
   }

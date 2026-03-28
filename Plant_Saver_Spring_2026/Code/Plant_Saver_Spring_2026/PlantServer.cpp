@@ -330,7 +330,7 @@ void handleGetCurrentPlant(AsyncWebServerRequest *request) {
     getActivePlantAverages(avgLight, avgTemp, avgWater, avgHumidity);
     doc["avgLight"] = avgLight;
     doc["avgTemp"] = avgTemp;
-    doc["avgWater"] = int(((sensorReading.waterM * double(activePlant.avgWater)) + sensorReading.waterB) *100);;
+    doc["avgWater"] = int(((globalContainer->sensorReading.waterM * double(globalContainer->activePlant.avgWater)) + globalContainer->sensorReading.waterB) *100);;
     doc["avgHumidity"] = avgHumidity;
 
     String response;

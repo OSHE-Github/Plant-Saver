@@ -688,7 +688,7 @@ void Header::pushHeader() {
 Interface::Interface(Error& errorRef, Plant& plantRef, SensorReading& sensorReadingRef)
   : activeMenu{}, selectedPlantIndex{}, numSelectCandidates{}, displayPlantIDs{}, displayPlantNames{}, indexer{},
     displayIndices{0, 1, 2}, displayMap{0, 1, 2, 0}, query{'A','A','A','A','A', '\0'}, error(errorRef), activePlant(plantRef),
-    sensorReading(sensorReadingRef) {
+    sensorReading(sensorReadingRef), webRecPlants{} {
     plantSearched = false;
     screenFocus = false;
     numSearchCandidates = 0;
@@ -1514,6 +1514,16 @@ void Interface::displayOff() {
   display.clearDisplay();
   display.display();
   display.ssd1306_command(SSD1306_DISPLAYOFF);
+}
+
+void Interface::pullWebRecs() {
+  for (int i = 0; i < NUM_WEB_RECS; i++) {
+    if (i + 1 > numRecCandidates) {
+      break;
+    }
+    int plantID = 0;
+    pullCachedData(TMP_REC_PATH, i, webRecPlants[i], plantID);
+  }
 }
 
 /*-------------------------------------------------------------- Standalone Functions --------------------------------------------------------------*/
