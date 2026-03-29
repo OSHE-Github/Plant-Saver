@@ -81,7 +81,45 @@ document.addEventListener("DOMContentLoaded", function() {
     //start polling device for current selection and status (updates UI when OLED selection changes)
     setInterval(pollCurrentPlant, 1000);
     setInterval(pollStatus, 2000);
+    setInterval(pollRecommendations, 2000);
 });
+
+//request recommendation list from ESP32 endpoint and display it
+async function pollRecommendations() {
+
+    try {
+
+        const response = await fetch(`${ESP32_IP}/api/recommendations`);
+        if (!response.ok) {
+
+            return;
+        }
+
+        const data = await response.json();
+
+        for (let i = 1; i <= 5; i++) {
+
+            const item = document.getElementById(`recommendation${i}`);
+            if (item) {
+
+                item.textContent = "--";
+            }
+        }
+
+        if (Array.isArray(data.recommendations)) {
+
+            data.recommendations.forEach((rec, idx) => {
+                const item = document.getElementById(`recommendation${idx + 1}`);
+                if (item && rec && rec.name) {
+
+                    item.textContent = rec.name;
+                }
+            });
+        }
+    } catch (err) {
+        //silently ignore poll errors --> this will be polled so frequently that it shouldnt be an issue? 
+    }
+}
 
 //fetch plant data from ESP32
 async function getPlantFromESP32(plantName) {
