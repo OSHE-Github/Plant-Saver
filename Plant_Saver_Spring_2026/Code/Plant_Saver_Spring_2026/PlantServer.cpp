@@ -56,6 +56,13 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
     plants.clear();
     plantIndex.clear();
 
+    // reserve estimated capacity based on file size to reduce repeated reallocations
+    size_t fileSize = file.size();
+    size_t estimatedCount = max((size_t)25, fileSize / 256);
+    plantNames.reserve(min(estimatedCount, (size_t)5000));
+    plants.reserve(min(estimatedCount, (size_t)5000));
+    plantIndex.reserve(min(estimatedCount, (size_t)5000));
+
     //skip to the next plant object
     while (file.available()) {
         
@@ -66,8 +73,8 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         }
     }
 
-    //sized for one plant object
-    DynamicJsonDocument doc(1024); 
+    //sized for one plant object;
+    DynamicJsonDocument doc(4096); 
     size_t plantCount = 0;
 
     //read each plant object until the end of the array
@@ -437,23 +444,42 @@ void setupWebServer() {
     //API endpoint to get the currently selected plant (for webapp polling)
     server.on("/api/current-plant", HTTP_GET, handleGetCurrentPlant);
     
-    //API for all plants, primarily using for the autocomplete, could maybe be used as a list of all plants as well?
+    //API for plant name autocomplete
     server.on("/api/plants", HTTP_GET, [](AsyncWebServerRequest *request){
-        
         if(!globalContainer){
-            
-            request->send(500,"text/plain","Container not ready");
+            request->send(500, "text/plain", "Container not ready");
             return;
-        }  
-
-        //Get all plants names and return as JSON array
-        DynamicJsonDocument doc(4096);
-        JsonArray plantsArray = doc.createNestedArray("plants");
-        
-        for (const auto& name : plantNames) {
-            plantsArray.add(name);
         }
-        
+
+        String prefix = "";
+        if (request->hasParam("prefix")) {
+            prefix = request->getParam("prefix")->value();
+            prefix.toLowerCase();
+        }
+
+        size_t limit = 50; // default limit
+        if (request->hasParam("limit")) {
+            long ll = request->getParam("limit")->value().toInt();
+            if (ll > 0 && ll <= 200) {
+                limit = ll;
+            }
+        }
+
+        // Construct JSON from filtered list (worst case limited to small number)
+        DynamicJsonDocument doc(8192);
+        JsonArray plantsArray = doc.createNestedArray("plants");
+
+        size_t count = 0;
+        for (const auto& name : plantNames) {
+            if (!prefix.length() || name.toLowerCase().startsWith(prefix)) {
+                plantsArray.add(name);
+                count++;
+                if (count >= limit) {
+                    break;
+                }
+            }
+        }
+
         String response;
         serializeJson(doc, response);
         request->send(200, "application/json", response);

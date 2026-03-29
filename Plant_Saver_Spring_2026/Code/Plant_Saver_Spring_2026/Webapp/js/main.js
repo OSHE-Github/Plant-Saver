@@ -23,24 +23,25 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        //filter all the plants based on the current input
-        const matches = allPlants.filter(plant => plant.toLowerCase().startsWith(inputValue));
-        
-        //for any matches, make a new entry in the auto complete list, capped at 5 maximum, can be adjusted if needed
-        matches.slice(0, 5).forEach(match => {
+        //query the server for autocomplete matches
+        fetchPlantSuggestions(inputValue).then(matches => {
+            matches.slice(0, 5).forEach(match => {
+                const item = document.createElement("div");
+                item.textContent = match;
 
-            const item = document.createElement("div");
-            item.textContent = match;
-            
-            //if the entry is clicked, fill the search box with the plant name and clear the autocomplete list
-            item.addEventListener("click", function() {
-                searchInput.value = match;
-                listContainer.innerHTML = "";
-                form.dispatchEvent(new Event("submit"));
+                //if the entry is clicked, fill the search box with the plant name and clear the autocomplete list
+                item.addEventListener("click", function() {
+                    searchInput.value = match;
+                    listContainer.innerHTML = "";
+                    form.dispatchEvent(new Event("submit"));
+                });
+
+                //add the entry to the autocomplete list container
+                listContainer.appendChild(item);
             });
-
-            //add the entry to the autocomplete list container
-            listContainer.appendChild(item);
+        }).catch(err => {
+            // ignore transient network issues
+            console.debug("Autocomplete fetch failed", err);
         });
     });
 
@@ -74,9 +75,6 @@ document.addEventListener("DOMContentLoaded", function() {
             listContainer.innerHTML = "";
         }
     });
-
-    //loading all the plants found in the database for the autocomplete
-    loadAllPlants();
 
     //start polling device for current selection and status (updates UI when OLED selection changes)
     setInterval(pollCurrentPlant, 1000);
@@ -184,20 +182,24 @@ async function loadAllPlants() {
     catch (err) {
 
         console.error("Error loading all plants:", err);
-        
-        //sshow alert about potential SD card initialization failure
-        window.alert(
-            "ERROR: Could not load plant database from device.\n\n" +
-            "This may indicate:\n" +
-            "-SD card failed to initialize\n" +
-            "-SD card not detected\n" +
-            "-Corrupted plant database file\n\n" +
-            "Solutions:\n" +
-            "1. Check device display for error details\n" +
-            "2. Re-seat the micro SD card\n" +
-            "3. Power cycle the device\n" +
-            "4. Try a different micro SD card"
-        );
+    }
+}
+
+async function fetchPlantSuggestions(prefix) {
+    if (!prefix) {
+        return [];
+    }
+
+    try {
+        const response = await fetch(`${ESP32_IP}/api/plants?prefix=${encodeURIComponent(prefix)}&limit=10`);
+        if (!response.ok) {
+            return [];
+        }
+        const data = await response.json();
+        return Array.isArray(data.plants) ? data.plants : [];
+    } catch (err) {
+        console.error("Error fetching plant suggestions", err);
+        return [];
     }
 }
 
