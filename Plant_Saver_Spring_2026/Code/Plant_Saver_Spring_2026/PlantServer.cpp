@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
+#include <cstring>
 #include "PlantSaverClasses.h"
 
 /*--------------------------------------WiFi Configuration---------------------------------------------*/
@@ -18,22 +19,20 @@ AsyncWebServer server(80);  //create Web Server on port 80
 
 /*--------------------------------------Plant Object and Vector Storage--------------------------------*/
 struct serverPlant {
-    String name;
-    int id; 
-    int hardiness_zone_low;
-    int hardiness_zone_high;
-    int light_requirement_low;
-    int light_requirement_high;
-    int water_requirement_low;
-    int water_requirement_high;
+    char name[40];
+    uint16_t id; 
+    int8_t hardiness_zone_low;
+    int8_t hardiness_zone_high;
+    uint8_t light_requirement_low;
+    uint8_t light_requirement_high;
+    uint8_t water_requirement_low;
+    uint8_t water_requirement_high;
 };
 
 //global dynamic vector to store all plants
 std::vector<serverPlant> plants;
 //index for fast (O(1)) lookup by lowercase name
 std::unordered_map<std::string, size_t> plantIndex;
-//array for autocomplete --> stores only plant names
-std::vector<String> plantNames;
 
 /*--------------------------------------Reading JSON---------------------------------------------------*/
 //read plants from the JSON, streaming one at a time so ESP32 memory is an issue
@@ -52,16 +51,15 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         return false;
     }
 
-    plantNames.clear();
     plants.clear();
     plantIndex.clear();
 
     // reserve estimated capacity based on file size to reduce repeated reallocations
     size_t fileSize = file.size();
     size_t estimatedCount = max((size_t)25, fileSize / 256);
-    plantNames.reserve(min(estimatedCount, (size_t)5000));
-    plants.reserve(min(estimatedCount, (size_t)5000));
-    plantIndex.reserve(min(estimatedCount, (size_t)5000));
+    size_t reserveCount = min(estimatedCount, (size_t)6000); // target >5432 plants
+    plants.reserve(reserveCount);
+    plantIndex.reserve(reserveCount);
 
     //skip to the next plant object
     while (file.available()) {
@@ -74,7 +72,7 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
     }
 
     //sized for one plant object;
-    DynamicJsonDocument doc(4096); 
+    DynamicJsonDocument doc(2048); 
     size_t plantCount = 0;
 
     //read each plant object until the end of the array
@@ -103,18 +101,20 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         }
 
         //read the complete plant object
-        String obj;
-        obj.reserve(512);
-        obj += '{';
+        char obj[512];
+        size_t pos = 0;
+        obj[pos++] = '{';
         int depth = 1;
         //depth is used to handle nested objects, we want to read until the matching closing brace
         while (file.available() && depth > 0) {
 
             char ch = file.read();
-            obj += ch;
+            obj[pos++] = ch;
             if (ch == '{') depth++;
             else if (ch == '}') depth--;
         }
+
+        obj[pos] = '\0'; // null-terminate the string
 
         //parse single plant object
         DeserializationError error = deserializeJson(doc, obj);
@@ -134,8 +134,8 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 
         JsonObject plant = doc.as<JsonObject>();
         serverPlant p;
-        p.name = plant["name"].as<String>();
-        p.id = plant["id"].as<int>();
+        plant["name"].as<String>().toCharArray(p.name, 40);
+        p.id = plant["id"].as<uint16_t>();
 
         //setting defaults
         p.hardiness_zone_low = -1;
@@ -150,7 +150,7 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 
         for(JsonObject entry : dataArray){
 
-          String key = entry["key"].as<String>();
+          const char* key = entry["key"].as<const char*>();
           JsonArray values = entry["value"].as<JsonArray>();
 
           if(values.isNull() || values.size() == 0){
@@ -159,9 +159,9 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 
           }
 
-          if(key == "USDA Hardiness zone"){
+          if(strcmp(key, "USDA Hardiness zone") == 0){
 
-            p.hardiness_zone_low = values[0].as<int>();
+            p.hardiness_zone_low = values[0].as<int8_t>();
             if(values.size() == 1){
 
               p.hardiness_zone_high = p.hardiness_zone_low;
@@ -169,13 +169,13 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
             }
             else{
 
-              p.hardiness_zone_high = values[1].as<int>();
+              p.hardiness_zone_high = values[1].as<int8_t>();
 
             }
           }
-          else if(key == "Light requirement"){
+          else if(strcmp(key, "Light requirement") == 0){
 
-            p.light_requirement_low = values[0].as<int>();
+            p.light_requirement_low = values[0].as<int8_t>();
             if(values.size() == 1){
 
               p.light_requirement_high = p.light_requirement_low;
@@ -183,13 +183,13 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
             }
             else{
 
-              p.light_requirement_high = values[1].as<int>();
+              p.light_requirement_high = values[1].as<int8_t>();
 
             }
           }
-          else if(key == "Water requirement"){
+          else if(strcmp(key, "Water requirement") == 0){
 
-            p.water_requirement_low = values[0].as<int>();
+            p.water_requirement_low = values[0].as<int8_t>();
             if(values.size() == 1){
 
               p.water_requirement_high = p.water_requirement_low;
@@ -197,18 +197,19 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
             }
             else{
 
-              p.water_requirement_high = values[1].as<int>();
+              p.water_requirement_high = values[1].as<int8_t>();
 
             }
           }
         }
         
-        //add the plant to the vector and index it by vector-location in the hashmap, add just the name to the names array for autocomplete
+        //add the plant to the vector and index it by vector-location in the hashmap
         plants.push_back(p);
-        plantNames.push_back(p.name);
-        String lookup = p.name;
-        lookup.toLowerCase();
-        plantIndex[std::string(lookup.c_str())] = plants.size() - 1;
+        char lookup[40];
+        strncpy(lookup, p.name, 39);
+        lookup[39] = '\0';
+        toLowerCase(lookup);
+        plantIndex[std::string(lookup)] = plants.size() - 1;
         plantCount++;
 
         //clear the document so it can be reused
@@ -236,13 +237,23 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 }
 
 /*--------------------------------------Search for a plant---------------------------------------------*/
+static void toLowerCase(char* str) {
+    for (size_t i = 0; str[i]; i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            str[i] = str[i] + 32;
+        }
+    }
+}
+
 //Search for a plant by name (case-insensitive), this is the important one for the 'search' function on the webpage
 serverPlant* findPlantByName(const String& name) {
 
     //O(1) search with a hashmap
-    String key = name; 
-    key.toLowerCase();
-    auto it = plantIndex.find(std::string(key.c_str()));
+    char key[40];
+    name.toCharArray(key, 40);
+    toLowerCase(key);
+
+    auto it = plantIndex.find(std::string(key));
 
     if(it != plantIndex.end()){
 
@@ -446,6 +457,7 @@ void setupWebServer() {
     
     //API for plant name autocomplete
     server.on("/api/plants", HTTP_GET, [](AsyncWebServerRequest *request){
+        
         if(!globalContainer){
             request->send(500, "text/plain", "Container not ready");
             return;
@@ -453,30 +465,44 @@ void setupWebServer() {
 
         String prefix = "";
         if (request->hasParam("prefix")) {
+
             prefix = request->getParam("prefix")->value();
             prefix.toLowerCase();
         }
 
-        size_t limit = 50; // default limit
+        size_t limit = 50; //default limit
         if (request->hasParam("limit")) {
+
             long ll = request->getParam("limit")->value().toInt();
             if (ll > 0 && ll <= 200) {
+
                 limit = ll;
             }
         }
 
-        // Construct JSON from filtered list (worst case limited to small number)
-        DynamicJsonDocument doc(8192);
+        //construct JSON from filtered list (worst case limited to small number)
+        DynamicJsonDocument doc(4096);
         JsonArray plantsArray = doc.createNestedArray("plants");
 
+        size_t prefixLen = prefix.length();
         size_t count = 0;
-        for (const auto& name : plantNames) {
-            if (!prefix.length() || name.toLowerCase().startsWith(prefix)) {
-                plantsArray.add(name);
+        for (const auto& plant : plants) {
+            if (count >= limit) break;
+
+            if (prefixLen == 0) {
+                plantsArray.add(plant.name);
                 count++;
-                if (count >= limit) {
-                    break;
-                }
+                continue;
+            }
+
+            char lowerName[40];
+            strncpy(lowerName, plant.name, 39);
+            lowerName[39] = '\0';
+            toLowerCase(lowerName);
+
+            if (strncmp(lowerName, prefix.c_str(), min(prefixLen, sizeof(lowerName)-1)) == 0) {
+                plantsArray.add(plant.name);
+                count++;
             }
         }
 
@@ -496,7 +522,7 @@ void setupWebServer() {
 
         globalContainer->interface.pullWebRecs();
 
-        DynamicJsonDocument doc(1024);
+        DynamicJsonDocument doc(512);
         doc["numRecCandidates"] = globalContainer->interface.numRecCandidates;
         JsonArray recArray = doc.createNestedArray("recommendations");
 
@@ -520,14 +546,13 @@ void setupWebServer() {
 
     server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request){
         
-        DynamicJsonDocument doc(128);
-        
-        doc["status"] = globalContainer ? "ready" : "starting";
-        doc["errorCode"] = globalContainer ? globalContainer->error.highestPriority : 0;
-        
-        String body;
-        serializeJson(doc, body);
-        request->send(200, "application/json", body);
+        char response [128];
+        const char* status = globalContainer ? "ready" : "starting";
+        int errorCode = globalContainer ? globalContainer->error.highestPriority : 0;
+
+        snprintf(response, sizeof(response), "{\"status\": \"%s\", \"errorCode\": %d}", status, errorCode);
+
+        request->send(200, "application/json", response);
     });
     
     //Serve static files from SD card, set index.html as default
