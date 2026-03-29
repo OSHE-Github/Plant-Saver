@@ -186,18 +186,24 @@ async function loadAllPlants() {
 }
 
 async function fetchPlantSuggestions(prefix) {
+    
     if (!prefix) {
+
         return [];
     }
 
     try {
+
         const response = await fetch(`${ESP32_IP}/api/plants?prefix=${encodeURIComponent(prefix)}&limit=10`);
         if (!response.ok) {
+
             return [];
         }
         const data = await response.json();
         return Array.isArray(data.plants) ? data.plants : [];
-    } catch (err) {
+    } 
+    catch (err) {
+        
         console.error("Error fetching plant suggestions", err);
         return [];
     }
