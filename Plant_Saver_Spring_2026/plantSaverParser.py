@@ -64,7 +64,9 @@ def parser(callData):
                             item = int(item); #turn each small string into an int
                             intArray.append(item); # fill the array with ints
                         except:
-                            arrayOfBadData.append(dataIndex); #at least one part of the requirement is bad so we kill the plant
+                            arrayOfBadPlants.append(index); #at least one part of the requirement is bad so we kill the plant
+                            #print("Water:"); #for debugging
+                            #print(dataIndex); #for debugging
                             #print("Something is strange: ", item); #for debugging
                     dataPart['value'] = sorted(intArray); #replace the old data
     #                print(dataPart['value']); #For Debugging
@@ -80,10 +82,11 @@ def parser(callData):
                             case "full shade":
                                 intArray.append(1);
                             case _:
-                                arrayOfBadData.append(dataIndex); #at least one part of the requirement is bad so we kill the plant
+                                arrayOfBadPlants.append(index); #at least one part of the requirement is bad so we kill the plant
+                                #print(dataIndex); #for debugging
                                 #print("Remove Light"); #for debugging
                                 #print(plant); #for debugging
-                    dataPart['value'] = sorted(intArray); #replace the old data
+                    dataPart['value'] = sorted(intArray); #replace the old 
      #               print(dataPart['value']); #For Debugging
                 case "Water requirement":
                     newPart = dataPart['value'].split(', '); #split text over comma
@@ -101,14 +104,15 @@ def parser(callData):
                             case "low":
                                 intArray.append(4);
                             case _:
-                                arrayOfBadData.append(dataIndex); #at least one part of the requirement is bad so we kill the plant
+                                arrayOfBadPlants.append(index); #at least one part of the requirement is bad so we kill the plant
+                                #print(dataIndex); #for debugging
                                 #print("Remove Water"); #for debugging
                                 #print(plant); #for debugging
                     dataPart['value'] = sorted(intArray); #replace the old data
     #                print(dataPart['value']); #For Debugging
                 case _:
                     arrayOfBadData.append(dataIndex);
-            dataIndex = dataIndex + 1;
+            dataIndex = dataIndex + 1
         killBad(arrayOfBadData, plant['data']);
 
         index = index + 1;
@@ -138,13 +142,14 @@ if mode == "m":
     except FileNotFoundError:
         print("File not found. Please check the path and try again.")
         exit()
-    parser(callData);
+    bigData = callData;
+    parser(bigData);
 elif mode == "a":
 
 ## CALL API
     bigData ={};
     tempList = [];
-    last_id = 0;
+    last_id = 8800;
     recent_id = None;
     params = {};
     params['last_id'] = last_id;
@@ -180,7 +185,7 @@ mode = input("Save to file? (y) (n) ").strip('"');
 if mode == "y":
     saveLocation = input("File path: ").strip('"');
     file = open (saveLocation, "w")
-    json.dump(bigData, file, indent = 4)
+    json.dump(bigData, file)
 elif mode == "n":
     exit();
 else:
