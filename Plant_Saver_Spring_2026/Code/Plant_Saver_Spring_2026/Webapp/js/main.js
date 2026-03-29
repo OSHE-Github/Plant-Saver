@@ -159,38 +159,9 @@ async function getPlantFromESP32(plantName) {
     }
 }
 
-//get all the plants, helps with the autocomplete for the search
-async function loadAllPlants() {
-
-    try{
-
-        //get the api url for all plants
-        const response = await fetch(`${ESP32_IP}/api/plants`);
-        
-        //if the response has an issue, throw an error
-        if(!response.ok){
-
-            throw new Error("Error fetching all plants --> status: " + response.status);
-        }
-
-        //if the response is good, pull the plant array and store it in the global variable
-        const data = await response.json();
-        allPlants = data.plants;
-
-        console.log("All plants loaded:", allPlants);
-    }   
-    catch (err) {
-
-        console.error("Error loading all plants:", err);
-    }
-}
-
 async function fetchPlantSuggestions(prefix) {
-    
-    if (!prefix) {
 
-        return [];
-    }
+    if(!prefix || this.prefix.length < 2) return [];
 
     try {
 
@@ -203,7 +174,7 @@ async function fetchPlantSuggestions(prefix) {
         return Array.isArray(data.plants) ? data.plants : [];
     } 
     catch (err) {
-        
+
         console.error("Error fetching plant suggestions", err);
         return [];
     }
@@ -239,10 +210,10 @@ function displayPlantData(plantData) {
     }
 
     
-    document.getElementById("waterData").textContent = `${convertAvgWaterToKey(plantData.avgWater)}`;
-    document.getElementById("lightData").textContent = `${convertAvgLightToKey(plantData.avgLight)}`;
-    document.getElementById("tempData").textContent = `${convertAvgTempToKey(plantData.avgTemp)}`;
-    document.getElementById("humidityData").textContent = `${convertAvgHumidityToKey(plantData.avgHumidity)}`;
+    document.getElementById("waterData").textContent = convertAvgWaterToKey(plantData.avgWater);
+    document.getElementById("lightData").textContent = convertAvgLightToKey(plantData.avgLight);
+    document.getElementById("tempData").textContent = convertAvgTempToKey(plantData.avgTemp);
+    document.getElementById("humidityData").textContent = convertAvgHumidityToKey(plantData.avgHumidity);
 }
 
 
@@ -291,28 +262,25 @@ function convertWaterToKey(plantData){
 //mapping the average readings to the key for UI usefulness
 function convertAvgWaterToKey(avgWater){
 
-    if(0 <= avgWater <= 30 || avgWater < 0){
+    if(avgWater <= 30 || avgWater < 0){
 
         return "Dry";
 
     }
-    else if(30 < avgWater <= 70){
+    else if(avgWater <= 70){
 
         return "Moist";
     }
-    else if(70 < avgWater <= 100 || avgWater > 100){
-        
-        return "Wet";
-    }
+    return "Wet";
 }
 
 function convertAvgLightToKey(avgLight){
 
-    if(0 <= avgLight < 1075){
+    if(avgLight < 1075){
 
         return "Full Shade";
     }
-    else if(1075 <= avgLight < 10750){
+    else if(avgLight < 10750){
 
         return "Partial Sun/Shade";
     }
@@ -355,11 +323,11 @@ function convertAvgTempToKey(avgTemp){
 
 function convertAvgHumidityToKey(avgHumidity){
 
-    if( avgHumidity < 30){
+    if(avgHumidity < 30){
 
         return "Low Humidity";
     }
-    else if(30 <= avgHumidity < 60){
+    else if(avgHumidity < 60){
 
         return "Good";
 
@@ -401,10 +369,10 @@ async function pollCurrentPlant() {
 
         //refresh the averages
         if (data.name === currentDisplayedPlant) {
-            document.getElementById("waterData").textContent = data.avgWater;
-            document.getElementById("lightData").textContent = data.avgLight;
-            document.getElementById("tempData").textContent = data.avgTemp;
-            document.getElementById("humidityData").textContent = data.avgHumidity;
+            document.getElementById("waterData").textContent = convertAvgWaterToKey(data.avgWater);
+            document.getElementById("lightData").textContent = convertAvgLightToKey(data.avgLight);
+            document.getElementById("tempData").textContent = convertAvgTempToKey(data.avgTemp);
+            document.getElementById("humidityData").textContent = convertAvgHumidityToKey(data.avgHumidity);
         }
 
     } 

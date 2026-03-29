@@ -34,6 +34,13 @@ std::vector<serverPlant> plants;
 //index for fast (O(1)) lookup by lowercase name
 std::unordered_map<std::string, size_t> plantIndex;
 
+static void toLowerCase(char* str) {
+    for (size_t i = 0; str[i]; i++) {
+        if (str[i] >= 'A' && str[i] <= 'Z') {
+            str[i] = str[i] + 32;
+        }
+    }
+}
 /*--------------------------------------Reading JSON---------------------------------------------------*/
 //read plants from the JSON, streaming one at a time so ESP32 memory is an issue
 bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
@@ -72,7 +79,7 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
     }
 
     //sized for one plant object;
-    DynamicJsonDocument doc(2048); 
+    StaticJsonDocument<1024> doc;
     size_t plantCount = 0;
 
     //read each plant object until the end of the array
@@ -101,17 +108,37 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         }
 
         //read the complete plant object
-        char obj[512];
         size_t pos = 0;
+        char* obj = (char*)malloc(1024);
+        if(!obj){
+            file.close();
+            return false;
+        }
         obj[pos++] = '{';
         int depth = 1;
         //depth is used to handle nested objects, we want to read until the matching closing brace
         while (file.available() && depth > 0) {
 
+            if(pos >= 1023){
+                while(file.available() && depth > 0){
+                    char ch = file.read();
+                    if(ch == '{') depth++;
+                    else if(ch == '}') depth--;
+                }
+                free(obj);
+                obj = nullptr;
+                break;
+            }
             char ch = file.read();
             obj[pos++] = ch;
             if (ch == '{') depth++;
             else if (ch == '}') depth--;
+        }
+
+        if(!obj){
+
+            doc.clear();
+            continue;
         }
 
         obj[pos] = '\0'; // null-terminate the string
@@ -134,7 +161,9 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 
         JsonObject plant = doc.as<JsonObject>();
         serverPlant p;
-        plant["name"].as<String>().toCharArray(p.name, 40);
+        const char* nameStr = plant["name"] | "";
+        strncpy(p.name, nameStr, 39);
+        p.name[39] = '\0'; // Ensure null-termination
         p.id = plant["id"].as<uint16_t>();
 
         //setting defaults
@@ -161,7 +190,7 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 
           if(strcmp(key, "USDA Hardiness zone") == 0){
 
-            p.hardiness_zone_low = values[0].as<int8_t>();
+            p.hardiness_zone_low = values[0].as<uint8_t>();
             if(values.size() == 1){
 
               p.hardiness_zone_high = p.hardiness_zone_low;
@@ -169,13 +198,13 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
             }
             else{
 
-              p.hardiness_zone_high = values[1].as<int8_t>();
+              p.hardiness_zone_high = values[1].as<uint8_t>();
 
             }
           }
           else if(strcmp(key, "Light requirement") == 0){
 
-            p.light_requirement_low = values[0].as<int8_t>();
+            p.light_requirement_low = values[0].as<uint8_t>();
             if(values.size() == 1){
 
               p.light_requirement_high = p.light_requirement_low;
@@ -183,13 +212,13 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
             }
             else{
 
-              p.light_requirement_high = values[1].as<int8_t>();
+              p.light_requirement_high = values[1].as<uint8_t>();
 
             }
           }
           else if(strcmp(key, "Water requirement") == 0){
 
-            p.water_requirement_low = values[0].as<int8_t>();
+            p.water_requirement_low = values[0].as<uint8_t>();
             if(values.size() == 1){
 
               p.water_requirement_high = p.water_requirement_low;
@@ -197,7 +226,7 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
             }
             else{
 
-              p.water_requirement_high = values[1].as<int8_t>();
+              p.water_requirement_high = values[1].as<uint8_t>();
 
             }
           }
@@ -215,6 +244,9 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         //clear the document so it can be reused
         doc.clear();
 
+        free(obj);
+
+
         //skip any commas or whitespace between objects
         while (file.available()) {
 
@@ -228,7 +260,6 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
         }
     }
 
-
     file.close();
     Serial.print("Successfully loaded ");
     Serial.print(plants.size());
@@ -237,14 +268,6 @@ bool loadPlantsFromJSON(const char* filename = "/plantDB.txt") {
 }
 
 /*--------------------------------------Search for a plant---------------------------------------------*/
-static void toLowerCase(char* str) {
-    for (size_t i = 0; str[i]; i++) {
-        if (str[i] >= 'A' && str[i] <= 'Z') {
-            str[i] = str[i] + 32;
-        }
-    }
-}
-
 //Search for a plant by name (case-insensitive), this is the important one for the 'search' function on the webpage
 serverPlant* findPlantByName(const String& name) {
 
@@ -300,7 +323,7 @@ void printAllPlants() {
 //api endpoint for the currently selected plant, used for webapp to OLED sync
 void handleGetCurrentPlant(AsyncWebServerRequest *request) {
     
-    DynamicJsonDocument doc(512);
+    StaticJsonDocument<512> doc;
 
     if (globalContainer == nullptr) {
 
@@ -370,7 +393,7 @@ void handleGetPlantByName(AsyncWebServerRequest *request) {
         if (plant) {
 
             //make the JSON object
-            DynamicJsonDocument doc(512);
+            StaticJsonDocument<512> doc;
             doc["name"] = plant->name;
             doc["hardiness_zone_low"] = plant->hardiness_zone_low;
             doc["hardiness_zone_high"] = plant->hardiness_zone_high;
@@ -383,7 +406,8 @@ void handleGetPlantByName(AsyncWebServerRequest *request) {
             if (globalContainer != nullptr) {
 
                 globalContainer->activePlant.id = plant->id;
-                plant->name.toCharArray(globalContainer->activePlant.commonName, NUM_CHARS_NAME);
+                strncpy(globalContainer->activePlant.commonName, plant->name, NUM_CHARS_NAME -1);
+                globalContainer->activePlant.commonName[NUM_CHARS_NAME -1] = '\0';
 
                 globalContainer->activePlant.hardiness[0] = plant->hardiness_zone_low;
                 globalContainer->activePlant.hardiness[1] = plant->hardiness_zone_high;
@@ -469,6 +493,11 @@ void setupWebServer() {
             prefix = request->getParam("prefix")->value();
             prefix.toLowerCase();
         }
+        
+        if(prefix.length() < 2){
+            request->send(400, "application/json", "{\"error\": \"Prefix too short\"}");
+            return;
+        }
 
         size_t limit = 50; //default limit
         if (request->hasParam("limit")) {
@@ -481,19 +510,13 @@ void setupWebServer() {
         }
 
         //construct JSON from filtered list (worst case limited to small number)
-        DynamicJsonDocument doc(4096);
+        StaticJsonDocument<4096> doc;
         JsonArray plantsArray = doc.createNestedArray("plants");
 
         size_t prefixLen = prefix.length();
         size_t count = 0;
         for (const auto& plant : plants) {
             if (count >= limit) break;
-
-            if (prefixLen == 0) {
-                plantsArray.add(plant.name);
-                count++;
-                continue;
-            }
 
             char lowerName[40];
             strncpy(lowerName, plant.name, 39);
@@ -521,8 +544,8 @@ void setupWebServer() {
         }
 
         globalContainer->interface.pullWebRecs();
-
-        DynamicJsonDocument doc(512);
+            
+        StaticJsonDocument<512> doc;
         doc["numRecCandidates"] = globalContainer->interface.numRecCandidates;
         JsonArray recArray = doc.createNestedArray("recommendations");
 
