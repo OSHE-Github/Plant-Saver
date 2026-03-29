@@ -459,6 +459,39 @@ void setupWebServer() {
         request->send(200, "application/json", response);
     });
 
+    //API for recommended plants via pullWebRecs()
+    server.on("/api/recommendations", HTTP_GET, [](AsyncWebServerRequest *request){
+        
+        if (!globalContainer) {
+            
+            request->send(500, "application/json", "{\"error\": \"Device not ready\"}");
+            return;
+        }
+
+        globalContainer->interface.pullWebRecs();
+
+        DynamicJsonDocument doc(1024);
+        doc["numRecCandidates"] = globalContainer->interface.numRecCandidates;
+        JsonArray recArray = doc.createNestedArray("recommendations");
+
+        int maxRecs = globalContainer->interface.numRecCandidates;
+        if (maxRecs > NUM_WEB_RECS) {
+
+            maxRecs = NUM_WEB_RECS;
+        }
+
+        for (int i = 0; i < maxRecs; i++) {
+            
+            JsonObject rec = recArray.createNestedObject();
+            rec["rank"] = i + 1;
+            rec["name"] = String(globalContainer->interface.webRecPlants[i]);
+        }
+
+        String response;
+        serializeJson(doc, response);
+        request->send(200, "application/json", response);
+    });
+
     server.on("/api/status", HTTP_GET, [](AsyncWebServerRequest *request){
         
         DynamicJsonDocument doc(128);
