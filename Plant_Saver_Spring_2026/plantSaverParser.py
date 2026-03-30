@@ -149,7 +149,7 @@ elif mode == "a":
 ## CALL API
     bigData ={};
     tempList = [];
-    last_id = 8800;
+    last_id = 0;
     recent_id = None;
     params = {};
     params['last_id'] = last_id;
