@@ -19,9 +19,9 @@
 #define SCREEN_WIDTH 128            // OLED display width, in pixels
 #define SCREEN_HEIGHT 64            // OLED display height, in pixels
 #define OLED_RESET -1               // OLED Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C         // OLED screen I2C address
+#define SCREEN_ADDRESS 0x3D         // OLED screen I2C address - TODO - 3D
 #define WAKE_PIN_BITMASK 201347072  // Pins 12, 14, 26 & 27
-#define DISPLAY_TIMEOUT_M 5         // delay before timing out the display in minutes
+#define DISPLAY_TIMEOUT_M 1         // delay before timing out the display in minutes
 #define MS_PER_MINUTE 60000         // Milliseconds per minute conversion factor
 #define INTEGRATION_TIME 0.25       // LTR390 integration time
 #define LTR390_GAIN 3               // Gain of the LTR390
@@ -32,6 +32,7 @@
 #define SCROLL_INTERVAL_2 100
 
 // Pin Definitions - Prototype
+/*
 #define V_GATE_PERIPHERAL 2  // Gate control pin of peripheral low-side power MOSFET
 #define SELECT_BTN 12        // Select button
 #define CHG_SCREEN_BTN 14    // Change screen button
@@ -40,9 +41,10 @@
 #define CAP_SOIL_AOUT 34     // Capacitive soil sensor reading
 #define SPI_CS 5             // CS pin for SPI
 #define ERROR_IND_PIN 4      // Error indication LED
+*/
 
 // Pin Definitions - PCB
-/*
+
 #define CAP_SOIL_AOUT 25 // Capacitive soil sensor reading (ADC)
 #define UP_BTN 26 // Up button
 #define DOWN_BTN 27 // Down button
@@ -51,7 +53,7 @@
 #define SPI_CS 5 // CS pin for SPI (uSD card)
 #define V_GATE_PERIPHERAL 17 // Enable power to peripherals (normally open)
 #define ERROR_IND_PIN 4
-*/
+
 
 #define SOLAR1 32 // Solar measurements (ADC)
 #define SOLAR2 34
@@ -64,11 +66,11 @@
 /*------------------------------------------------------ Global Variables ------------------------------------------------------*/
 
 const uint64_t usPerMinute = 60000000;  // Conversion factor between minutes and microseconds
-const uint64_t samplingPeriodM = 60;     // Time between sensor measurements in minutes
+const uint64_t samplingPeriodM = 1;     // Time between sensor measurements in minutes
 
 /*---------------------------------------------------- Object Instantiation ----------------------------------------------------*/
 
-Adafruit_LTR390 ltr390 = Adafruit_LTR390();  // Create light sensor object
+//Adafruit_LTR390 ltr390 = Adafruit_LTR390();  // Create light sensor object
 Adafruit_AHTX0 aht20;                        // create temperature & humidity sensor object
 
 /*----------------------------------------------------------- Setup -------------------------------------------------------------*/
@@ -87,6 +89,12 @@ void setup() {
   pinMode(SOLAR2, INPUT);
   pinMode(SOLAR3, INPUT);
   pinMode(SOLAR4, INPUT);
+  //Power-Up
+  //rtc_gpio_pullup_dis(GPIO_SOLAR_CHG_EN);
+  //digitalWrite(SOLAR_CHG_EN, LOW);
+  //delay(500);
+  digitalWrite(V_GATE_PERIPHERAL, HIGH);  // Power-up peripherals
+  delay(500);
   // Start serial monitor
   Serial.begin(115200);
   delay(1000);  // Allow time for serial to initialize
@@ -136,12 +144,9 @@ void loop() {
 void startupModeHandler(Container &container) {
   bool initFailed = 0; // Flag to track an initialization failure
 
-  rtc_gpio_pullup_dis(GPIO_SOLAR_CHG_EN);
-  digitalWrite(SOLAR_CHG_EN, LOW);
-  digitalWrite(V_GATE_PERIPHERAL, HIGH);  // Power-up peripherals
-  digitalWrite(ERROR_IND_PIN, LOW);       // Reset error indicator
   delay(1000); // brief delay to prevent weird transient effects w/ transistors
 
+  Serial.println("Starting up");
   // SSD1306 Initialization
   if (!container.interface.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
     container.error.addError(displayInit);
@@ -151,6 +156,7 @@ void startupModeHandler(Container &container) {
   }
 
   // LTR390 Initialization - Not needed for PCB
+  /*
   if (!ltr390.begin()) {
     container.error.addError(lightSensorInit);
     delay(500);
@@ -162,15 +168,17 @@ void startupModeHandler(Container &container) {
     ltr390.configInterrupt(0, LTR390_MODE_UVS, 0);  // Disable interrrupts from the device
     container.error.clearError(lightSensorInit);
   }
+  */
 
   // AHT20 initialization
+  
   if (!aht20.begin()) {
     container.error.addError(tempSensorInit);
     initFailed = 1;
   } else {
     container.error.clearError(tempSensorInit);
   }
-
+  
   // Micro-SD card initialization & initial data reading
   if (!SD.begin(SPI_CS)) {
     initFailed = 1;
@@ -229,6 +237,7 @@ void displayModeHandler(Container &container) {
   static uint8_t prevMenu = noMenu;
 
   if (serverInit == false) {
+    Serial.println("display mode");
     container.interface.pullWebRecs();
     initializePlantServer();
     serverInit = true;
@@ -237,7 +246,6 @@ void displayModeHandler(Container &container) {
   if (container.interface.activeMenu == noMenu) {
     container.interface.displayMainMenu();
   }
-
   // Change screen button
   if (!digitalRead(CHG_SCREEN_BTN) && chgOns == 0) {
     chgOns = 1;
@@ -379,10 +387,14 @@ void sensingModeHandler(Container &container) {
   // Get data from each device
   // TODO: Replace w/ actual light readings
   if (lightRead == false) {
-    float light1 = (0.6 * ltr390.readALS()) / (LTR390_GAIN * INTEGRATION_TIME) + 100000;
-    float light2 = light1 + 10;
-    float light3 = light2 + 10;
-    float light4 = light3 + 10;
+    //float light1 = (0.6 * ltr390.readALS()) / (LTR390_GAIN * INTEGRATION_TIME) + 100000;
+    //float light2 = light1 + 10;
+    //float light3 = light2 + 10;
+    //float light4 = light3 + 10;
+    float light1 = analogRead(SOLAR1);
+    float light2 = analogRead(SOLAR2);
+    float light3 = analogRead(SOLAR3);
+    float light4 = analogRead(SOLAR4);
     container.sensorReading.addLight(light1, light2, light3, light4, container.activePlant);
     lightRead = true;
   }
@@ -416,6 +428,10 @@ void sensingModeHandler(Container &container) {
   Then, setup wake sources and put device into sleep mode
 */
 void shutdownModeHandler(Container &container) {
+  digitalWrite(ERROR_IND_PIN, HIGH);
+  delay(1000);
+  digitalWrite(ERROR_IND_PIN, LOW);
+  Serial.println("Shutting down");
   container.header.pushHeader();
   container.activePlant.pushPlant();
   SD.remove(TMP_SORT_PATH);
@@ -426,9 +442,9 @@ void shutdownModeHandler(Container &container) {
   container.interface.displayOff();
   digitalWrite(V_GATE_PERIPHERAL, LOW);  // Shut down peripherals
   rtc_gpio_pullup_en(GPIO_SELECT_BTN);
-  rtc_gpio_pullup_en(GPIO_SOLAR_CHG_EN);
+  //rtc_gpio_pullup_en(GPIO_SOLAR_CHG_EN);
   rtc_gpio_pulldown_dis(GPIO_SELECT_BTN);
-  rtc_gpio_pulldown_dis(GPIO_SOLAR_CHG_EN);
+  //rtc_gpio_pulldown_dis(GPIO_SOLAR_CHG_EN);
   esp_sleep_enable_ext0_wakeup(GPIO_SELECT_BTN, 0);
   uint64_t sleep_time = (samplingPeriodM * usPerMinute);
   esp_sleep_enable_timer_wakeup(sleep_time);
@@ -449,11 +465,13 @@ void errorModeHandler(Container &container) {
         if (container.interface.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
           container.error.clearError(displayInit);
         }
+        /*
       case lightSensorInit:
         if (ltr390.begin()) {
           container.error.clearError(lightSensorInit);
         }
         break;
+        */
       case tempSensorInit:
         if (aht20.begin()) {
           container.error.clearError(tempSensorInit);

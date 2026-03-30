@@ -53,7 +53,7 @@
 #define HUMIDITY_MAX 100
 
 // Paths
-#define PLANT_DB_PATH "/plantDBTest.txt"
+#define PLANT_DB_PATH "/plantDB.txt"
 #define HEADER_PATH "/header.txt"
 #define PLANT_PATH "/Plant/plant.txt"
 #define HUMIDITY_PATH "/Plant/humidity.txt"
