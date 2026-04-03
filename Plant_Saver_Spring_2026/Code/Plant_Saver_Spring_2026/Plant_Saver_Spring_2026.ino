@@ -237,8 +237,11 @@ void displayModeHandler(Container &container) {
   static uint8_t prevMenu = noMenu;
 
   if (serverInit == false) {
+    container.interface.displayLoadingScreen();
     Serial.println("display mode");
-    container.interface.pullWebRecs();
+    if (SD.exists(TMP_REC_PATH)) {
+      container.interface.pullWebRecs();
+    }
     initializePlantServer();
     serverInit = true;
   }
@@ -432,12 +435,13 @@ void shutdownModeHandler(Container &container) {
   delay(1000);
   digitalWrite(ERROR_IND_PIN, LOW);
   Serial.println("Shutting down");
-  container.header.pushHeader();
-  container.activePlant.pushPlant();
   SD.remove(TMP_SORT_PATH);
   if (container.newPlant) {
     SD.remove(TMP_REC_PATH);
+    container.header.numRecCandidates = 0;
   }
+  container.header.pushHeader();
+  container.activePlant.pushPlant();
   // Set ESP32 into deep sleep mode
   container.interface.displayOff();
   digitalWrite(V_GATE_PERIPHERAL, LOW);  // Shut down peripherals
