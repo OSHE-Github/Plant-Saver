@@ -524,7 +524,7 @@
 	)
 	(text "**NOTE**\nCurrent-limiting resistor values may vary\ndepending on individual LED characteristics."
 		(exclude_from_sim no)
-		(at 149.606 48.514 0)
+		(at 149.86 47.498 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -813,7 +813,7 @@
 		)
 		(uuid "0c139c47-8b84-41e8-97cb-4f9e25f0a0c3")
 	)
-	(hierarchical_label "3V3"
+	(hierarchical_label "USB"
 		(shape input)
 		(at 127 60.96 180)
 		(effects

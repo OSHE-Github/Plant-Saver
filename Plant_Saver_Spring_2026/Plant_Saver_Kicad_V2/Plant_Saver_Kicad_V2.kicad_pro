@@ -506,10 +506,10 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "Plots/",
+      "plot": "C:/Users/dbghy/Downloads/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "Plant_Saver_Kicad_V2.step",
       "svg": "",
       "vrml": ""
     },
