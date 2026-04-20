@@ -5246,7 +5246,7 @@
 		)
 		(uuid "dd8085c7-f923-4ad8-909a-98a424554acd")
 	)
-	(text "A03KR03KR26E152B"
+	(text "2.54 mm XH-style cable"
 		(exclude_from_sim no)
 		(at 482.8174 134.8465 0)
 		(effects
@@ -11778,7 +11778,7 @@
 				)
 			)
 		)
-		(property "Value" "S3B-PH-K-S"
+		(property "Value" "25SH-B-03-TR"
 			(at 482.6 143.51 90)
 			(effects
 				(font
@@ -11786,7 +11786,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_PH_S3B-PH-K_1x03_P2.00mm_Horizontal"
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Horizontal"
 			(at 482.6 146.05 0)
 			(effects
 				(font
