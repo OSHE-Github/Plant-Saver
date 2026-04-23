@@ -4,6 +4,8 @@ Many new gardeners or horticulturists struggle to create a proper environment fo
 
 <img src="/Assets/main_product_image.jpg" alt="Picture of the Plant-Saver resting in a pot." width="400"/>
 
+*Main product image*
+
 ## Repository Structure
 Project information/resources from semester 1 can be found in the folder Plant_Saver_Spring_2025. The newest iteration of the project from semester 2 is located in Plant_Saver_Fall_2026. This includes the following files/directories:
 1. `Code`: Contains the arduino project used to program the Plant-Saver.
@@ -32,6 +34,8 @@ These goals were largely met in the current iteration of the project, although t
 ## General Program Execution
 
 <img src="/Assets/Flowchart_S26.png" alt="Flowchart depicting the high-level operation of the Plant-Saver's software." width="800"/>
+
+*High-Level operational flowchart of the Plant-Saver's software*
 
 The normal operational loop that the Plant-Saver undergoes is as follows:
 1. The ESP32 is woken by its RTC clock after the sampling period completes, or by a press of the select button.
@@ -137,6 +141,8 @@ The PCB can be assembled in two ways. The most straight forward assembly method 
 
 <img src="/Assets/PCB_image.png" alt="Screenshot of the Plant-Saver PCB." width="400"/>
 
+*Plant-Saver PCB design*
+
 **USB Power Path:**
 
 When assembling to test each sub circuit it is still acceptable to begin with the fine pitch components. Ensure SW2 is not attached to the PCB to prevent any incorrect voltages from affecting the ESP32. Beginning with the charge and power circuits, the USB module, R7, and R8 can be added to the circuit for usb power. The linear regulator circuit will be added next to connect the USB input to the microcontroller. For this, add diodes U9 and U11 then R16-18, C6-8, and U12. This creates a path to ensure the microcontroller will see its expected input voltage. To validate, observe the USB1 test point to check for 5V and the Bus1 test point for 3.3V.
@@ -176,6 +182,8 @@ Additionally, you will need to download the project code and filesystem. These c
 
 <img src="/Assets/Additional_board_mgr_image.png" alt="Screenshot of the Arduino IDE settings page highlighting the location to add additional boards manager URLs." width="600"/>
 
+*Arduino IDE additional boards manager URLs*
+
 Click “OK” to save this change, then click “File” > “Open…” and select the main project file (Plant_Saver_Spring_2026.ino) in the project folder downloaded from the GitHub repository. As long as the other project files (PlantSaverClasses.h, plantSaverClasses.cpp, plantServer.h, plantServer.cpp) are also in the same folder as this file, they should also be opened automatically. At the top of each file are a list of Macros used within that file. These are names which the compiler automatically substitutes with the associated value when building the project. They are convenient to prevent having to change constant values in multiple locations, since updating the definition will alter all uses of the same macro. In the main file, the most pertinent value is DISPLAY_TIMEOUT_M, which determines the time in minutes before the device returns to sleep mode when no activity is detected. There is also a constant value, samplingPeriodM, which sets the time between samples in minutes. Additionally, all pin definitions for the project are set here should you need to alter them. If so, keep in mind that certain pins on the ESP32 have limited functionality. A good reference for determining which pins to use can be found here: https://lastminuteengineers.com/esp32-pinout-reference/. 
 
 The PlantSaverClasses.h file also contains a number of macros which are less likely to need editing, but may be helpful in implementing simple changes to this project such as storing more sensor readings. It is recommended that you only edit these if you are confident in your ability to understand and debug C/C++ code, as the functionality of this project has not been tested with alternate values for the vast majority of these macros.
@@ -183,6 +191,8 @@ The PlantSaverClasses.h file also contains a number of macros which are less lik
 There is a line of five holes near the power switch intended for vertical header pins. The order of these pins matches that of common USB to Serial converters, although it may be more convenient to connect these together using wires rather than plugging the converter directly into the board.
 
 <img src="/Assets/FTDI_connections_image.png" alt="Close-up of the bottom edge of the Plant-Saver PCB, highlighting the six connection points for the USB to UART converter." width="600"/>
+
+*USB to UART converter connection points*
 
 The labels on these pins indicate the pins on the converter that should be connected to them. The converter Tx should connect to the pin labeled Tx, Rx to Rx, and Ground to GND. These are the only three pins that need to be connected. After connecting the converter to the board and connecting it to your computer via a USB or USB-C cable, provide power to the microcontroller. To put the controller into programming mode:
 1. Press and hold the boot button
@@ -192,6 +202,8 @@ The labels on these pins indicate the pins on the converter that should be conne
 To upload code to the ESP32, first open the board selection dropdown located to the right of the “debug” button (“Select other board and port”). For the board, select “ESP32 Dev Module”. The Arduino IDE should be able to detect that a device is plugged into one of your computer’s ports automatically, in which case it will show up under the “Ports” tab, and can be selected to use. Otherwise, to double check that your device has been recognized and the drivers are properly installed open the Device Manager application and expand the Ports (COM & LPT) section. If this section is not shown or there is not a device listed under the connected port, it is likely that either the device has not been recognized, the drivers are not installed properly, or some other issue is hindering the connection process (such as a faulty cable). Next to the name of this device will be the word “COM#”, where # is the port number that it is plugged into. This should be the same as the port selected in the Arduino IDE.
 
 <img src="/Assets/Board_selection.png" alt="Screenshot of the Arduino IDE board selection dropdown highlighting the correct selection." width="600"/>
+
+*Arduino IDE board selection dropdown*
 
 Finally, to upload code to the board click the “Upload” button located at the top left of the IDE (a right-facing arrow).
 
@@ -258,6 +270,8 @@ The target for the Plant-Saver’s single-charge battery life was set at 7 days 
 6. Measure the voltage of the battery after the 24-hour period. Then find where this voltage intersects the discharge curve. This is the capacity usage after 1 day (154 mAh). The electronics on the Plant-Saver are relatively consistent in their current usage, so this value can be used to extrapolate capacity usage for any period simply by multiplying. After 7 days, the expected battery voltage would be 3.72 V, which intersects the curve at 1078 mAh.
 
 <img src="/Assets/Battery_graph.png" alt="Graph showing the battery's discharge curve along with the measured 24-hour capacity usage and predicted 7-day capacity usage." width="400"/>
+
+*Plant-Saver power consumption characteristics*
 
 ## Housing
 When creating an enclosure for the PCB, it was necessary to ensure that each sensor could obtain accurate readings while maintaining environmental resistance and a form factor suitable for potted plant use. As a baseline design, a structure resembling a birdhouse with a hip roof was developed to balance functionality and aesthetics. The four angled sides of the roof allow for straightforward integration of inlays for solar panels, enabling the collection of sunlight data from multiple directions.
